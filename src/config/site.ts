@@ -30,26 +30,26 @@ export const SITE_CONFIG = {
 
 export const SITEPARTNERS = [
   {
-    name: "TITLE_PARTNERS",
+    name: "TITLE PARTNERS",
     partners: [
       { name: "SBI", logo: "https://api.dicebear.com/9.x/initials/svg?seed=SBI" },
     ],
   },
   {
-    name: "POWERED_BY",
+    name: "POWERED BY",
     partners: [
       { name: "RedBull", logo: "https://api.dicebear.com/9.x/initials/svg?seed=RedBull" },
     ],
   },
   {
-    name: "STRATEGIC_PARTNERS",
+    name: "STRATEGIC PARTNERS",
     partners: [
       { name: "CMPDI", logo: "https://api.dicebear.com/9.x/initials/svg?seed=CMPDI" },
       { name: "NTPC", logo: "https://api.dicebear.com/9.x/initials/svg?seed=NTPC" },
     ],
   },
   {
-    name: "MEDIA_PARTNERS",
+    name: "MEDIA PARTNERS",
     partners: [
       { name: "Spotify", logo: "https://api.dicebear.com/9.x/initials/svg?seed=Spotify" },
     ],

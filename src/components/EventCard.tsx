@@ -26,7 +26,7 @@ export function EventCard({ event }: EventCardProps) {
         {/* VIP PASS Label (Vertical) */}
         <div className="absolute top-0 right-0 h-full w-8 border-l border-white/10 flex items-center justify-center pointer-events-none">
             <span className="text-[10px] font-black italic uppercase tracking-[0.5em] text-white/20 rotate-180 [writing-mode:vertical-lr]">
-              VIP_PASS_ACCESS_2026
+              VIP PASS ACCESS 2026
             </span>
         </div>
 
@@ -53,7 +53,7 @@ export function EventCard({ event }: EventCardProps) {
           
           {/* Description Snippet */}
           <p className="text-white/40 text-[10px] font-black italic uppercase tracking-widest mb-10 leading-relaxed border-l-2 border-[#DFFF00]/30 pl-4 group-hover:border-[#DFFF00] transition-colors">
-            JOIN_US_AT_{event.venue.toUpperCase()}_FOR_AN_UNFORGETTABLE_EXPERIENCE.
+            JOIN US AT {event.venue.toUpperCase()} FOR AN UNFORGETTABLE EXPERIENCE.
           </p>
           
           {/* Footer Info / Ticker-Tape Look */}
@@ -74,7 +74,7 @@ export function EventCard({ event }: EventCardProps) {
               <div className="whitespace-nowrap flex gap-8 animate-marquee-fast">
                 {[...Array(3)].map((_, i) => (
                   <span key={i} className="text-[8px] font-black italic text-[#DFFF00]/40 uppercase tracking-widest">
-                    ★ ADMIT_ONE ★ CONFIRMED ★ 2026_BITOTSAV ★ SECURE_ENTRY ★
+                    ★ ADMIT ONE ★ CONFIRMED ★ 2026 BITOTSAV ★ SECURE ENTRY ★
                   </span>
                 ))}
               </div>

@@ -63,7 +63,7 @@ export default function ProfileContent() {
         >
           <AlertTriangle className="w-10 h-10 shrink-0" />
           <div>
-            <p className="text-xl mb-1 font-black underline">SYSTEM_CRITICAL: ACCESS_SYNC_FAILED</p>
+            <p className="text-xl mb-1 font-black underline">SYSTEM CRITICAL: ACCESS SYNC FAILED</p>
             <p className="opacity-70 text-sm tracking-widest">{syncError}</p>
           </div>
         </motion.div>
@@ -73,10 +73,10 @@ export default function ProfileContent() {
       <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10 print:hidden">
           <div className="border-l-12 border-[#DFFF00] pl-10 py-6">
               <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
-                  ACCESS_<span className="text-[#DFFF00]">ID.</span>
+                  ACCESS <span className="text-[#DFFF00]">ID.</span>
               </h1>
               <p className="text-lg md:text-xl text-white/40 font-black italic uppercase tracking-[0.3em]">
-                  UNIQUE_AUTHENTICATION_TOKEN_LOGGED_EST_2026.
+                  UNIQUE AUTHENTICATION TOKEN LOGGED EST 2026.
               </p>
           </div>
       </div>
@@ -99,7 +99,7 @@ export default function ProfileContent() {
                 <div className="flex gap-12 animate-marquee-fast whitespace-nowrap">
                     {[...Array(6)].map((_, i) => (
                         <span key={i} className="text-[10px] font-black italic text-black uppercase tracking-[0.4em]">
-                            ★ HIGH_SENSITIVITY_DATA ★ AUTH_LEVEL_VIP ★ BITOTSAV_2026 ★ SECURE_ID: {user.id.slice(0, 12).toUpperCase()} —
+                            ★ HIGH SENSITIVITY DATA ★ AUTH LEVEL VIP ★ BITOTSAV 2026 ★ SECURE ID: {user.id.slice(0, 12).toUpperCase()} —
                         </span>
                     ))}
                 </div>
@@ -109,7 +109,7 @@ export default function ProfileContent() {
                 {/* Vertical Meta Label */}
                 <div className="absolute top-0 right-0 h-full w-12 border-l border-white/5 flex items-center justify-center pointer-events-none">
                     <span className="text-[10px] font-black italic uppercase tracking-[0.8em] text-white/5 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#DFFF00]/10 transition-colors">
-                        VIP_ACCESS_PROTOCOL_B26
+                        VIP ACCESS PROTOCOL B26
                     </span>
                 </div>
 
@@ -136,13 +136,13 @@ export default function ProfileContent() {
                     <div className="flex-1 text-center md:text-left space-y-6">
                         <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-1 text-[10px] font-black italic uppercase tracking-widest text-[#DFFF00]">
                            <Zap className="w-3 h-3 fill-current" />
-                           PERFORMER_RANK: #001
+                           PERFORMER RANK: #001
                         </div>
                         <h2 className="text-6xl md:text-8xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#DFFF00] transition-colors">
-                            {user.displayName || "UNIT_NAME_ERR"}
+                            {user.displayName || "UNIT NAME ERR"}
                         </h2>
                         <div className="flex flex-col gap-1 border-l-4 border-[#DFFF00] pl-6 py-2">
-                           <span className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">PRIMARY_UPLINK</span>
+                           <span className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">PRIMARY UPLINK</span>
                            <span className="text-xl font-black italic text-white uppercase tracking-tighter break-all">
                                 {user.primaryEmail}
                            </span>
@@ -153,15 +153,15 @@ export default function ProfileContent() {
                 {/* Footer Badges */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 border-t border-white/5 relative z-10">
                     <div className="space-y-2">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">ISSUE_DATE</div>
-                        <div className="text-sm font-black italic text-white uppercase">FEB_13_2026</div>
+                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">ISSUE DATE</div>
+                        <div className="text-sm font-black italic text-white uppercase">FEB 13 2026</div>
                     </div>
                     <div className="space-y-2">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">AUTH_LEVEL</div>
-                        <div className="text-sm font-black italic text-[#DFFF00] uppercase">ACCESS_LEVEL_VIP</div>
+                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">AUTH LEVEL</div>
+                        <div className="text-sm font-black italic text-[#DFFF00] uppercase">ACCESS LEVEL VIP</div>
                     </div>
                     <div className="space-y-2 col-span-2 md:col-span-1 border-t md:border-t-0 md:border-l border-white/5 pt-6 md:pt-0 md:pl-8">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">TRANSIT_KEY</div>
+                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">TRANSIT KEY</div>
                         <div className="text-sm font-black italic text-white uppercase opacity-40">{user.id.slice(0, 12).toUpperCase()}</div>
                     </div>
                 </div>
@@ -180,7 +180,7 @@ export default function ProfileContent() {
             >
                 <div className="absolute inset-x-0 -top-6 flex justify-center">
                     <div className="bg-black text-[#DFFF00] px-6 py-2 border-2 border-[#DFFF00] font-black italic uppercase tracking-widest text-[10px]">
-                       GATE_SCANNER_PROTOCOL
+                       GATE SCANNER PROTOCOL
                     </div>
                 </div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -200,17 +200,17 @@ export default function ProfileContent() {
                   className="w-full py-8 bg-white/2 border-2 border-white/10 text-white font-black italic uppercase tracking-widest text-lg flex items-center justify-center gap-6 hover:bg-[#DFFF00] hover:text-black hover:border-transparent transition-all active:scale-[0.98]"
                 >
                     <Printer className="w-6 h-6" />
-                    GENERATE_HARD_COPY
+                    GENERATE HARD COPY
                 </button>
            </div>
 
            <div className="p-10 border-2 border-white/5 space-y-6 bg-white/1">
                 <div className="flex items-center gap-4 text-[#DFFF00]">
                     <AlertTriangle className="w-5 h-5" />
-                    <span className="text-[10px] font-black italic uppercase tracking-[0.2em]">SECURITY_NOTICE</span>
+                    <span className="text-[10px] font-black italic uppercase tracking-[0.2em]">SECURITY NOTICE</span>
                 </div>
                 <p className="text-white/30 text-xs font-black italic uppercase leading-relaxed tracking-wider">
-                    KEEP_THIS_SIGNAL_SECURE. AUTHORIZED_PERSONNEL_ONLY. ANY_MISUSE_WILL_RESULT_IN_IMMEDIATE_REVOCATION_OF_TRANSIT_CREDENTIALS.
+                    KEEP THIS SIGNAL SECURE. AUTHORIZED PERSONNEL ONLY. ANY MISUSE WILL RESULT IN IMMEDIATE REVOCATION OF TRANSIT CREDENTIALS.
                 </p>
            </div>
         </div>

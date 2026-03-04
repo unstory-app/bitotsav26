@@ -26,7 +26,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
       {/* Access Vertical Metadata */}
       <div className="absolute top-0 left-0 h-full w-8 border-r border-white/5 hidden md:flex items-center justify-center">
           <span className="text-[8px] font-black italic uppercase tracking-[0.5em] text-white/5 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#DFFF00]/20 transition-colors">
-              CREW_ACCESS_PERMIT_2026
+              CREW ACCESS PERMIT 2026
           </span>
       </div>
 
@@ -65,7 +65,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
             </div>
             
             <div className="flex flex-col gap-1">
-                <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.3em]">ASSIGNED_ROLE</span>
+                <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.3em]">ASSIGNED ROLE</span>
                 <span className="text-xs font-black italic text-[#DFFF00] uppercase tracking-widest">
                     {member.role}
                 </span>

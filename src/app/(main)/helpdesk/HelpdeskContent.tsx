@@ -45,10 +45,10 @@ export default function HelpdeskContent() {
             
             <div className="relative z-10 border-l-12 border-[#DFFF00] pl-12 py-10">
                 <h1 className="text-8xl md:text-10xl font-black italic text-white uppercase leading-none tracking-tighter mb-6">
-                    SIGNAL_<span className="text-[#DFFF00]">CENTER.</span>
+                    SIGNAL <span className="text-[#DFFF00]">CENTER.</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-white/40 font-black italic uppercase tracking-tighter max-w-2xl border-l-2 border-white/10 pl-8">
-                    TECHNICAL_RIDER_SUBMISSION_AND_OPERATIONAL_UPLINK.
+                    TECHNICAL RIDER SUBMISSION AND OPERATIONAL UPLINK.
                 </p>
             </div>
         </div>
@@ -65,25 +65,25 @@ export default function HelpdeskContent() {
               className="lg:col-span-4 space-y-8"
             >
               <div className="text-[10px] font-black italic uppercase tracking-[0.5em] text-[#DFFF00] mb-4">
-                {"// ACTIVE_CHANNELS"}
+                {"// ACTIVE CHANNELS"}
               </div>
 
               <motion.div variants={itemVariants} className="p-8 bg-black border-2 border-white/10 group hover:border-[#DFFF00] transition-all relative overflow-hidden shadow-[10px_10px_0px_#DFFF00]/5">
                 <div className="flex items-center gap-4 mb-8">
                    <div className="w-2 h-2 bg-green-500 animate-pulse shadow-[0_0_10px_#00ff00]" />
-                   <span className="text-[8px] font-black italic uppercase tracking-[0.4em] text-[#DFFF00]/60">ENCRYPTED_SIGNAL_001</span>
+                   <span className="text-[8px] font-black italic uppercase tracking-[0.4em] text-[#DFFF00]/60">ENCRYPTED SIGNAL 001</span>
                 </div>
                 <Network className="w-10 h-10 text-white mb-6 opacity-20 group-hover:text-[#DFFF00] transition-colors" />
-                <h3 className="text-3xl font-black italic text-white mb-4 uppercase tracking-tighter">WHATSAPP_LINK</h3>
+                <h3 className="text-3xl font-black italic text-white mb-4 uppercase tracking-tighter">WHATSAPP LINK</h3>
                 <Link href="https://chat.whatsapp.com/KOqn2PWDhQ1LGlGqSMU4SK" target="_blank" className="flex items-center justify-between bg-white text-black font-black italic uppercase tracking-widest text-[10px] py-4 px-8 group-hover:bg-[#DFFF00] transition-colors">
-                  <span>JOIN_CHNL</span>
+                  <span>JOIN CHANNEL</span>
                   <ExternalLink className="w-4 h-4" />
                 </Link>
               </motion.div>
 
               <motion.div variants={itemVariants} className="p-8 bg-black border-2 border-white/10 group hover:border-[#DFFF00] transition-all relative overflow-hidden">
                  <Mail className="w-10 h-10 text-white mb-6 opacity-20 group-hover:text-[#DFFF00] transition-colors" />
-                 <h3 className="text-3xl font-black italic text-white mb-2 uppercase tracking-tighter">MAIL_UPLINK</h3>
+                 <h3 className="text-3xl font-black italic text-white mb-2 uppercase tracking-tighter">MAIL UPLINK</h3>
                  <Link href="mailto:contact@bitotsav.com" className="text-[#DFFF00] text-sm font-black italic uppercase tracking-widest hover:underline decoration-2 underline-offset-8">
                     CONTACT@BITOTSAV.COM
                  </Link>
@@ -92,9 +92,9 @@ export default function HelpdeskContent() {
               <motion.div variants={itemVariants} className="p-8 bg-red-950/20 border-2 border-red-900 group hover:border-red-600 transition-all relative overflow-hidden">
                  <div className="flex items-center gap-4 mb-6">
                     <div className="w-3 h-3 bg-red-600 animate-ping" />
-                    <span className="text-[8px] font-black italic uppercase tracking-[0.4em] text-red-600">CRITICAL_OVERRIDE</span>
+                    <span className="text-[8px] font-black italic uppercase tracking-[0.4em] text-red-600">CRITICAL OVERRIDE</span>
                  </div>
-                 <h3 className="text-3xl font-black italic text-red-600 mb-2 uppercase tracking-tighter">DISTRESS_SIG</h3>
+                 <h3 className="text-3xl font-black italic text-red-600 mb-2 uppercase tracking-tighter">DISTRESS SIGNAL</h3>
                  <div className="text-white font-black italic text-xl border-l-4 border-red-600 pl-6 py-2">
                     +91 94718 28932
                  </div>
@@ -119,7 +119,7 @@ export default function HelpdeskContent() {
                     <Cpu className="w-10 h-10 text-black" />
                   </div>
                   <div>
-                    <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none mb-2">TRANSMIT_REQUEST</h3>
+                    <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none mb-2">TRANSMIT REQUEST</h3>
                     <div className="h-1 w-full bg-linear-to-r from-[#DFFF00] to-transparent" />
                   </div>
                </div>
@@ -128,23 +128,23 @@ export default function HelpdeskContent() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                     <div className="relative">
                       <label className="text-[8px] text-[#DFFF00] mb-4 font-black italic uppercase tracking-[0.5em] flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#DFFF00]/20" /> INPUT_SRC_NAME
+                        <span className="w-2 h-2 rounded-full bg-[#DFFF00]/20" /> SOURCE NAME
                       </label>
-                      <input type="text" className="w-full bg-black/40 border-l-4 border-white/10 p-5 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 font-black italic uppercase text-xl" placeholder="NAME_IDENTIFIER" />
+                      <input type="text" className="w-full bg-black/40 border-l-4 border-white/10 p-5 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 font-black italic uppercase text-xl" placeholder="NAME IDENTIFIER" />
                     </div>
                     <div className="relative">
                       <label className="text-[8px] text-[#DFFF00] mb-4 font-black italic uppercase tracking-[0.5em] flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#DFFF00]/20" /> RETURN_PATH_ADDR
+                        <span className="w-2 h-2 rounded-full bg-[#DFFF00]/20" /> RETURN PATH ADDR
                       </label>
-                      <input type="email" className="w-full bg-black/40 border-l-4 border-white/10 p-5 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 font-black italic uppercase text-xl" placeholder="EMAIL_ENCODING" />
+                      <input type="email" className="w-full bg-black/40 border-l-4 border-white/10 p-5 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 font-black italic uppercase text-xl" placeholder="EMAIL ENCODING" />
                     </div>
                   </div>
 
                   {/* Channel Selection (Categories) */}
                   <div className="space-y-6">
-                     <label className="text-[8px] text-[#DFFF00] mb-4 font-black italic uppercase tracking-[0.5em]">SELECT_CHANNEL</label>
+                     <label className="text-[8px] text-[#DFFF00] mb-4 font-black italic uppercase tracking-[0.5em]">SELECT CHANNEL</label>
                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        {['GENERAL_OP', 'LOGIN_CMD', 'VIP_QUERY', 'CORE_SYS'].map((topic) => (
+                        {['GENERAL OP', 'LOGIN CMD', 'VIP QUERY', 'CORE SYS'].map((topic) => (
                           <button key={topic} type="button" className="group/btn h-16 relative border-2 border-white/5 bg-black hover:border-[#DFFF00] transition-all flex items-center px-4 gap-4">
                             <div className="w-1 h-8 bg-white/10 group-hover/btn:bg-[#DFFF00] transition-colors" />
                             <span className="text-[10px] text-white/20 group-hover/btn:text-white font-black italic uppercase tracking-widest">{topic}</span>
@@ -157,10 +157,10 @@ export default function HelpdeskContent() {
                   {/* Message Packet (Textarea) */}
                   <div className="relative">
                       <label className="text-[8px] text-[#DFFF00] mb-4 font-black italic uppercase tracking-[0.5em] flex items-center justify-between">
-                        READY_TO_ENCODE_MESSAGE
+                        READY TO ENCODE MESSAGE
                         <span className="text-white/10">BUFFER: 100%</span>
                       </label>
-                      <textarea rows={6} className="w-full bg-black/60 border-2 border-white/10 p-8 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 resize-none text-xl font-black italic uppercase tracking-tight leading-relaxed" placeholder="START_TRANSMISSION..."></textarea>
+                      <textarea rows={6} className="w-full bg-black/60 border-2 border-white/10 p-8 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/5 resize-none text-xl font-black italic uppercase tracking-tight leading-relaxed" placeholder="START TRANSMISSION..."></textarea>
                   </div>
 
                   <motion.button 
@@ -170,7 +170,7 @@ export default function HelpdeskContent() {
                     className="w-full py-10 bg-[#DFFF00] text-black font-black italic uppercase tracking-[0.5em] text-2xl relative shadow-[0_30px_60px_-12px_rgba(223,255,0,0.3)] transition-all flex items-center justify-center gap-8 group"
                   >
                       <div className="absolute inset-0 bg-linear-to-r from-black/20 to-transparent" />
-                      <span className="relative z-10">INITIALIZE_SEND</span>
+                      <span className="relative z-10">INITIALIZE SEND</span>
                       <Send className="w-8 h-8 relative z-10 group-hover:translate-x-4 group-hover:-translate-y-4 transition-transform duration-500" />
                   </motion.button>
                </form>
@@ -182,17 +182,17 @@ export default function HelpdeskContent() {
         <div className="max-w-7xl mx-auto px-6 pb-40">
           <div className="p-16 bg-white/2 border-x-2 border-white/5 flex flex-col md:flex-row items-center justify-between gap-12 group hover:bg-[#DFFF00]/5 hover:border-[#DFFF00]/20 transition-all duration-700">
             <div className="text-center md:text-left">
-              <div className="text-[8px] text-white/20 font-black italic mb-4 tracking-[0.5em] uppercase">PHYSICAL_GRID_COORDINATES</div>
+              <div className="text-[8px] text-white/20 font-black italic mb-4 tracking-[0.5em] uppercase">PHYSICAL GRID COORDINATES</div>
               <div className="text-3xl md:text-5xl font-black italic text-white uppercase tracking-tighter group-hover:text-white transition-colors">
-                BIRLA_INSTITUTE_OF_TECHNOLOGY_MESRA
+                BIRLA INSTITUTE OF TECHNOLOGY MESRA
               </div>
             </div>
             <div className="flex gap-20 text-[10px] text-[#DFFF00]/40 uppercase tracking-[0.5em] font-black italic">
               <div className="flex items-center gap-4">
                 <div className="w-2 h-2 rounded-full bg-[#DFFF00] shadow-[0_0_10px_#DFFF00]" />
-                SYST_V2.0
+                SYST V2.0
               </div>
-              <div>SIG_MAX</div>
+              <div>SIG MAX</div>
             </div>
           </div>
         </div>

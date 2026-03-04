@@ -48,7 +48,7 @@ export function Sponsors() {
                                 />
                             </div>
                             <span className="text-[10px] font-black italic tracking-[0.3em] text-[#DFFF00] uppercase opacity-40 group-hover:opacity-100 transition-all">
-                                {pkg.name.split('_').join(' ')}
+                                {pkg.name}
                             </span>
                         </div>
                     ))}

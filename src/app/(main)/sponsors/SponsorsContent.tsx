@@ -25,36 +25,22 @@ export default function SponsorsContent() {
       
       {/* Page Header */}
       <div className="max-w-7xl mx-auto px-6 mb-32 relative">
-        <motion.div 
-          initial={{ opacity: 0, scale: 1.2 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="absolute -top-32 -left-32 text-[25vw] font-black italic text-white/2 select-none pointer-events-none uppercase tracking-tighter"
-        >
-            ALLIANCE
-        </motion.div>
-        
-        <div className="relative z-10 border-l-12 border-[#DFFF00] pl-12 py-12 group">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            <motion.div 
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="absolute -top-20 -left-20 text-[20vw] font-black italic text-white/2 select-none pointer-events-none uppercase tracking-tighter"
             >
-              <h1 className="text-8xl md:text-11xl font-black italic text-white uppercase leading-[0.75] tracking-tighter mb-8">
-                THE <br /> <span className="text-[#DFFF00] drop-shadow-[0_0_50px_rgba(223,255,0,0.3)]">ALLIANCE.</span>
-              </h1>
-              <div className="flex flex-col md:flex-row md:items-center gap-12">
-                <p className="text-xl md:text-3xl text-white/50 font-black italic uppercase tracking-tighter max-w-2xl border-l-2 border-white/10 pl-8">
-                  STRATEGIC_PARTNERS_POWERING_THE_SAGA_SINCE_EST_2026.
-                </p>
-                <div className="hidden md:block h-[2px] flex-1 bg-white/10" />
-                <div className="flex gap-4">
-                    <div className="w-4 h-4 rounded-full bg-[#DFFF00] animate-pulse" />
-                    <div className="w-4 h-4 rounded-full bg-white/10" />
-                    <div className="w-4 h-4 rounded-full bg-white/10" />
-                </div>
-              </div>
+                ALLIANCE
             </motion.div>
-        </div>
+            
+            <div className="relative z-10 border-l-12 border-[#DFFF00] pl-12 py-10">
+                <h1 className="text-8xl md:text-10xl font-black italic text-white uppercase leading-none tracking-tighter mb-6">
+                    GLOBAL <span className="text-[#DFFF00]">PARTNER ARENA.</span>
+                </h1>
+                <p className="text-xl md:text-2xl text-white/40 font-black italic uppercase tracking-tighter max-w-2xl border-l-2 border-white/10 pl-8">
+                    POWERING THE SAGA THROUGH STRATEGIC PARTNERSHIPS AND GLOBAL COLLABORATION.
+                </p>
+            </div>
       </div>
 
       <div className="space-y-64 relative z-10">
@@ -62,7 +48,7 @@ export default function SponsorsContent() {
         {/* Title Sponsor - "The Main Stage" */}
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-[10px] font-black italic uppercase tracking-[0.5em] text-[#DFFF00] mb-8 border-b border-[#DFFF00]/20 pb-4 inline-block">
-            {"// MAIN_STAGE_HEADLINER"}
+            {"// MAIN STAGE HEADLINER"}
           </div>
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -80,14 +66,14 @@ export default function SponsorsContent() {
             <div className="space-y-10 relative z-10">
                 <div className="inline-flex items-center gap-4 bg-black text-[#DFFF00] px-6 py-2 text-xs font-black italic uppercase tracking-[0.3em]">
                     <Star className="w-4 h-4 fill-current" />
-                    PREMIUM_ACCESS_TITLE
+                    PREMIUM ACCESS TITLE
                 </div>
                 <h2 className="text-7xl md:text-10xl font-black italic text-black leading-[0.8] tracking-tighter uppercase break-words">
                     JHARKHAND<br/>TOURISM.
                 </h2>
                 <div className="flex flex-col gap-2">
                     <div className="w-24 h-2 bg-black/40" />
-                    <p className="text-black font-black italic uppercase tracking-[0.2em] text-xl">EXPLORE_THE_UNEXPLORED</p>
+                    <p className="text-black font-black italic uppercase tracking-[0.2em] text-xl">EXPLORE THE UNEXPLORED</p>
                 </div>
             </div>
 
@@ -103,10 +89,10 @@ export default function SponsorsContent() {
             <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-transparent via-[#DFFF00]/20 to-transparent" />
             <div className="max-w-7xl mx-auto px-6 mb-20 flex items-end justify-between">
                 <div>
-                   <h3 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">LINEUP_PARTNERS</h3>
+                   <h3 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">LINEUP PARTNERS</h3>
                    <div className="h-2 w-32 bg-[#DFFF00] mt-4" />
                 </div>
-                <div className="text-[10px] font-black italic uppercase tracking-[0.5em] text-[#DFFF00]/40">EST. 2026 // ACCESS_STRATEGIC</div>
+                <div className="text-[10px] font-black italic uppercase tracking-[0.5em] text-[#DFFF00]/40">EST. 2026 // ACCESS STRATEGIC</div>
             </div>
 
             <div className="flex gap-12 animate-marquee hover:[animation-play-state:paused] py-10">
@@ -120,7 +106,7 @@ export default function SponsorsContent() {
                             <ArrowRight className="w-6 h-6 text-[#DFFF00] -rotate-45 group-hover:rotate-0 transition-transform" />
                         </div>
                         <div className="text-4xl font-black italic text-white group-hover:text-[#DFFF00] transition-colors mb-2">{partner.name}</div>
-                        <div className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">{partner.tier.replace(' ', '_')}</div>
+                        <div className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">{partner.tier}</div>
                         <div className="mt-12 h-[1px] bg-white/10 group-hover:bg-[#DFFF00]/40 w-full transition-colors" />
                     </div>
                 ))}
@@ -130,7 +116,7 @@ export default function SponsorsContent() {
         {/* Legacy Archive - "Tour History" */}
         <div className="max-w-7xl mx-auto px-6">
            <div className="p-12 border-l-4 border-white/10 mb-24">
-              <h3 className="text-2xl font-black italic text-white/30 uppercase tracking-[0.8em]">LEGACY_ARCHIVE</h3>
+              <h3 className="text-2xl font-black italic text-white/30 uppercase tracking-[0.8em]">LEGACY ARCHIVE</h3>
            </div>
            
            <div className="grid grid-cols-2 lg:grid-cols-5 gap-y-20 gap-x-12">
@@ -142,8 +128,8 @@ export default function SponsorsContent() {
                         whileHover={{ opacity: 1, y: -5 }}
                         className="flex flex-col gap-4 group cursor-pointer border-b border-white/5 pb-8 transition-all"
                     >
-                        <span className="text-xs font-black italic text-[#DFFF00]/40 uppercase tracking-widest group-hover:text-[#DFFF00]">VOL_{26 - i}</span>
-                        <span className="text-3xl font-black italic text-white uppercase tracking-tighter transition-colors group-hover:text-[#DFFF00]">{name.replace(' ', '_')}</span>
+                        <span className="text-xs font-black italic text-[#DFFF00]/40 uppercase tracking-widest group-hover:text-[#DFFF00]">VOL {26 - i}</span>
+                        <span className="text-3xl font-black italic text-white uppercase tracking-tighter transition-colors group-hover:text-[#DFFF00]">{name}</span>
                     </motion.div>
                 ))}
            </div>
@@ -161,16 +147,16 @@ export default function SponsorsContent() {
                     
                     <div className="flex flex-col items-center gap-8 relative z-10">
                         <p className="max-w-2xl text-xl md:text-2xl font-black italic uppercase tracking-tighter opacity-70">
-                            BECOME_A_PERMANENT_NODE_IN_THE_BIGGEST_CONCERT_NETWORK.
+                            BECOME A PERMANENT NODE IN THE BIGGEST CONCERT NETWORK.
                         </p>
                         <div className="px-16 py-8 bg-black text-[#DFFF00] text-2xl font-black italic uppercase tracking-widest flex items-center gap-8 shadow-[20px_20px_0px_rgba(0,0,0,0.1)] group-hover:shadow-[20px_20px_0px_#000] transition-all">
-                            COLLABORATE_NOW
+                            COLLABORATE NOW
                             <ArrowRight className="w-10 h-10 group-hover:translate-x-4 transition-transform duration-500" />
                         </div>
                     </div>
 
                     {/* Watermark Section */}
-                    <div className="absolute -bottom-20 -right-20 text-[40vw] font-black italic text-black/[0.03] select-none pointer-events-none uppercase tracking-tighter leading-none group-hover:text-black/[0.05] transition-colors">
+                    <div className="absolute -bottom-20 -right-20 text-[40vw] font-black italic text-black/3 select-none pointer-events-none uppercase tracking-tighter leading-none group-hover:text-black/5 transition-colors">
                         SAGA
                     </div>
                 </div>

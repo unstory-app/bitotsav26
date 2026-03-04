@@ -58,7 +58,7 @@ export default function EventsClient() {
       {/* Filter Tabs - Backstage Pass Style */}
       <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
         <div className="flex flex-wrap items-center gap-4 border-y border-white/10 py-8">
-            <span className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[#DFFF00] mr-8">FILTER_BY_DEPT:</span>
+            <span className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[#DFFF00] mr-8">FILTER BY DEPT:</span>
             {categories.map((category) => (
             <button
                 key={category}
@@ -71,7 +71,7 @@ export default function EventsClient() {
                 )}
             >
                 <span className="relative z-10 text-xs font-black italic uppercase tracking-[0.2em] transition-transform group-hover:scale-110 block">
-                    {category === "All" ? "ACCESS_ALL" : category}
+                    {category === "All" ? "ACCESS ALL" : category}
                 </span>
                 
                 {filter === category && (

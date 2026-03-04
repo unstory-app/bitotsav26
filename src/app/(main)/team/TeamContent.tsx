@@ -34,10 +34,10 @@ export default function TeamContent() {
       <div className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
           <div className="border-l-12 border-[#DFFF00] pl-10 py-6">
               <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
-                  THE_<span className="text-[#DFFF00]">CREW.</span>
+                  THE <span className="text-[#DFFF00]">CREW.</span>
               </h1>
               <p className="text-lg md:text-xl text-white/40 font-black italic uppercase tracking-[0.3em]">
-                  OPERATIONAL_ARCHITECTS_AND_CORE_PROTOCOL_MAINTAINERS.
+                  OPERATIONAL ARCHITECTS AND CORE PROTOCOL MAINTAINERS.
               </p>
           </div>
       </div>
@@ -53,7 +53,7 @@ export default function TeamContent() {
             <div className="flex items-center gap-6 mb-16">
                 <div className="w-12 h-1 bg-[#DFFF00]" />
                 <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
-                    CORE_LEADERSHIP
+                    CORE LEADERSHIP
                 </h3>
             </div>
             
@@ -73,7 +73,7 @@ export default function TeamContent() {
             <div className="flex items-center gap-6 mb-16">
                 <div className="w-12 h-1 bg-[#DFFF00]" />
                 <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
-                    TECH_DEPARTMENTS
+                    TECH DEPARTMENTS
                 </h3>
             </div>
             
@@ -98,7 +98,7 @@ export default function TeamContent() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-16 relative z-10">
                 <div className="flex-1 text-center md:text-left">
                     <h2 className="text-6xl md:text-8xl font-black italic text-white uppercase tracking-tighter leading-[0.85] mb-8">
-                        WANT_TO_<br /><span className="text-[#DFFF00]">JOIN_CREW?</span>
+                        WANT TO <br /><span className="text-[#DFFF00]">JOIN CREW?</span>
                     </h2>
                     <p className="max-w-xl text-lg font-black italic uppercase tracking-widest text-white/40 leading-relaxed border-l-4 border-white/10 pl-8">
                         The {SITE_CONFIG.shortName} protocol maintenance group is always looking for new visionaries to scale the experience.
@@ -109,7 +109,7 @@ export default function TeamContent() {
                     href="/helpdesk" 
                     className="shrink-0 w-full md:w-auto px-16 py-10 bg-[#DFFF00] text-black font-black italic uppercase tracking-[0.5em] text-xl transform hover:scale-105 transition-all shadow-[10px_10px_0px_white]"
                 >
-                    INITIALIZE_SYNC
+                    INITIALIZE SYNC
                 </Link>
             </div>
 
