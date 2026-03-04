@@ -13,51 +13,85 @@ interface TeamMemberCardProps {
 export function TeamMemberCard({ member }: TeamMemberCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className="group relative bg-white/5 border border-white/10 p-8 flex flex-col items-center hover:bg-[#DFFF00] transition-all duration-500 cursor-default"
+      className="group relative bg-[#0A0A0A] border-2 border-white/5 p-8 flex flex-col transition-all duration-700 hover:border-[#DFFF00]/50 hover:bg-[#DFFF00]/5 overflow-hidden"
     >
-      <div className="w-32 h-32 mb-6 p-2 border border-white/10 group-hover:border-black transition-colors relative">
-        <div className="w-full h-full bg-black flex items-center justify-center relative grayscale group-hover:grayscale-0 transition-all duration-500">
-             {member.image ? (
-                <Image src={member.image} alt={member.name} fill className="object-cover" />
-            ) : (
-                <User className="w-12 h-12 text-white/10 group-hover:text-black/20" />
-            )}
+      {/* Card ID Decor */}
+      <div className="absolute top-0 right-0 flex border-l border-b border-white/5">
+          <div className="px-3 py-1 text-[8px] font-black italic text-white/20 uppercase">ID_TX_{member.name.slice(0, 3).toUpperCase()}</div>
+      </div>
+
+      {/* Access Vertical Metadata */}
+      <div className="absolute top-0 left-0 h-full w-8 border-r border-white/5 hidden md:flex items-center justify-center">
+          <span className="text-[8px] font-black italic uppercase tracking-[0.5em] text-white/5 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#DFFF00]/20 transition-colors">
+              CREW_ACCESS_PERMIT_2026
+          </span>
+      </div>
+
+      <div className="md:pl-10 space-y-8">
+        <div className="relative">
+            {/* Portrait Frame */}
+            <div className="w-full aspect-square bg-white/5 border-2 border-white/10 p-1 relative overflow-hidden group-hover:border-[#DFFF00] transition-all duration-700">
+                <div className="w-full h-full relative grayscale group-hover:grayscale-0 transition-all duration-700 scale-[1.01] group-hover:scale-110">
+                    {member.image ? (
+                        <Image src={member.image} alt={member.name} fill className="object-cover" />
+                    ) : (
+                        <div className="w-full h-full bg-black flex items-center justify-center">
+                            <User className="w-16 h-16 text-white/5 group-hover:text-[#DFFF00]/20" />
+                            <div className="absolute inset-0 flex items-center justify-center text-4xl font-black italic text-[#DFFF00]/5">
+                                {member.name[0]}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                {/* Glitch Overlay */}
+                <div className="absolute inset-0 bg-linear-to-tr from-[#DFFF00]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            </div>
+
+            {/* Rank Badge */}
+            <div className="absolute -bottom-4 -left-4 px-4 py-2 bg-[#DFFF00] text-black font-black italic text-[8px] uppercase tracking-widest shadow-[5px_5px_0px_black]">
+                RANK: 0{Math.floor(Math.random() * 9) + 1}
+            </div>
         </div>
         
-        {/* Decorative corner accent */}
-        <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-[#DFFF00] group-hover:border-black transition-colors" />
-      </div>
-      
-      <h3 className="text-2xl font-black italic text-white mb-1 group-hover:text-black transition-colors uppercase leading-none text-center">
-        {member.name}
-      </h3>
-      <p className="text-[10px] text-[#DFFF00] mb-8 font-black italic uppercase tracking-widest text-center group-hover:text-black/60 transition-colors">
-        {member.role}
-      </p>
-      
-      {member.socials && (
-        <div className="flex justify-center gap-6 pt-6 border-t border-white/5 group-hover:border-black/20 w-full">
-          {member.socials.linkedin && (
-            <Link href={member.socials.linkedin} className="text-white hover:text-white group-hover:text-black transition-colors transform hover:scale-125">
-              <Linkedin className="w-5 h-5 fill-current" />
-            </Link>
-          )}
-          {member.socials.github && (
-            <Link href={member.socials.github} className="text-white hover:text-white group-hover:text-black transition-colors transform hover:scale-125">
-              <Github className="w-5 h-5 fill-current" />
-            </Link>
-          )}
-          {member.socials.twitter && (
-            <Link href={member.socials.twitter} className="text-white hover:text-white group-hover:text-black transition-colors transform hover:scale-125">
-              <Twitter className="w-5 h-5 fill-current" />
-            </Link>
-          )}
+        <div className="space-y-4">
+            <div>
+              <h3 className="text-3xl font-black italic text-white uppercase leading-none tracking-tighter group-hover:text-[#DFFF00] transition-colors">
+                {member.name}
+              </h3>
+              <div className="h-0.5 w-12 bg-[#DFFF00] mt-3 group-hover:w-full transition-all duration-700" />
+            </div>
+            
+            <div className="flex flex-col gap-1">
+                <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.3em]">ASSIGNED_ROLE</span>
+                <span className="text-xs font-black italic text-[#DFFF00] uppercase tracking-widest">
+                    {member.role}
+                </span>
+            </div>
         </div>
-      )}
+        
+        {member.socials && (
+          <div className="flex gap-4 pt-6 border-t border-white/5">
+            {member.socials.linkedin && (
+              <Link href={member.socials.linkedin} className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-[#DFFF00] hover:border-[#DFFF00] transition-all">
+                <Linkedin className="w-4 h-4" />
+              </Link>
+            )}
+            {member.socials.github && (
+              <Link href={member.socials.github} className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-[#DFFF00] hover:border-[#DFFF00] transition-all">
+                <Github className="w-4 h-4" />
+              </Link>
+            )}
+            {member.socials.twitter && (
+              <Link href={member.socials.twitter} className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-[#DFFF00] hover:border-[#DFFF00] transition-all">
+                <Twitter className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
