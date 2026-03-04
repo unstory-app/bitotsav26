@@ -18,40 +18,60 @@ export default function EventsClient() {
     : events.filter(event => event.category === filter);
 
   return (
-    <PageWrapper className="pt-32 pb-20">
-      
+    <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">
+      {/* Texture Overlays */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+      <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none bg-linear-to-b from-transparent via-[#DFFF00]/5 to-transparent" />
+
       {/* Page Header */}
-      <div className="max-w-7xl mx-auto px-6 mb-20 relative">
-        <div className="absolute -top-10 -left-10 text-[15vw] font-black italic text-white/3 select-none pointer-events-none uppercase tracking-tighter">
-            EVENTS
-        </div>
+      <div className="max-w-7xl mx-auto px-6 mb-32 relative">
+        <motion.div 
+          initial={{ opacity: 0, x: -100 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute -top-16 -left-16 text-[20vw] font-black italic text-white/2 select-none pointer-events-none uppercase tracking-tighter"
+        >
+            LINEUP
+        </motion.div>
         
-        <div className="relative z-10 border-l-8 border-[#DFFF00] pl-8 py-4">
-            <h1 className="text-6xl md:text-8xl font-black italic text-white uppercase leading-[0.85] tracking-tighter mb-4">
-              THE <span className="text-[#DFFF00]">LINEUP.</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-white/40 font-black italic uppercase tracking-tighter max-w-2xl">
-              Competitive modules and flagship performance events of {SITE_CONFIG.shortName} 2026.
-            </p>
+        <div className="relative z-10 border-l-12 border-[#DFFF00] pl-12 py-8 group">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-[0.8] tracking-tighter mb-6">
+                THE <br /> <span className="text-[#DFFF00] drop-shadow-[0_0_30px_rgba(223,255,0,0.3)]">LINEUP.</span>
+              </h1>
+              <div className="flex flex-col md:flex-row md:items-center gap-8">
+                <p className="text-xl md:text-2xl text-white/50 font-black italic uppercase tracking-tighter max-w-xl border-l border-white/10 pl-6">
+                  {SITE_CONFIG.shortName} 2026: THE ULTIMATE STAGE FOR COMPETITIVE EXCELLENCE.
+                </p>
+                <div className="hidden md:block h-px flex-1 bg-white/10" />
+                <div className="text-[10px] font-black italic uppercase tracking-[0.4em] text-[#DFFF00]/40 rotate-180 [writing-mode:vertical-lr]">
+                  EST. 2026 / BITOTSAV
+                </div>
+              </div>
+            </motion.div>
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="max-w-7xl mx-auto px-6 mb-16">
-        <div className="flex flex-wrap gap-4">
+      {/* Filter Tabs - Backstage Pass Style */}
+      <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
+        <div className="flex flex-wrap items-center gap-4 border-y border-white/10 py-8">
+            <span className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[#DFFF00] mr-8">FILTER_BY_DEPT:</span>
             {categories.map((category) => (
             <button
                 key={category}
                 onClick={() => setFilter(category)}
                 className={cn(
-                "relative px-8 py-4 overflow-hidden group transition-all duration-300",
+                "relative px-10 py-4 overflow-hidden group transition-all duration-300 border-2",
                 filter === category
-                    ? "bg-[#DFFF00] text-black"
-                    : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
+                    ? "bg-[#DFFF00] border-[#DFFF00] text-black"
+                    : "bg-transparent border-white/10 text-white/40 hover:text-white hover:border-white/30"
                 )}
             >
-                <span className="relative z-10 text-sm font-black italic uppercase tracking-[0.2em]">
-                    {category}
+                <span className="relative z-10 text-xs font-black italic uppercase tracking-[0.2em] transition-transform group-hover:scale-110 block">
+                    {category === "All" ? "ACCESS_ALL" : category}
                 </span>
                 
                 {filter === category && (

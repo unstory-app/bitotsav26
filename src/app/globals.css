@@ -18,6 +18,7 @@
   --color-secondary: #0a0a0a;
 
   --animate-marquee: marquee var(--duration, 40s) linear infinite;
+  --animate-marquee-fast: marquee var(--duration, 20s) linear infinite;
   --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear
     infinite;
 
