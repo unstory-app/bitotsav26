@@ -30,8 +30,8 @@ export default function LoginContent() {
                     <Ticket className="w-12 h-12 text-black" />
                 </div>
             </div>
-            <h1 className="text-6xl font-black italic text-white mb-4 uppercase tracking-tighter leading-none">THE_GATEWAY</h1>
-            <p className="text-[#DFFF00] font-black italic text-xs uppercase tracking-[0.3em] bg-white/5 py-2 inline-block px-4">BIT_MESRA_WEBMAIL_AUTH</p>
+            <h1 className="text-6xl font-black italic text-white mb-4 uppercase tracking-tighter leading-none">THE GATEWAY</h1>
+            <p className="text-[#DFFF00] font-black italic text-xs uppercase tracking-[0.3em] bg-white/5 py-2 inline-block px-4">BIT MESRA WEBMAIL AUTH</p>
         </div>
 
         {/* Webmail Notice */}

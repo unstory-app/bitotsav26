@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import LeaderboardContent from "./LeaderboardContent";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "Live Leaderboard",
+  title: "Legend",
   description: "Track the real-time rankings and competition standings of BIT Mesra's premier saga - Bitotsav 2026.",
   alternates: {
     canonical: '/leaderboard',
   },
   openGraph: {
-    title: "Live Leaderboard | Bitotsav 2026",
-    description: "Track the real-time rankings and competition standings of BIT Mesra's premier saga.",
-    url: 'https://bitotsav.bitmesra.ac.in/leaderboard',
+    title: `Legend | ${SITE_CONFIG.name}`,
+    description: "Real-time standings of artistic and technical champions.",
+    url: `${SITE_CONFIG.url}/leaderboard`,
   },
 };
 
