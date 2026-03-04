@@ -140,7 +140,7 @@ export function FocusRail({
   return (
     <div
       className={cn(
-        "group relative flex h-[600px] w-full flex-col overflow-hidden bg-neutral-950 text-white outline-none select-none overflow-x-hidden",
+        "group relative flex h-[700px] w-full flex-col overflow-hidden bg-black text-white outline-none select-none overflow-x-hidden",
         className
       )}
       onMouseEnter={() => setIsHovering(true)}
@@ -164,10 +164,10 @@ export function FocusRail({
               src={activeItem.imageSrc}
               alt=""
               fill
-              className="object-cover blur-xl opacity-20 saturate-150 transition-opacity duration-1000"
+              className="object-cover blur-2xl opacity-40 saturate-200 transition-opacity duration-1000"
               priority={false}
             />
-            <div className="absolute inset-0 bg-linear-to-t from-neutral-950 via-neutral-950/50 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -206,8 +206,8 @@ export function FocusRail({
               <motion.div
                 key={absIndex}
                 className={cn(
-                  "absolute aspect-3/4 w-[260px] md:w-[300px] rounded-2xl border-t border-white/20 bg-neutral-900 shadow-2xl transition-shadow duration-300 will-change-transform",
-                  isCenter ? "z-20 shadow-white/10" : "z-10"
+                  "absolute aspect-3/4 w-[280px] md:w-[340px] bg-white text-black shadow-2xl transition-all duration-300 will-change-transform",
+                  isCenter ? "z-20 border-4 border-[#DFFF00]" : "z-10 border border-white/10"
                 )}
                 initial={false}
                 animate={{
@@ -233,12 +233,17 @@ export function FocusRail({
                   src={item.imageSrc}
                   alt={item.title}
                   fill
-                  className="rounded-2xl object-cover pointer-events-none"
+                  className="object-cover pointer-events-none grayscale group-hover:grayscale-0 transition-all duration-500"
                 />
 
                 {/* Lighting layers */}
-                <div className="absolute inset-0 rounded-2xl bg-linear-to-b from-white/10 to-transparent pointer-events-none" />
-                <div className="absolute inset-0 rounded-2xl bg-black/10 pointer-events-none mix-blend-multiply" />
+                <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-black/5 pointer-events-none mix-blend-multiply" />
+                
+                {/* Decorative border if center */}
+                {isCenter && (
+                    <div className="absolute inset-0 border-8 border-black/5 pointer-events-none" />
+                )}
               </motion.div>
             );
           })}
@@ -257,15 +262,15 @@ export function FocusRail({
                 className="space-y-2"
               >
                 {activeItem.meta && (
-                  <span className="text-xs font-medium uppercase tracking-wider text-emerald-400">
+                  <span className="text-xs font-black italic uppercase tracking-[0.3em] text-[#DFFF00]">
                     {activeItem.meta}
                   </span>
                 )}
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-white">
+                <h2 className="text-4xl font-black italic tracking-tighter md:text-6xl text-white uppercase leading-none">
                   {activeItem.title}
                 </h2>
                 {activeItem.description && (
-                  <p className="max-w-md text-neutral-400">
+                  <p className="max-w-md text-white/50 font-black italic uppercase tracking-tighter text-sm">
                     {activeItem.description}
                   </p>
                 )}
@@ -274,33 +279,33 @@ export function FocusRail({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 rounded-full bg-neutral-900/80 p-1 ring-1 ring-white/10 backdrop-blur-md">
+            <div className="flex items-center gap-1 bg-white p-1">
               <button
                 onClick={handlePrev}
-                className="rounded-full p-3 text-neutral-400 transition hover:bg-white/10 hover:text-white active:scale-95"
+                className="p-3 text-black transition hover:bg-black hover:text-[#DFFF00] active:scale-95"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-6 w-6" />
               </button>
-              <span className="min-w-[40px] text-center text-xs font-mono text-neutral-500">
+              <span className="min-w-[60px] text-center text-sm font-black italic text-black uppercase">
                 {activeIndex + 1} / {count}
               </span>
               <button
                 onClick={handleNext}
-                className="rounded-full p-3 text-neutral-400 transition hover:bg-white/10 hover:text-white active:scale-95"
+                className="p-3 text-black transition hover:bg-black hover:text-[#DFFF00] active:scale-95"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-6 w-6" />
               </button>
             </div>
 
             {activeItem.href && (
               <Link
                 href={activeItem.href}
-                className="group flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition-transform hover:scale-105 active:scale-95"
+                className="group flex items-center gap-3 bg-[#DFFF00] px-8 py-4 text-sm font-black italic uppercase tracking-widest text-black transition-transform hover:scale-105 active:scale-95"
               >
-                Explore
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                Explore Session
+                <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" />
               </Link>
             )}
           </div>

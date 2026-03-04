@@ -1,136 +1,133 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Ticket, Star, Crown, Zap, ArrowRight } from "lucide-react";
+import { Check, Ticket, Star, Crown, Zap } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { cn } from "@/lib/utils";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { PremiumButton } from "@/components/ui/premium-button";
 
 const ticketTiers = [
   {
-    name: "Day Pass",
+     name: "DAY PASS",
     price: "₹499",
-    description: "Single cycle access.",
+    description: "Single day authorization for the experience.",
     icon: Ticket,
-    features: ["Access: 1 Day", "Pro Nite: Standing", "Food Court: Included"],
-    variant: "violet" as const,
+    features: ["Access: 1 Selected Day", "Pro Nite: General Standing", "Stall Access: Included"],
     recommended: false,
   },
   {
-    name: "Fest Pass Pro",
+    name: "FEST PASS PRO",
     price: "₹1499",
-    description: "Full system access.",
+    description: "Full system access for all 4 days.",
     icon: Star,
-    features: ["Access: All Days", "Pro Nite: All", "Priority Queue", "Merch Kit: Standard"],
-    variant: "gold" as const,
+    features: ["Access: All 4 Days", "Pro Nite: Priority Standing", "Priority Entry", "Official Merch Kit"],
     recommended: true,
   },
   {
-    name: "VIP_Override",
+    name: "ELITE ACCESS",
     price: "₹2999",
-    description: "Admin level privileges.",
+    description: "The ultimate concert override.",
     icon: Crown,
-    features: ["Access: Front Row", "Meet & Greet: Artists", "Lounge: Exclusive", "Merch: Premium", "Backstage Tour"],
-    variant: "violet" as const,
+    features: ["Access: VIP Zone", "Artist Meet & Greet", "Exclusive Lounge", "Premium Merch Kit", "Backstage Experience"],
     recommended: false,
   },
 ];
 
 export default function TicketsClient() {
   return (
-    <PageWrapper>
-      <SectionHeader 
-        title="Tickets" 
-        subtitle="Select your authorization level."
-      />
+    <PageWrapper className="pt-32 pb-20">
+      
+      <div className="max-w-7xl mx-auto px-6 mb-32">
+        <SectionHeader 
+            title="THE PASS." 
+            subtitle="Secure your authorization level for the biggest saga of 2026."
+            align="left"
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4 mt-8">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
         {ticketTiers.map((tier, index) => (
           <motion.div
             key={tier.name}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             className={cn(
-              "relative p-8 flex flex-col transition-all duration-300 group rounded-2xl border backdrop-blur-md",
-              tier.variant === "gold" 
-                ? "bg-[#FFD700]/5 border-[#FFD700]/30 shadow-[0_0_30px_rgba(255,215,0,0.1)] hover:shadow-[0_0_50px_rgba(255,215,0,0.2)] hover:border-[#FFD700]/60" 
-                : "bg-[#8A2BE2]/5 border-[#8A2BE2]/30 shadow-[0_0_20px_rgba(138,43,226,0.1)] hover:shadow-[0_0_40px_rgba(138,43,226,0.2)] hover:border-[#8A2BE2]/60"
+              "relative p-12 flex flex-col transition-all duration-500 group",
+              tier.recommended 
+                ? "bg-[#DFFF00] text-black shadow-[0_0_80px_rgba(223,255,0,0.1)]" 
+                : "bg-white/5 text-white border border-white/10 hover:border-[#DFFF00] hover:bg-white/10"
             )}
           >
             {tier.recommended && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-linear-to-r from-[#FFD700] to-[#EBAF3F] text-[#05020a] text-[10px] font-bold uppercase tracking-widest rounded-full shadow-[0_0_15px_rgba(255,215,0,0.4)]">
-                Most Popular
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black text-[#DFFF00] text-[10px] font-black italic uppercase tracking-[0.3em]">
+                MOST POPULAR
               </div>
             )}
 
-            <div className="mb-6">
-                <div className={cn(
-                    "w-12 h-12 flex items-center justify-center mb-6 rounded-xl border bg-black/50 backdrop-blur-sm",
-                    tier.variant === "gold" ? "border-[#FFD700]/50 text-[#FFD700]" : "border-[#8A2BE2]/50 text-[#8A2BE2]"
-                )}>
-                     <tier.icon className="w-6 h-6" />
-                </div>
-                <h3 className={cn(
-                    "text-2xl font-bold font-heading tracking-wide uppercase",
-                    tier.variant === "gold" ? "text-[#FFD700]" : "text-white"
-                )}>{tier.name}</h3>
-                <p className="text-white/60 text-xs mt-2 font-serif italic tracking-wider">{tier.description}</p>
+            <div className="mb-10">
+                <tier.icon className={cn("w-12 h-12 mb-8", tier.recommended ? "text-black" : "text-[#DFFF00]")} />
+                <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-4">{tier.name}</h3>
+                <p className={cn("text-xs font-black italic uppercase tracking-widest", tier.recommended ? "text-black/40" : "text-white/40")}>
+                    {tier.description}
+                </p>
             </div>
 
-            <div className="mb-8 border-b border-white/10 pb-8">
-                <span className={cn(
-                    "text-5xl font-bold tracking-tighter",
-                    tier.variant === "gold" ? "text-white drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]" : "text-white"
-                )}>{tier.price}</span>
-                <span className="text-white/40 text-xs ml-2">/ user</span>
+            <div className={cn("mb-12 pb-12 border-b", tier.recommended ? "border-black/10" : "border-white/10")}>
+                <span className="text-6xl font-black italic tracking-tighter">{tier.price}</span>
+                <span className={cn("text-[10px] font-black italic uppercase ml-2", tier.recommended ? "text-black/40" : "text-white/40")}>/ AUTHORIZATION</span>
             </div>
 
-            <ul className="space-y-4 mb-8 flex-1">
+            <ul className="space-y-6 mb-12 flex-1">
                 {tier.features.map((feature, i) => (
-                    <li key={i} className="flex items-center">
-                        <div className={cn(
-                            "w-5 h-5 rounded-full flex items-center justify-center mr-3 shrink-0 border",
-                            tier.variant === "gold" ? "bg-[#FFD700]/10 border-[#FFD700]/30 text-[#FFD700]" : "bg-[#8A2BE2]/10 border-[#8A2BE2]/30 text-[#8A2BE2]"
-                        )}>
-                            <Check className="w-3 h-3" />
-                        </div>
-                        <span className="text-neutral-300 text-xs uppercase tracking-wide font-mono">{feature}</span>
+                    <li key={i} className="flex items-center gap-4">
+                        <Check className={cn("w-4 h-4", tier.recommended ? "text-black" : "text-[#DFFF00]")} />
+                        <span className={cn("text-[10px] font-black italic uppercase tracking-widest", tier.recommended ? "text-black/60" : "text-white/60")}>
+                            {feature}
+                        </span>
                     </li>
                 ))}
             </ul>
 
-            <PremiumButton 
-                variant={tier.variant} 
-                className="w-full"
-            >
-                Buy Now
-            </PremiumButton>
+            <button className={cn(
+                "w-full py-6 text-lg font-black italic uppercase tracking-widest transition-all",
+                tier.recommended 
+                    ? "bg-black text-[#DFFF00] hover:scale-105" 
+                    : "bg-[#DFFF00] text-black hover:scale-105"
+            )}>
+                Authorize Now
+            </button>
           </motion.div>
         ))}
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="max-w-4xl mx-auto mt-24 text-center p-8 rounded-2xl border border-dashed border-[#C5A059]/30 bg-[#05020a]/50 backdrop-blur-sm"
-      >
-            <div className="w-12 h-12 mx-auto mb-6 rounded-full bg-[#C5A059]/10 flex items-center justify-center border border-[#C5A059]/30">
-                <Zap className="w-6 h-6 text-[#C5A059]" />
+      {/* Student Discount Override */}
+      <div className="max-w-7xl mx-auto px-6 mt-32">
+        <div className="bg-white text-black p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group">
+            <div className="space-y-6 relative z-10 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 bg-[#DFFF00] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest">
+                    <Zap className="w-3 h-3 fill-current" />
+                    EXCLUSIVE OVERRIDE
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black italic leading-none tracking-tighter uppercase">
+                    BIT MESRA <br/>DISCOUNT.
+                </h2>
+                <p className="max-w-lg text-lg font-black italic uppercase tracking-tighter opacity-60">
+                    Students of BIT Mesra receive 50% flat discount on all passes. Decrypt your code now.
+                </p>
             </div>
-            <h3 className="text-xl font-bold font-heading text-white mb-2 uppercase tracking-widest">Student Verification</h3>
-            <p className="text-white/60 mb-8 text-sm max-w-lg mx-auto font-serif italic">
-                BIT Mesra students: Enter Roll Number to decrypt 50% discount code.
-            </p>
-            <button className="group inline-flex items-center gap-2 text-[#C5A059] font-mono text-sm tracking-wider hover:text-[#FFD700] transition-colors">
-                VERIFY_STATUS 
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            
+            <button className="px-12 py-6 bg-black text-white text-xl font-black italic uppercase tracking-tighter hover:bg-[#DFFF00] hover:text-black transition-all relative z-10">
+                Verify Identity
             </button>
-      </motion.div>
+
+            <div className="absolute inset-0 flex items-center justify-center text-[15vw] font-black italic text-black/2 select-none pointer-events-none uppercase tracking-tighter leading-none">
+                BITIAN
+            </div>
+        </div>
+      </div>
+
     </PageWrapper>
   );
 }

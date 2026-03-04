@@ -5,13 +5,11 @@ import {PlusIcon} from "lucide-react"
 interface CubeLoaderProps {
   size?: number; // cube size
   speed?: number; // rotation speed
-  textSize?: number;
 }
 
 export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
   size = 30,
   speed = 5,
-  textSize = 50,
 }) => {
   const [time, setTime] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
@@ -62,31 +60,31 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
           ];
 
           return (
-            <div
-              key={i}
-              className={`absolute flex items-center justify-center border border-[#FFD700]/60 bg-[#800020]/20 backdrop-blur-sm shadow-[0_0_15px_rgba(255,215,0,0.3)]`}
-              style={{
-                width: size,
-                height: size,
-                transform: faceTransforms[i],
-                backfaceVisibility: "visible", // Changed to visible for glass effect
-              }}
-            >
-             <PlusIcon className="text-[#FFD700] w-8 h-8 opacity-80" />
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Status Text Below Cube */}
-      <div className="flex flex-col items-center gap-2">
-          <div className="text-xl font-bold font-heading text-[#FFD700] tracking-widest uppercase animate-pulse">
-            Loading Bitotsav
-          </div>
-          <div className="text-xs font-serif text-[#C5A059]/60 italic tracking-wide">
-            {currentStatus}...
-          </div>
-      </div>
+             <div
+               key={i}
+               className={`absolute flex items-center justify-center border border-[#DFFF00]/40 bg-black/40 backdrop-blur-sm shadow-[0_0_20px_rgba(223,255,0,0.1)]`}
+               style={{
+                 width: size,
+                 height: size,
+                 transform: faceTransforms[i],
+                 backfaceVisibility: "visible",
+               }}
+             >
+              <PlusIcon className="text-[#DFFF00] w-8 h-8 opacity-60" />
+             </div>
+           );
+         })}
+       </div>
+ 
+       {/* Status Text Below Cube */}
+       <div className="flex flex-col items-center gap-3">
+           <div className="text-2xl font-black italic text-white tracking-widest uppercase animate-pulse">
+             LOADING_BITOTSAV
+           </div>
+           <div className="text-[10px] font-black italic text-[#DFFF00]/40 uppercase tracking-[0.3em]">
+             {currentStatus}_IN_PROGRESS...
+           </div>
+       </div>
     </div>
   );
 };

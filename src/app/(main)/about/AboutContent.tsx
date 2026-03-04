@@ -1,98 +1,124 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users, Calendar, Trophy, Heart } from "lucide-react";
+import { Users, Calendar, Trophy, Zap } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { cn } from "@/lib/utils";
+import { SITE_CONFIG } from "@/config/site";
 
 const stats = [
-  { label: "Years of Legacy", value: "30+", icon: Calendar, color: "text-[#FFD700]", border: "border-[#FFD700]/30", bg: "bg-[#FFD700]/10" },
-  { label: "Footfall", value: "10,000+", icon: Users, color: "text-[#C5A059]", border: "border-[#C5A059]/30", bg: "bg-[#C5A059]/10" },
-  { label: "Registrations", value: "1600+", icon: Trophy, color: "text-[#8A2BE2]", border: "border-[#8A2BE2]/30", bg: "bg-[#8A2BE2]/10" },
-  { label: "Love & Support", value: "Infinite", icon: Heart, color: "text-[#FF00FF]", border: "border-[#FF00FF]/30", bg: "bg-[#FF00FF]/10" },
+  { label: "Years of Legacy", value: "30+", icon: Calendar },
+  { label: "Expected Footfall", value: "10,000+", icon: Users },
+  { label: "Live Registrations", value: "1600+", icon: Trophy },
+  { label: "Energy Level", value: "Absolute", icon: Zap },
 ];
 
 export default function AboutContent() {
   return (
     <PageWrapper>
       <SectionHeader 
-        title="About Bitotsav" 
-        subtitle="Operational history and user engagement metrics."
+        title="THE PROTOCOL." 
+        subtitle="Operational history and user engagement metrics of the saga."
       />
 
       {/* Stats Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-24 cursor-default">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-32">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
-            className={cn(
-                "text-center p-6 backdrop-blur-md border transition-all duration-500 group rounded-xl hover:bg-white/5",
-                "bg-[#05020a]/30 border-white/5 hover:border-opacity-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-            )}
+            className="relative p-10 bg-white/5 border border-white/10 group overflow-hidden"
           >
-            <div className={cn(
-                "w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-full border transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12",
-                stat.color, stat.border, stat.bg
-            )}>
-                <stat.icon className="w-5 h-5" />
+            {/* Hover Background */}
+            <div className="absolute inset-0 bg-[#DFFF00] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            
+            <div className="relative z-10 space-y-4">
+                <stat.icon className="w-8 h-8 text-[#DFFF00] group-hover:text-black transition-colors" />
+                <div className="text-4xl md:text-6xl font-black italic tracking-tighter text-white group-hover:text-black transition-colors uppercase leading-none">
+                {stat.value}
+                </div>
+                <div className="text-[10px] font-black italic uppercase tracking-[0.2em] text-white/40 group-hover:text-black/60 transition-colors">
+                {stat.label}
+                </div>
             </div>
-            <div className="text-3xl md:text-5xl font-bold font-heading text-white mb-2 group-hover:text-neutral-200 transition-colors tracking-tighter">
-              {stat.value}
-            </div>
-            <div className="text-[10px] text-neutral-500 font-mono uppercase tracking-[0.2em] group-hover:text-white/70 transition-colors">
-              {stat.label}
-            </div>
+
+            {/* Decorative Corner */}
+            <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-[#DFFF00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.div>
         ))}
       </div>
 
       {/* Story Section */}
-      <div className="max-w-4xl mx-auto mb-24 space-y-8 text-sm md:text-base text-neutral-400 leading-relaxed font-serif text-justify font-light">
+      <div className="max-w-5xl mx-auto mb-32 grid grid-cols-1 md:grid-cols-2 gap-20">
         <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="border-l-2 border-[#FFD700]/20 pl-6"
+            className="space-y-8"
         >
-            <p className="mb-4">
-              <span className="text-[#FFD700] font-bold font-mono text-xs uppercase tracking-widest">LOG_ENTRY_1992:</span> <span className="text-white">Bitotsav initialization complete. Origin: BIT Mesra.</span>
-              <br/>Evolution status: Continuous. Current state: Eastern India&apos;s premier technical-cultural interface.
+            <h3 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">
+                WHENCE IT <br/> <span className="text-[#DFFF00]">ORIGINATED.</span>
+            </h3>
+            <div className="w-20 h-2 bg-[#DFFF00]" />
+        </motion.div>
+
+        <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8 font-black italic uppercase tracking-tighter text-white/50 text-lg md:text-xl"
+        >
+            <p className="text-white">
+                Since 1992, {SITE_CONFIG.shortName} has been the ultimate intersection of culture, technology, and sheer grit.
+            </p>
+            <p>
+                From limited technical transmissions to a multi-dimensional saga, we have evolved into Eastern India&apos;s most formidable festival platform.
+            </p>
+            <p>
+                Bitotsav is not just an event; it is a synchronized execution of talent, creativity, and legacy code passed down through generations.
             </p>
         </motion.div>
-        <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-        >
-            <span className="text-[#8A2BE2] font-bold font-mono text-xs uppercase tracking-widest">Highlights:</span> <strong className="text-white">Heritage Nite</strong>, <strong className="text-white">Band Nite</strong>, <strong className="text-white">EDM Nite</strong>, <strong className="text-white">Pro Nite</strong>.
-            <br/><br/>
-            Bitotsav is not merely a festival; it is a synchronized execution of talent, creativity, and legacy code passed down through generations of BITians.
-        </motion.p>
+      </div>
+
+      {/* Flagship Ticker */}
+      <div className="w-full bg-white py-12 mb-32 overflow-hidden flex items-center">
+            <div className="flex gap-20 animate-marquee whitespace-nowrap">
+                {[...Array(10)].map((_, i) => (
+                    <span key={i} className="text-4xl md:text-6xl font-black italic text-black uppercase tracking-tighter">
+                        HERITAGE NITE — BAND NITE — EDM NITE — PRO NITE — 
+                    </span>
+                ))}
+            </div>
       </div>
 
       {/* Night Events Teaser */}
-      <div className="max-w-5xl mx-auto rounded-3xl border border-[#FFD700]/20 bg-[#05020a] relative overflow-hidden group">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,215,0,0.1),transparent_60%)]" />
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
-        
-        <div className="relative z-10 p-12 text-center">
-             <div className="inline-block border border-[#FFD700]/30 px-3 py-1 mb-6 rounded-full bg-[#FFD700]/5">
-                <span className="text-[10px] font-bold font-mono text-[#FFD700] uppercase tracking-widest">UPCOMING_TRANSMISSION</span>
+      <div className="max-w-7xl mx-auto bg-black border-4 border-[#DFFF00] p-12 md:p-24 relative overflow-hidden group mb-32">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+             <div className="max-w-2xl text-center md:text-left">
+                <div className="inline-block bg-[#DFFF00] px-3 py-1 mb-6 text-black text-[10px] font-black italic uppercase tracking-[0.2em]">
+                    STAR_NIGHTS.2026
+                </div>
+                <h3 className="text-5xl md:text-8xl font-black italic text-white mb-6 uppercase tracking-tighter leading-none">THE MAIN <br className="hidden md:block" /> STAGE.</h3>
+                <p className="text-lg md:text-xl text-white/40 font-black italic uppercase tracking-tighter">
+                    Witness legendary performances from global icons. The lineup is strictly classified. Prepare for the impact.
+                </p>
              </div>
-             <h3 className="text-3xl md:text-5xl font-bold font-heading text-white mb-6 tracking-tight">Star Nights</h3>
-             <p className="text-lg text-neutral-400 mb-8 max-w-2xl mx-auto font-serif italic">
-                &quot;Abhinandan: Ghazal Night&quot; protocol initiated. Artist: Neeraj Gandhi.
-             </p>
-             <div className="inline-block px-10 py-3 bg-white text-black font-bold font-heading text-xs uppercase tracking-widest hover:bg-[#FFD700] transition-colors cursor-default rounded-full shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                AWAITING_SIGNAL
+             
+             <div className="w-full md:w-auto">
+                <div className="px-16 py-8 bg-[#DFFF00] text-black font-black italic text-2xl uppercase tracking-widest text-center">
+                    AWAITING_SIGNAL
+                </div>
              </div>
+        </div>
+
+        {/* Decorative Background Text */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40vw] font-black italic text-white/5 pointer-events-none select-none uppercase tracking-tighter leading-none">
+            SAGA
         </div>
       </div>
     </PageWrapper>

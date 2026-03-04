@@ -9,7 +9,7 @@ import { ThemeRevealSection } from "@/components/home/ThemeRevealSection";
 
 export default function HomeClient() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#050A1F]">
+    <div className="flex flex-col min-h-screen bg-black">
       <Hero />
       <ThemeRevealSection />
       <Gallery />

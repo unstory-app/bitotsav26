@@ -5,7 +5,6 @@ import { Mail, ExternalLink, Send, ShieldAlert, Cpu, Network } from "lucide-reac
 import { SectionHeader } from "@/components/SectionHeader";
 import Link from "next/link";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { cn } from "@/lib/utils";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -22,7 +21,7 @@ const itemVariants = {
     y: 0, 
     transition: { 
       duration: 0.5, 
-      ease: [0.16, 1, 0.3, 1] as any 
+      ease: [0.16, 1, 0.3, 1] as any
     } 
   }
 };
@@ -32,15 +31,14 @@ export default function HelpdeskContent() {
     <PageWrapper>
       <div className="space-y-24">
         <SectionHeader 
-          title="Support Center" 
-          subtitle="Get assistance, join our community, or contact the team for support."
+          title="TERMINAL_SUPPORT." 
+          subtitle="Direct uplink for operational assistance and community protocol."
           align="center"
         />
 
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* Helpdesk Links */}
             <motion.div 
               variants={containerVariants}
               initial="hidden"
@@ -48,73 +46,69 @@ export default function HelpdeskContent() {
               viewport={{ once: true }}
               className="lg:col-span-1 space-y-6"
             >
-              <motion.div variants={itemVariants} className="p-8 bg-white/5 backdrop-blur-md border border-white/10 relative overflow-hidden group rounded-xl hover:bg-white/10 transition-colors">
-                <div className="flex items-center gap-3 mb-6">
-                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#00ff00]" />
-                   <span className="text-[10px] uppercase tracking-widest text-[#FF00FF] font-bold">Helpdesk Status: Online</span>
+              <motion.div variants={itemVariants} className="p-10 bg-black border-4 border-white/10 group hover:border-[#DFFF00] transition-all relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-8">
+                   <div className="w-3 h-3 bg-green-500 animate-pulse shadow-[0_0_15px_#00ff00]" />
+                   <span className="text-[10px] font-black italic uppercase tracking-[0.4em] text-[#DFFF00]">STATUS: UPLINK_ACTIVE</span>
                 </div>
-                <Network className="w-8 h-8 text-white mb-4 opacity-50 group-hover:text-[#FF00FF] transition-colors" />
-                <h3 className="text-lg font-bold font-heading text-white mb-2 tracking-tight">Community Chat</h3>
-                <p className="text-neutral-400 mb-6 text-xs leading-relaxed font-serif">Join our WhatsApp group for quick updates and community support.</p>
-                <Link href="https://chat.whatsapp.com/KOqn2PWDhQ1LGlGqSMU4SK" target="_blank" className="inline-flex items-center text-white font-bold uppercase tracking-[0.2em] text-[10px] py-3 px-6 border border-white/10 hover:bg-white hover:text-black transition-all rounded-full group-hover:border-[#FF00FF]/50">
-                  <span>Join WhatsApp</span>
-                  <ExternalLink className="w-3 h-3 ml-2" />
+                <Network className="w-12 h-12 text-white mb-6 opacity-30 group-hover:text-[#DFFF00] transition-colors" />
+                <h3 className="text-3xl font-black italic text-white mb-4 uppercase tracking-tighter">COMMS_HUB</h3>
+                <p className="text-white/40 mb-8 text-xs font-black italic uppercase leading-relaxed tracking-widest">Join the primary signal group for real-time operational updates.</p>
+                <Link href="https://chat.whatsapp.com/KOqn2PWDhQ1LGlGqSMU4SK" target="_blank" className="inline-flex items-center bg-[#DFFF00] text-black font-black italic uppercase tracking-[0.2em] text-xs py-5 px-10 hover:scale-105 transition-all">
+                  <span>JOIN_WHATSAPP</span>
+                  <ExternalLink className="w-4 h-4 ml-3" />
                 </Link>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="p-8 bg-white/5 backdrop-blur-md border border-white/10 relative overflow-hidden group rounded-xl hover:bg-white/10 transition-colors">
-                 <Mail className="w-8 h-8 text-white mb-4 opacity-50 group-hover:text-[#FFD700] transition-colors" />
-                 <h3 className="text-lg font-bold font-heading text-white mb-2 tracking-tight">Email Support</h3>
-                 <p className="text-neutral-400 mb-6 text-xs leading-relaxed font-serif">Send us an email for official inquiries and formal support.</p>
-                 <Link href="mailto:contact@bitotsav.com" className="text-white text-xs hover:text-[#FFD700] transition-colors uppercase tracking-widest font-bold border-b border-transparent hover:border-[#FFD700]">
+              <motion.div variants={itemVariants} className="p-10 bg-black border-4 border-white/10 group hover:border-[#DFFF00] transition-all relative overflow-hidden">
+                 <Mail className="w-12 h-12 text-white mb-6 opacity-30 group-hover:text-[#DFFF00] transition-colors" />
+                 <h3 className="text-3xl font-black italic text-white mb-4 uppercase tracking-tighter">MAIL_UPLINK</h3>
+                 <p className="text-white/40 mb-8 text-xs font-black italic uppercase leading-relaxed tracking-widest">Official protocol for formal inquiries and external coordination.</p>
+                 <Link href="mailto:contact@bitotsav.com" className="text-[#DFFF00] text-sm font-black italic transition-colors uppercase tracking-widest border-b-2 border-transparent hover:border-[#DFFF00]">
                     contact@bitotsav.com
                  </Link>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="p-8 bg-[#1a0505] border border-red-500/20 relative overflow-hidden group rounded-xl">
-                 <ShieldAlert className="w-8 h-8 text-red-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-                 <h3 className="text-lg font-bold font-heading text-white mb-2 tracking-tight">Emergency Contact</h3>
-                 <p className="text-neutral-500 mb-6 text-xs leading-relaxed font-serif">Direct line for urgent security or event-related emergencies.</p>
-                 <div className="text-white font-bold text-sm border-l-2 border-red-500 pl-4 py-1">
-                    +91 94718 28932 <span className="text-neutral-500 block text-[10px] mt-1 font-normal font-mono">REF: MRITYUNJAY RAJ</span>
+              <motion.div variants={itemVariants} className="p-10 bg-black border-4 border-red-900 group hover:border-red-600 transition-all relative overflow-hidden">
+                 <ShieldAlert className="w-12 h-12 text-red-600 mb-6 opacity-30 group-hover:opacity-100 transition-opacity" />
+                 <h3 className="text-3xl font-black italic text-white mb-4 uppercase tracking-tighter text-red-600">DISTRESS_SIG</h3>
+                 <p className="text-red-900/60 mb-8 text-xs font-black italic uppercase leading-relaxed tracking-widest">Immediate response line for critical security or infrastructure failures.</p>
+                 <div className="text-white font-black italic text-xl border-l-4 border-red-600 pl-6 py-2">
+                    +91 94718 28932
                  </div>
               </motion.div>
             </motion.div>
 
-            {/* Contact Form */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="lg:col-span-2 p-8 md:p-12 bg-[#05020a]/80 backdrop-blur-xl border border-white/10 relative rounded-2xl"
+              className="lg:col-span-2 p-12 bg-black border-4 border-[#DFFF00] relative shadow-[30px_30px_0px_white/5]"
             >
-               {/* Subtle Grid Decoration */}
-               <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-size-[24px_24px] pointer-events-none rounded-2xl" />
-               
-               <div className="flex items-center gap-4 mb-12 relative z-10">
-                  <div className="p-3 bg-white/5 rounded-full border border-white/10">
-                    <Cpu className="w-6 h-6 text-[#FFD700]" />
+               <div className="flex items-center gap-6 mb-16 relative z-10">
+                  <div className="p-5 bg-[#DFFF00] border-4 border-[#DFFF00]">
+                    <Cpu className="w-10 h-10 text-black" />
                   </div>
-                  <h3 className="text-2xl font-bold font-heading text-white uppercase tracking-tighter">Send a Message</h3>
+                  <h3 className="text-5xl font-black italic text-white uppercase tracking-tighter leading-none">TRANSMIT_DATA</h3>
                </div>
 
-               <form className="space-y-8 relative z-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+               <form className="space-y-12 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div>
-                      <label className="block text-[10px] text-neutral-500 mb-2 uppercase tracking-[0.2em] font-bold">Full Name</label>
-                      <input type="text" className="w-full bg-white/5 border-b border-white/10 p-3 text-white focus:outline-none focus:border-[#FFD700] transition-all placeholder:text-neutral-700 font-sans" placeholder="Enter your name" />
+                      <label className="block text-[10px] text-white/40 mb-3 font-black italic uppercase tracking-[0.4em]">SOURCE_NAME</label>
+                      <input type="text" className="w-full bg-black border-b-2 border-white/20 p-4 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/10 font-black italic uppercase text-lg" placeholder="INPUT_NAME" />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-neutral-500 mb-2 uppercase tracking-[0.2em] font-bold">Email Address</label>
-                      <input type="email" className="w-full bg-white/5 border-b border-white/10 p-3 text-white focus:outline-none focus:border-[#FFD700] transition-all placeholder:text-neutral-700 font-sans" placeholder="Enter your email" />
+                      <label className="block text-[10px] text-white/40 mb-3 font-black italic uppercase tracking-[0.4em]">UPLINK_ADDR</label>
+                      <input type="email" className="w-full bg-black border-b-2 border-white/20 p-4 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/10 font-black italic uppercase text-lg" placeholder="INPUT_EMAIL" />
                     </div>
                   </div>
 
                   <div>
-                     <label className="block text-[10px] text-neutral-500 mb-2 uppercase tracking-[0.2em] font-bold">Select Topic</label>
-                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {['GENERAL', 'REGISTRATION', 'SPONSOR', 'TECHNICAL'].map(topic => (
-                          <button key={topic} type="button" className="py-2 px-1 border border-white/10 bg-white/5 text-[10px] text-neutral-400 hover:border-[#FFD700]/50 hover:text-white hover:bg-[#FFD700]/10 transition-all font-bold rounded-lg">
+                     <label className="block text-[10px] text-white/40 mb-3 font-black italic uppercase tracking-[0.4em]">CATEGORY_ID</label>
+                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {['GENERAL', 'LOGIN_OPS', 'SPONSOR', 'CRITICAL'].map(topic => (
+                          <button key={topic} type="button" className="py-4 px-2 border-2 border-white/10 bg-black text-[10px] text-white/40 hover:border-[#DFFF00] hover:text-[#DFFF00] transition-all font-black italic uppercase tracking-widest">
                             {topic}
                           </button>
                         ))}
@@ -122,34 +116,33 @@ export default function HelpdeskContent() {
                   </div>
 
                   <div>
-                      <label className="block text-[10px] text-neutral-500 mb-2 uppercase tracking-[0.2em] font-bold">Your Message</label>
-                      <textarea rows={6} className="w-full bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:border-[#FFD700]/50 transition-all placeholder:text-neutral-700 resize-none text-sm leading-relaxed rounded-xl font-sans" placeholder="Write your message here..."></textarea>
+                      <label className="block text-[10px] text-white/40 mb-3 font-black italic uppercase tracking-[0.4em]">MESSAGE_PACKET</label>
+                      <textarea rows={6} className="w-full bg-black border-2 border-white/10 p-6 text-white focus:outline-none focus:border-[#DFFF00] transition-all placeholder:text-white/10 resize-none text-lg font-black italic uppercase tracking-tight leading-relaxed" placeholder="READY_TO_TRANSMIT..."></textarea>
                   </div>
 
                   <motion.button 
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="button" 
-                    className="w-full py-5 bg-white text-black font-bold font-heading uppercase tracking-[0.2em] text-xs hover:bg-[#FFD700] hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-all flex items-center justify-center gap-3 rounded-xl"
+                    className="w-full py-8 bg-[#DFFF00] text-black font-black italic uppercase tracking-[0.3em] text-xl hover:shadow-[0_0_50px_rgba(223,255,0,0.4)] transition-all flex items-center justify-center gap-6"
                   >
-                      Submit Form
-                      <Send className="w-3 h-3" />
+                      INITIALIZE_SEND
+                      <Send className="w-6 h-6" />
                   </motion.button>
                </form>
             </motion.div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 pb-20">
-          <div className="p-12 border border-white/5 bg-[#05020a] rounded-2xl flex flex-col md:flex-row items-center justify-between gap-8 hover:border-white/10 transition-all duration-700">
+        <div className="max-w-7xl mx-auto px-6 pb-40">
+          <div className="p-20 border-4 border-white/10 bg-black flex flex-col md:flex-row items-center justify-between gap-12 hover:border-[#DFFF00] transition-all duration-700">
             <div className="text-center md:text-left">
-              <div className="text-xs text-neutral-500 mb-2 tracking-widest uppercase font-bold">Location</div>
-              <div className="text-xl font-bold font-heading text-white">BIRLA INSTITUTE OF TECHNOLOGY, MESRA</div>
+              <div className="text-[10px] text-white/30 font-black italic mb-4 tracking-[0.4em] uppercase">HQ_COORDINATES</div>
+              <div className="text-4xl font-black italic text-white uppercase tracking-tighter">BIRLA INSTITUTE OF TECHNOLOGY, MESRA</div>
             </div>
-            <div className="flex gap-12 text-[10px] text-neutral-500 uppercase tracking-[0.2em] font-bold font-mono">
-              <div>Ver: 2026.1.0</div>
-              <div>Latency: 12ms</div>
-              <div>Encryption: AES-256</div>
+            <div className="flex gap-16 text-[10px] text-[#DFFF00] uppercase tracking-[0.4em] font-black italic">
+              <div>VER_2026.PROTO</div>
+              <div>SIGNAL_STRENGTH_MAX</div>
             </div>
           </div>
         </div>

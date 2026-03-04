@@ -3,10 +3,12 @@
 import { motion } from "framer-motion";
 import { SectionHeader } from "@/components/SectionHeader";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import Image from "next/image";
+import { SITE_CONFIG } from "@/config/site";
+import { ArrowRight, Star, Trophy, Zap } from "lucide-react";
+import Link from "next/link";
 
 const pastSponsors = [
-  "Jharkhand Tourism", "CMPDI", "SBI", "RedBull", "Nestle", "Frostive", "Coca Cola", "NTPC", "SAIL", "Jio",
+  "Jharkhand Tourism", "CMPDI", "SBI", "RedBull", "Nestle", "Coca Cola", "NTPC", "SAIL", "Jio", "Radio Mirchi"
 ];
 
 const strategicPartners = [
@@ -16,136 +18,116 @@ const strategicPartners = [
   { name: "Nestle", tier: "Food Partner" },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
-    }
-  }
-};
-
 export default function SponsorsContent() {
   return (
-    <PageWrapper>
-      <div className="space-y-32">
+    <PageWrapper className="pt-32 pb-20">
+      
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto px-6 mb-32">
         <SectionHeader 
-          title="Our Sponsors" 
-          subtitle="Strategic partners powering the interface."
-          align="center"
+          title="THE ALLIANCE." 
+          subtitle="Strategic partners powering the biggest concert interface in the region."
+          align="left"
         />
+      </div>
 
-        {/* Title Sponsor */}
-        <div className="max-w-7xl mx-auto text-center px-4">
-          <h3 className="text-xs font-bold font-heading text-[#FFD700] mb-10 uppercase tracking-[0.3em] opacity-80">Title Sponsor</h3>
-          <motion.div 
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="group relative inline-block p-1 bg-linear-to-b from-[#FFD700]/30 to-transparent hover:from-[#FFD700]/60 transition-all duration-500 max-w-2xl w-full rounded-2xl"
-          >
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-[#FFD700]/5 blur-3xl rounded-full opacity-20 group-hover:opacity-40 transition-opacity" />
+      <div className="space-y-40">
+        
+        {/* Title Sponsor - High Impact Banner */}
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="relative group overflow-hidden bg-[#DFFF00] p-12 md:p-24 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="absolute top-0 right-0 p-6 border-l border-b border-black/10">
+                <span className="text-[10px] font-black italic uppercase tracking-[0.5em] text-black/40">Title Sponsor 2026</span>
+            </div>
+            
+            <div className="space-y-6 relative z-10">
+                <div className="inline-flex items-center gap-2 bg-black text-[#DFFF00] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest">
+                    <Star className="w-3 h-3 fill-current" />
+                    PREMIUM PARTNER
+                </div>
+                <h2 className="text-6xl md:text-9xl font-black italic text-black leading-none tracking-tighter uppercase">
+                    JHARKHAND<br/>TOURISM.
+                </h2>
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-1 bg-black/20" />
+                    <p className="text-black font-black italic uppercase tracking-widest">Explore the Unexplored</p>
+                </div>
+            </div>
 
-              <div className="bg-[#05020a]/80 backdrop-blur-xl p-16 md:p-24 relative overflow-hidden rounded-xl border border-[#FFD700]/20 group-hover:border-[#FFD700]/40 transition-colors">
-                  <Image 
-                    src={`https://api.dicebear.com/9.x/initials/svg?seed=Jharkhand Tourism`}
-                    alt="Jharkhand Tourism"
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 grayscale opacity-30 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 relative z-10"
-                  />
-                  <div className="absolute top-0 right-0 p-4 font-mono text-[10px] text-[#FFD700]/60 border-l border-b border-[#FFD700]/20 rounded-bl-xl bg-[#FFD700]/5">
-                      Featured Partner
-                  </div>
-                  <div className="text-4xl md:text-6xl font-bold font-heading text-white tracking-widest group-hover:scale-[1.02] transition-transform duration-500 drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">
-                      Jharkhand Tourism
-                  </div>
-                  <div className="mt-8 flex items-center justify-center gap-4">
-                      <div className="h-px w-8 bg-[#FFD700]/40" />
-                      <span className="text-[10px] font-bold font-mono text-[#FFD700] uppercase tracking-widest">Core Infrastructure Partner</span>
-                      <div className="h-px w-8 bg-[#FFD700]/40" />
-                  </div>
-              </div>
-          </motion.div>
+            <div className="w-48 h-48 md:w-80 md:h-80 border-8 border-black/5 flex items-center justify-center relative z-10">
+                <Zap className="w-24 h-24 md:w-40 md:h-40 text-black/10" />
+                <div className="absolute inset-0 flex items-center justify-center font-black italic text-black/5 text-[10vw] select-none pointer-events-none">TITLE</div>
+            </div>
+
+            {/* Decorative Marquee in Header BG if we had space, but let's keep it clean */}
+          </div>
         </div>
 
-        {/* Strategic Partners */}
-        <div className="max-w-7xl mx-auto px-4">
-          <h3 className="text-xs font-bold font-heading text-[#8A2BE2] mb-12 text-center uppercase tracking-[0.3em] opacity-80">Strategic Partners</h3>
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {strategicPartners.map((partner) => (
+        {/* Strategic Grid */}
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center gap-6 mb-16">
+              <Trophy className="w-8 h-8 text-[#DFFF00]" />
+              <h3 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter">Lineup Partners</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {strategicPartners.map((partner, i) => (
               <motion.div 
                 key={partner.name}
-                variants={itemVariants}
-                whileHover={{ y: -5 }}
-                className="group p-8 bg-white/5 backdrop-blur-md border border-white/10 hover:border-[#8A2BE2]/50 hover:bg-[#8A2BE2]/5 transition-all duration-300 relative overflow-hidden rounded-xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -10 }}
+                className="group p-10 bg-white/5 border border-white/10 hover:border-[#DFFF00] transition-all relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-8 h-1 bg-linear-to-r from-white/10 to-transparent group-hover:from-[#8A2BE2]" />
-                <div className="absolute top-0 left-0 w-1 h-8 bg-linear-to-b from-white/10 to-transparent group-hover:from-[#8A2BE2]" />
-                
-                <div className="text-xl font-bold font-heading text-white mb-2 group-hover:text-[#F0F0F0] transition-colors">{partner.name}</div>
-                <div className="text-[10px] font-bold font-mono text-white/50 uppercase tracking-widest group-hover:text-[#8A2BE2] transition-colors">{partner.tier}</div>
+                <div className="text-3xl font-black italic text-white mb-2 group-hover:text-[#DFFF00] transition-colors uppercase leading-none">{partner.name}</div>
+                <div className="text-[10px] font-black italic text-[#DFFF00]/40 uppercase tracking-[0.2em] group-hover:text-[#DFFF00] transition-colors">{partner.tier}</div>
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[8px] font-black italic text-white uppercase tracking-widest">Partner Profile</span>
+                    <ArrowRight className="w-4 h-4 text-[#DFFF00]" />
+                </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
-        {/* Past Partners */}
-        <div className="max-w-7xl mx-auto px-4 border-t border-white/5 pt-32">
-          <h3 className="text-xs font-bold font-heading text-neutral-500 mb-16 text-center uppercase tracking-[0.3em] opacity-80">Past Sponsors</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-px bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-            {pastSponsors.map((name) => (
-              <div 
-                key={name}
-                className="bg-[#05020a] p-10 flex flex-col items-center justify-center group hover:bg-[#1a0b2e] transition-colors border border-white/0 hover:border-white/5 relative"
-              >
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="mt-4 text-[10px] font-mono text-neutral-600 group-hover:text-[#C5A059] uppercase tracking-widest transition-colors relative z-10">{name}</span>
-              </div>
-            ))}
-          </div>
+        {/* Legacy Partners (Past) */}
+        <div className="max-w-7xl mx-auto px-6 border-t border-white/5 pt-40">
+           <h3 className="text-xl font-black italic text-white/20 uppercase tracking-[1em] mb-20 text-center">Legacy Alliance</h3>
+           <div className="flex flex-wrap justify-center gap-x-20 gap-y-12">
+                {pastSponsors.map((name) => (
+                    <div key={name} className="flex flex-col items-center gap-2 group cursor-pointer opacity-30 hover:opacity-100 transition-all">
+                        <span className="text-2xl font-black italic text-white uppercase tracking-tighter group-hover:text-[#DFFF00]">{name}</span>
+                        <div className="w-0 h-1 bg-[#DFFF00] group-hover:w-full transition-all duration-500" />
+                    </div>
+                ))}
+           </div>
         </div>
-        
-        {/* Partnership CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto px-4"
-        >
-          <div className="p-16 bg-white text-black relative group cursor-pointer overflow-hidden text-center rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-              <div className="absolute inset-0 bg-linear-to-r from-[#FFD700] to-[#EBAF3F] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              
-              <h3 className="text-3xl font-bold font-heading mb-4 relative z-10 tracking-tight text-neutral-900 group-hover:text-[#05020a] transition-colors">INITIATE PARTNERSHIP</h3>
-              <p className="text-neutral-600 mb-10 font-mono text-sm relative z-10 font-bold group-hover:text-[#05020a]/70 transition-colors">
-                  Configure your brand integration with the premier cultural interface.
-              </p>
-              <button className="relative z-10 px-10 py-4 border-2 border-black font-bold font-heading text-xs uppercase tracking-widest hover:bg-black hover:text-[#FFD700] transition-all duration-300 group-hover:border-[#05020a]">
-                  Contact Us
-              </button>
-          </div>
-        </motion.div>
+
+        {/* Partnership High-Impact CTA */}
+        <div className="max-w-7xl mx-auto px-6">
+            <Link href="mailto:sponsorship@bitotsav.in" className="group block">
+                <div className="p-16 md:p-32 bg-white text-black text-center relative overflow-hidden flex flex-col items-center gap-8 hover:bg-[#DFFF00] transition-colors">
+                    <h2 className="text-6xl md:text-9xl font-black italic leading-none tracking-tighter uppercase relative z-10">
+                        JOIN THE <br/>SAGA.
+                    </h2>
+                    <p className="max-w-xl text-lg md:text-xl font-black italic uppercase tracking-tighter opacity-60 relative z-10">
+                        Become a part of the legacy. Partner with {SITE_CONFIG.name} and reach 20k+ premium attendees.
+                    </p>
+                    <div className="px-12 py-6 bg-black text-white text-xl font-black italic uppercase tracking-tighter flex items-center gap-6 group-hover:translate-y-[-10px] transition-transform relative z-10">
+                        Collaborate Now
+                        <ArrowRight className="w-8 h-8 group-hover:translate-x-4 transition-transform" />
+                    </div>
+
+                    {/* BG Watermark */}
+                    <div className="absolute inset-0 flex items-center justify-center text-[30vw] font-black italic text-black/5 select-none pointer-events-none uppercase tracking-tighter leading-none">
+                        ALLIANCE
+                    </div>
+                </div>
+            </Link>
+        </div>
+
       </div>
     </PageWrapper>
   );

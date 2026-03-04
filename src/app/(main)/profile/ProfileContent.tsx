@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Printer, CheckCircle, Sparkles, AlertTriangle } from "lucide-react";
+import { Printer, CheckCircle, Zap, AlertTriangle } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
@@ -38,86 +38,116 @@ export default function ProfileContent() {
   const qrData = encodeURIComponent(JSON.stringify({ 
     id: btoa(user.primaryEmail || user.id), 
     name: user.displayName || "Guest", 
-    type: "VISITOR_PASS", 
+    type: "SECURED_VISITOR_PASS", 
     valid: true 
   }));
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}&bgcolor=000&color=fff&format=svg`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg`;
 
   return (
     <PageWrapper>
       {/* Sync Error Banner */}
       {syncError && (
-        <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+        <div className="max-w-2xl mx-auto mb-12 p-6 bg-red-600 text-white font-black italic uppercase tracking-tighter flex items-start gap-4">
+          <AlertTriangle className="w-6 h-6 shrink-0" />
           <div>
-            <p className="text-red-400 font-bold text-sm mb-1">Registration Not Allowed</p>
-            <p className="text-neutral-400 text-sm">{syncError}</p>
+            <p className="text-lg mb-1">PROTO_ERROR: ACCESS_DENIED</p>
+            <p className="text-white/80 text-sm">{syncError}</p>
           </div>
         </div>
       )}
 
       <div className="print:hidden">
         <SectionHeader 
-            title="Profile" 
-            subtitle="Your unique access token for Bitotsav 2026."
+            title="THE PASS." 
+            subtitle="Your unique access token for the endless saga."
             align="center"
         />
       </div>
 
-      <div className="max-w-2xl mx-auto">
-        <div className="rounded-2xl border border-white/10 bg-[#05020a]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(255,215,0,0.03)] overflow-hidden">
+      <div className="max-w-2xl mx-auto mb-32 group">
+        <div className="bg-black border-4 border-[#DFFF00] shadow-[30px_30px_0px_#DFFF00] transition-transform hover:-translate-x-2 hover:-translate-y-2 overflow-hidden relative">
             
-            {/* Header */}
-            <div className="bg-linear-to-r from-[#FFD700]/10 via-transparent to-[#8A2BE2]/10 p-8 border-b border-white/5">
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full bg-linear-to-br from-[#FFD700] to-[#8A2BE2] flex items-center justify-center text-2xl font-bold text-black font-heading shadow-[0_0_20px_rgba(255,215,0,0.3)]">
-                        {(user.displayName || user.primaryEmail || "?")[0]?.toUpperCase()}
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold font-heading text-white">{user.displayName || "Guest"}</h2>
-                        <p className="text-sm text-neutral-400 font-mono">{user.primaryEmail}</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-green-400 font-mono">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    <span>VERIFIED</span>
-                    <Sparkles className="w-3 h-3 text-[#FFD700] ml-2" />
+            {/* Ticker Border */}
+            <div className="absolute top-0 left-0 right-0 h-8 bg-[#DFFF00] flex items-center overflow-hidden">
+                <div className="flex gap-10 animate-marquee whitespace-nowrap">
+                    {[...Array(5)].map((_, i) => (
+                        <span key={i} className="text-[10px] font-black italic text-black uppercase tracking-[0.3em]">
+                            SECURED_TRANSIT — AUTH_ID: {user.id.slice(0, 8).toUpperCase()} — BITOTSAW 2026 — 
+                        </span>
+                    ))}
                 </div>
             </div>
 
-            {/* QR Pass */}
-            <div className="p-8 text-center border-b border-white/5">
-                <p className="text-xs font-mono text-[#FFD700] uppercase tracking-widest mb-6 opacity-70">Your Digital Pass</p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                    src={qrUrl}
-                    alt="QR Pass" 
-                    width={200}
-                    height={200}
-                    className="mx-auto rounded-xl border-4 border-white/10 p-2 bg-black print:border-black"
-                />
+            {/* Content Body */}
+            <div className="p-12 pt-20">
+                <div className="flex flex-col md:flex-row items-center gap-10 mb-12 border-b border-white/10 pb-12">
+                    <div className="w-32 h-32 bg-[#DFFF00] p-1 border-4 border-[#DFFF00] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-500">
+                        {user.profileImageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={user.profileImageUrl} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full bg-black flex items-center justify-center text-5xl font-black italic text-[#DFFF00]">
+                                {(user.displayName || user.primaryEmail || "?")[0]?.toUpperCase()}
+                            </div>
+                        )}
+                    </div>
+                    <div className="text-center md:text-left flex-1">
+                        <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none mb-4">
+                            {user.displayName || "GUEST_UNIT"}
+                        </h2>
+                        <p className="text-sm font-black italic text-[#DFFF00] uppercase tracking-widest bg-white/5 py-2 px-4 inline-block border border-white/10">
+                            {user.primaryEmail}
+                        </p>
+                        
+                        <div className="flex items-center justify-center md:justify-start gap-4 mt-6 text-[#DFFF00]">
+                            <CheckCircle className="w-5 h-5 fill-current text-black" />
+                            <span className="text-sm font-black italic uppercase tracking-[0.3em]">TRANSIT_VERIFIED</span>
+                            <Zap className="w-4 h-4 fill-current ml-2 animate-pulse" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* QR Pass */}
+                <div className="flex flex-col items-center">
+                    <div className="p-8 bg-[#DFFF00] border-4 border-[#DFFF00] relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                            src={qrUrl}
+                            alt="QR Pass" 
+                            width={240}
+                            height={240}
+                            className="bg-black p-2"
+                        />
+                        <div className="absolute -top-4 -right-4 w-12 h-12 bg-black border-4 border-[#DFFF00] flex items-center justify-center">
+                            <Zap className="w-6 h-6 text-[#DFFF00]" />
+                        </div>
+                    </div>
+                    <p className="mt-8 text-xs font-black italic text-white/30 uppercase tracking-[0.4em]">DIGITAL_SAGA_ENTRY_KEY</p>
+                </div>
             </div>
 
-            {/* Print Button */}
-            <div className="print:hidden p-6 flex justify-center">
+            {/* Print Footer Button */}
+            <div className="print:hidden p-10 bg-white/5 border-t border-white/10 flex justify-center">
                 <button 
                     onClick={() => window.print()}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#FFD700] text-black font-bold font-heading text-xs uppercase tracking-widest hover:bg-[#FDB931] hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all rounded-full"
+                    className="flex items-center gap-4 px-12 py-6 bg-white text-black font-black italic text-xl uppercase tracking-widest hover:bg-[#DFFF00] transition-all active:scale-95"
                 >
-                    <Printer className="w-4 h-4" />
-                    Print Pass
+                    <Printer className="w-6 h-6" />
+                    HARD_COPY
                 </button>
             </div>
         </div>
       </div>
 
-      {/* Print Styles */}
       <style jsx global>{`
         @media print {
           body { background: white !important; }
           nav, footer { display: none !important; }
           .print\\:hidden { display: none !important; }
-          .print\\:border-black { border-color: black !important; }
+          .bg-black { background-color: white !important; color: black !important; }
+          .text-white { color: black !important; }
+          .border-[#DFFF00] { border-color: black !important; }
+          .bg-[#DFFF00] { background-color: white !important; border: 4px solid black !important; }
         }
       `}</style>
     </PageWrapper>

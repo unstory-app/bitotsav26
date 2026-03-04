@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import MacOSDock from "@/components/ui/mac-os-dock";
 import { useUser } from "@stackframe/stack";
+import { SITE_CONFIG } from "@/config/site";
 
 export function Navbar() {
   const router = useRouter();
@@ -18,8 +19,8 @@ export function Navbar() {
     },
     {
       id: "events",
-      name: "Events",
-      link: "/events",
+      name: SITE_CONFIG.links.events.replace('/', '').charAt(0).toUpperCase() + SITE_CONFIG.links.events.slice(2),
+      link: SITE_CONFIG.links.events,
       icon: "/icons/events.png",
     },
     {
@@ -31,12 +32,12 @@ export function Navbar() {
     {
       id: "sponsors",
       name: "Sponsors",
-      link: "/sponsors",
+      link: SITE_CONFIG.links.sponsors,
       icon: "/icons/sponsors.png",
     },
     {
       id: "leaderboard",
-      name: "Leaderboard",
+      name: "Legend",
       link: "/leaderboard",
       icon: "/icons/leaderboard.png",
     },
@@ -51,15 +52,15 @@ export function Navbar() {
           {
             id: "profile",
             name: "Profile",
-            link: "/profile",
+            link: SITE_CONFIG.links.profile,
             icon: "/icons/profile.png",
           },
         ]
       : [
           {
             id: "login",
-            name: "Login",
-            link: "/login",
+            name: "Register",
+            link: SITE_CONFIG.links.registration,
             icon: "/icons/login.png",
           },
         ]),

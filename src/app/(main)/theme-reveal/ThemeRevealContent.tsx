@@ -2,187 +2,170 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import { SITE_CONFIG } from "@/config/site";
+import { ArrowRight, Sparkles, Zap } from "lucide-react";
 
 export default function ThemeRevealContent() {
   return (
-    <div className="min-h-screen bg-[#05020a] text-white relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
 
-      {/* Subtle grain overlay */}
-      <div className="fixed inset-0 opacity-[0.02] pointer-events-none z-50" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-      }} />
+      {/* Background Graphic */}
+      <div className="absolute top-0 right-0 w-[60vw] h-[60vh] bg-[#DFFF00]/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[40vw] h-[40vh] bg-white/5 blur-[120px] pointer-events-none" />
 
       {/* ── Hero Section ── */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6">
-
-        {/* Single subtle ambient light */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#C5A059]/[0.04] rounded-full blur-[200px] pointer-events-none" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20">
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-          className="relative z-10 text-center max-w-4xl mx-auto"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+          className="relative z-10 text-center max-w-5xl mx-auto"
         >
           {/* Overline */}
-          <p className="text-[11px] uppercase tracking-[0.5em] text-[#C5A059]/60 mb-10 font-medium">
-            The 35th Edition
-          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-[#DFFF00]/30 mb-8">
+            <Zap className="w-3 h-3 text-[#DFFF00] fill-current" />
+            <p className="text-[10px] uppercase font-black italic tracking-[0.4em] text-white">
+              {SITE_CONFIG.edition}
+            </p>
+          </div>
 
-          {/* Title */}
-          <h1 className="text-[clamp(3rem,10vw,8rem)] font-heading font-bold text-white leading-[0.9] tracking-tight mb-6">
-            BITOTSAV
+          {/* Massive Title */}
+          <h1 className="text-[12vw] md:text-[8vw] font-black italic text-white leading-[0.85] tracking-tighter mb-4">
+             {SITE_CONFIG.shortName.toUpperCase()} <br/>
+             <span className="text-[#DFFF00]">STORY UNVEILED.</span>
           </h1>
 
-          {/* Thin divider */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="w-16 h-px bg-[#C5A059]/40 mx-auto mb-8"
-          />
-
-          {/* Tagline */}
-          <p className="text-lg md:text-xl text-white/40 font-light tracking-wide max-w-md mx-auto mb-16">
-            Where tradition meets tomorrow.
+          {/* Subheader */}
+          <p className="text-xl md:text-3xl text-white font-black italic uppercase tracking-tighter max-w-2xl mx-auto mb-16 border-l-4 border-[#DFFF00] pl-6 py-2 ml-auto mr-auto md:ml-0 md:mr-0 text-left">
+            {SITE_CONFIG.tagline}
           </p>
 
-          {/* CTA */}
-          <Link href="/login">
+          {/* Primary CTA */}
+          <Link href={SITE_CONFIG.links.registration}>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-10 py-4 bg-[#C5A059] text-[#05020a] text-xs font-bold uppercase tracking-[0.25em] hover:bg-[#D4AF5F] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-12 py-6 bg-white text-black text-xl font-black italic uppercase tracking-tighter hover:bg-[#DFFF00] transition-colors flex items-center gap-4 mx-auto"
             >
-              Register Now
+              Secure Your Pass
+              <ArrowRight className="w-6 h-6" />
             </motion.button>
           </Link>
         </motion.div>
 
         {/* Scroll indicator */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <div className="w-px h-12 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+           <span className="text-[10px] font-black italic uppercase tracking-widest text-white/20">Discovery</span>
+           <div className="w-px h-12 bg-linear-to-b from-[#DFFF00] to-transparent" />
         </motion.div>
       </section>
 
       {/* ── Details Section ── */}
-      <section className="relative py-32 px-6">
-        <div className="max-w-5xl mx-auto">
+      <section className="relative py-40 px-6 border-y border-white/5">
+        <div className="max-w-7xl mx-auto">
 
-          {/* Section label */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-[10px] uppercase tracking-[0.6em] text-white/20 mb-20 text-center"
-          >
-            Details
-          </motion.p>
+          {/* Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 mb-40">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-4"
+            >
+               <h3 className="text-[#DFFF00] font-black italic uppercase text-sm tracking-widest">Chronicle</h3>
+               <p className="text-4xl md:text-5xl font-black italic text-white leading-none">{SITE_CONFIG.dates.short}</p>
+               <p className="text-white/40 font-bold uppercase text-xs tracking-widest">{SITE_CONFIG.dates.long}</p>
+            </motion.div>
 
-          {/* Three columns — text only, no icons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="space-y-4"
+            >
+               <h3 className="text-[#DFFF00] font-black italic uppercase text-sm tracking-widest">Territory</h3>
+               <p className="text-4xl md:text-5xl font-black italic text-white leading-none">{SITE_CONFIG.venue.name}</p>
+               <p className="text-white/40 font-bold uppercase text-xs tracking-widest">{SITE_CONFIG.venue.location}</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="space-y-4"
+            >
+               <h3 className="text-[#DFFF00] font-black italic uppercase text-sm tracking-widest">Commencement</h3>
+               <p className="text-4xl md:text-5xl font-black italic text-white leading-none">{SITE_CONFIG.time}</p>
+               <p className="text-white/40 font-bold uppercase text-xs tracking-widest">INDIAN STANDARD TIME</p>
+            </motion.div>
+          </div>
+
+          {/* Mission Block */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8 text-center mb-32"
+            className="flex flex-col md:flex-row items-start gap-12 md:gap-24"
           >
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-3">When</p>
-              <p className="text-lg font-medium text-white/90">Feb 13 — 16, 2026</p>
+            <div className="w-32 h-32 md:w-64 md:h-64 border-4 border-[#DFFF00] flex items-center justify-center shrink-0">
+               <Sparkles className="w-16 h-16 md:w-32 md:h-32 text-[#DFFF00] p-4" />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-3">Where</p>
-              <p className="text-lg font-medium text-white/90">BIT Mesra, Ranchi</p>
+            <div className="space-y-8">
+              <h2 className="text-5xl md:text-7xl font-black italic text-white leading-none tracking-tighter uppercase">
+                 Defining the <span className="text-[#DFFF00]">Standards</span> for 35 Years.
+              </h2>
+              <p className="text-xl md:text-2xl text-white/60 font-medium leading-relaxed max-w-3xl italic">
+                 Bitotsav is not just a fest; it&apos;s a legacy that pulsates through the heart of Jharkhand. 
+                 FOUR DAYS of relentless energy, world-class stages, and the brightest minds competing for the throne.
+              </p>
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-3">Starts</p>
-              <p className="text-lg font-medium text-white/90">10:00 AM IST</p>
-            </div>
-          </motion.div>
-
-          {/* Divider */}
-          <div className="w-full h-px bg-white/5 mb-32" />
-
-          {/* About block */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <p className="text-[10px] uppercase tracking-[0.6em] text-white/20 mb-10">About</p>
-            <p className="text-xl md:text-2xl font-light text-white/60 leading-relaxed mb-8">
-              Four days. One campus. Thousands of stories waiting to unfold. Bitotsav is BIT Mesra&apos;s 
-              premier cultural, sports &amp; technical festival — a celebration that has defined college life 
-              for 35 years.
-            </p>
-            <p className="text-sm text-white/25 leading-relaxed">
-              Competitions, performances, exhibitions, and connections that last a lifetime.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Registration CTA ── */}
-      <section className="relative py-32 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="w-16 h-px bg-[#C5A059]/30 mx-auto mb-12" />
-            
-            <p className="text-2xl md:text-3xl font-light text-white/70 mb-6">
-              Ready to be part of it?
-            </p>
-            <p className="text-sm text-white/30 mb-12 max-w-sm mx-auto">
-              Registration is open for BIT Mesra students. Sign in with your webmail to get started.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/login">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-10 py-4 bg-[#C5A059] text-[#05020a] text-xs font-bold uppercase tracking-[0.25em] hover:bg-[#D4AF5F] transition-colors duration-300"
-                >
-                  Register with Webmail
-                </motion.button>
-              </Link>
-              <Link href="/events">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-10 py-4 border border-white/10 text-white/50 text-xs font-medium uppercase tracking-[0.25em] hover:border-white/30 hover:text-white/80 transition-all duration-300"
-                >
-                  Browse Events
-                </motion.button>
-              </Link>
-            </div>
-
-            <p className="text-[11px] text-white/15 mt-10">
-              Only <span className="text-[#C5A059]/40">@bitmesra.ac.in</span> emails are accepted.
-            </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Logo Footer ── */}
-      <section className="pb-20 px-6">
-        <div className="flex justify-center opacity-20 hover:opacity-40 transition-opacity duration-500">
-          <Image src="/icons/home.png" alt="Bitotsav" width={48} height={48} className="grayscale" />
+      {/* ── Action Section ── */}
+      <section className="relative py-40 px-6 bg-[#DFFF00]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="text-left py-4">
+                <h2 className="text-6xl md:text-8xl font-black italic text-black leading-none tracking-tighter mb-4 uppercase">
+                    ARE YOU <br/>IN?
+                </h2>
+                <p className="text-black font-black italic uppercase text-lg tracking-widest opacity-60">
+                    Registration Closing Soon for BIT Students
+                </p>
+            </div>
+
+            <div className="flex flex-col gap-4 w-full md:w-auto">
+                <Link href={SITE_CONFIG.links.registration} className="group">
+                    <div className="px-16 py-8 bg-black text-white font-black italic text-3xl uppercase tracking-tighter flex items-center justify-between gap-12 hover:bg-white hover:text-black transition-all">
+                        Register Now
+                        <ArrowRight className="w-10 h-10 group-hover:translate-x-4 transition-transform" />
+                    </div>
+                </Link>
+                <Link href={SITE_CONFIG.links.events} className="group">
+                    <div className="px-16 py-8 border-4 border-black/10 text-black font-black italic text-3xl uppercase tracking-tighter flex items-center justify-between gap-12 hover:border-black transition-all">
+                        Browse Events
+                        <ArrowRight className="w-10 h-10 group-hover:translate-x-4 transition-transform" />
+                    </div>
+                </Link>
+            </div>
         </div>
       </section>
+
+      {/* ── Bottom Text ── */}
+      <div className="py-20 text-center border-t border-white/5">
+          <p className="text-[10px] font-black italic uppercase tracking-[1em] text-white/20">
+             BITOTSAV 2026 / {SITE_CONFIG.edition} / {SITE_CONFIG.venue.name}
+          </p>
+      </div>
+
     </div>
   );
 }

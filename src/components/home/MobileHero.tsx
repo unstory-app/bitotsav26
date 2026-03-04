@@ -3,71 +3,94 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { PremiumButton } from "@/components/ui/premium-button";
+import { SITE_CONFIG } from "@/config/site";
+import { Marquee } from "@/components/ui/marquee";
 
 export function MobileHero() {
   return (
-    <section className="relative min-h-[85vh] flex flex-col items-center justify-center overflow-hidden px-4 bg-[#05020a] font-sans md:hidden">
+    <section className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-black md:hidden pt-20">
       
-      {/* Lightweight Background - Simple Gradient & Stars */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-           <div className="absolute inset-0 bg-linear-to-br from-[#05020a] via-[#1a0b2e] to-[#05020a]" />
-           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_30%,rgba(138,43,226,0.15),transparent_70%)]" />
-           {/* Static Stars (CSS) instead of particles */}
-           <div className="absolute inset-0 opacity-30" style={{ 
-               backgroundImage: 'radial-gradient(white 1px, transparent 1px)', 
-               backgroundSize: '30px 30px' 
-           }}></div>
-      </div>
+      {/* Background Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-[300px] bg-[#DFFF00]/10 blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 w-full mx-auto text-center flex flex-col items-center gap-6">
+      <div className="relative z-10 w-full px-6 flex flex-col items-center">
         
-        {/* Simplified Title - Standard Text instead of Particles */}
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="relative"
+        {/* Label */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 border border-white/20 px-4 py-1.5"
         >
-             <h1 className="text-5xl font-bold font-heading text-transparent bg-clip-text bg-linear-to-b from-[#FFD700] via-[#FDB931] to-[#C08F09] drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">
-                BITOTSAV
-             </h1>
-             <span className="absolute -top-4 -right-2 text-xs font-mono text-[#C5A059] opacity-80 border border-[#C5A059] px-1 rounded">
-                 &apos;26
-             </span>
+          <span className="text-[10px] font-black italic tracking-[0.3em] text-white uppercase">
+             {SITE_CONFIG.edition}
+          </span>
         </motion.div>
 
-        {/* Cinematic Subtitle */}
-        <motion.div
-           initial={{ opacity: 0, y: 10 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.8, delay: 0.3 }}
-           className="space-y-3"
-        >
-           <h2 className="text-lg font-light tracking-[0.3em] text-white/90 uppercase">
-              BIT MESRA
-           </h2>
-           <div className="h-px w-16 mx-auto bg-linear-to-r from-transparent via-[#FFD700] to-transparent opacity-50" />
-           <p className="text-xs font-serif italic text-[#C5A059] tracking-widest opacity-80">
-              The 35th Edition
-           </p>        </motion.div>
+        {/* Title */}
+        <div className="text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-7xl font-black italic leading-[0.8] tracking-tighter text-white mb-2"
+          >
+            BITOTSAV
+          </motion.h1>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="inline-block bg-[#DFFF00] px-6 py-2 -rotate-2"
+          >
+            <h2 className="text-5xl font-black italic text-black">
+              2026
+            </h2>
+          </motion.div>
+        </div>
 
-        {/* Action Button */}
+        {/* Info */}
         <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.8, delay: 0.6 }}
-           className="mt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-12 text-center"
         >
-          <Link href="/login">
-            <PremiumButton variant="gold" className="min-w-[180px] py-3 text-sm">
-                REGISTER NOW
-                <ArrowRight className="w-4 h-4 ml-2" />
-            </PremiumButton>
+          <p className="text-[#DFFF00] font-black italic uppercase text-lg">
+            {SITE_CONFIG.dates.short}
+          </p>
+          <p className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-1">
+            {SITE_CONFIG.venue.name}
+          </p>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-12 w-full"
+        >
+          <Link href={SITE_CONFIG.links.registration}>
+            <button className="w-full py-5 bg-white text-black font-black italic text-lg uppercase tracking-tighter hover:bg-[#DFFF00] transition-colors flex items-center justify-center gap-3">
+              Register Now
+              <ArrowRight className="w-5 h-5" />
+            </button>
           </Link>
         </motion.div>
-
       </div>
+
+      {/* Marquee Ticker */}
+      <div className="pb-10">
+        <Marquee 
+          items={["BITOTSAV", "2026", "REGISTER NOW", "LIVE SOON"]} 
+          speed="fast" 
+          variant="yellow" 
+          className="py-3" 
+        />
+      </div>
+
     </section>
   );
 }

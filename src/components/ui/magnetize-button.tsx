@@ -65,12 +65,11 @@ function MagnetizeButton({
     return (
         <Button
             className={cn(
-                "min-w-40 relative touch-none",
-                "bg-violet-100 dark:bg-violet-900",
-                "hover:bg-violet-200 dark:hover:bg-violet-800",
-                "text-violet-600 dark:text-violet-300",
-                "border border-violet-300 dark:border-violet-700",
-                "transition-all duration-300",
+                "min-w-48 relative touch-none py-8 px-12",
+                "bg-black border-4 border-[#DFFF00]",
+                "hover:bg-[#DFFF00] hover:text-black transition-all duration-300",
+                "text-[#DFFF00] font-black italic uppercase tracking-[0.2em] text-lg rounded-none",
+                "shadow-[15px_15px_0px_rgba(223,255,0,0.1)]",
                 className
             )}
             onMouseEnter={handleInteractionStart}
@@ -86,10 +85,9 @@ function MagnetizeButton({
                     initial={{ x: particles[index].x, y: particles[index].y }}
                     animate={particlesControl}
                     className={cn(
-                        "absolute w-1.5 h-1.5 rounded-full",
-                        "bg-violet-400 dark:bg-violet-300",
-                        "transition-opacity duration-300",
-                        isAttracting ? "opacity-100" : "opacity-40"
+                        "absolute w-2 h-2",
+                        "bg-[#DFFF00] transition-opacity duration-300",
+                        isAttracting ? "opacity-100 scale-150" : "opacity-20"
                     )}
                 />
             ))}

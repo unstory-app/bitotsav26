@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Users, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Event } from "@/types";
 import Link from "next/link";
 
@@ -11,72 +10,54 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
-  const isFlagship = event.category === "Flagship";
-  const accentColor = isFlagship ? "gold" : "violet";
-
   return (
-    <Link href={`/events/${event.id}`} className="block h-full">
+    <Link href={`/events/${event.id}`} className="block h-full group">
       <motion.div
         layout
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        whileHover={{ y: -5 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className={cn(
-          "group relative overflow-hidden rounded-xl backdrop-blur-md border transition-all duration-500 flex flex-col h-full",
-          isFlagship 
-            ? "bg-[#FFD700]/5 border-[#FFD700]/20 hover:border-[#FFD700]/50 hover:bg-[#FFD700]/10 hover:shadow-[0_0_30px_rgba(255,215,0,0.15)]" 
-            : "bg-[#8A2BE2]/5 border-[#8A2BE2]/20 hover:border-[#8A2BE2]/50 hover:bg-[#8A2BE2]/10 hover:shadow-[0_0_30px_rgba(138,43,226,0.15)]"
-        )}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative bg-black border border-white/10 h-full flex flex-col group-hover:border-[#DFFF00] transition-colors duration-500 overflow-hidden"
       >
-        <div className="p-8 relative z-10 flex flex-col h-full">
-          <div className="flex justify-between items-start mb-6">
-            <span className={cn(
-              "px-3 py-1 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full border transition-colors duration-300",
-              isFlagship 
-                ? "bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/30 group-hover:bg-[#FFD700]/20" 
-                : "bg-[#8A2BE2]/10 text-[#8A2BE2] border-[#8A2BE2]/30 group-hover:bg-[#8A2BE2]/20"
-            )}>
+        {/* Hover Background Accent */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#DFFF00]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+
+        <div className="p-8 flex flex-col h-full relative z-10">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8">
+            <span className="px-3 py-1 bg-white/5 border border-white/10 text-[10px] font-black italic uppercase tracking-widest text-[#DFFF00] group-hover:bg-[#DFFF00] group-hover:text-black transition-all">
               {event.category}
             </span>
-            <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 border",
-                isFlagship
-                    ? "border-[#FFD700]/30 bg-[#FFD700]/10 group-hover:bg-[#FFD700] group-hover:border-[#FFD700]" 
-                    : "border-[#8A2BE2]/30 bg-[#8A2BE2]/10 group-hover:bg-[#8A2BE2] group-hover:border-[#8A2BE2]"
-            )}>
-               <ArrowRight className={cn(
-                   "w-4 h-4 transition-colors duration-300 -rotate-45 group-hover:rotate-0",
-                   isFlagship 
-                    ? "text-[#FFD700] group-hover:text-black" 
-                    : "text-[#8A2BE2] group-hover:text-white"
-               )} />
+            <div className="w-12 h-12 border border-white/10 flex items-center justify-center group-hover:bg-[#DFFF00] group-hover:border-transparent transition-all">
+               <ArrowRight className="w-5 h-5 -rotate-45 group-hover:rotate-0 group-hover:text-black transition-transform" />
             </div>
           </div>
           
-          <h3 className={cn(
-              "text-2xl font-bold font-heading mb-3 transition-colors tracking-tight leading-tight uppercase",
-              isFlagship ? "text-white group-hover:text-[#FFD700]" : "text-white group-hover:text-[#8A2BE2]"
-          )}>
+          {/* Title */}
+          <h3 className="text-3xl font-black italic text-white uppercase leading-none tracking-tighter mb-4 group-hover:text-[#DFFF00] transition-colors">
             {event.name}
           </h3>
           
-          <div className={cn(
-              "mt-auto space-y-4 pt-6 border-t transition-colors duration-500",
-              isFlagship ? "border-[#FFD700]/10 group-hover:border-[#FFD700]/30" : "border-[#8A2BE2]/10 group-hover:border-[#8A2BE2]/30"
-          )}>
-            <div className="flex items-center space-x-3 transition-colors">
-              <Users className={cn("w-4 h-4", isFlagship ? "text-[#FFD700]/70" : "text-[#8A2BE2]/70")} />
-              <span className="text-sm font-light tracking-wide text-neutral-300">{event.organizer}</span>
+          {/* Description Snippet (Optional but good for layout) */}
+          <p className="text-white/40 text-xs font-bold uppercase tracking-wider mb-8 line-clamp-2">
+            JOIN US AT {event.venue.toUpperCase()} FOR AN UNFORGETTABLE EXPERIENCE.
+          </p>
+          
+          {/* Footer Info */}
+          <div className="mt-auto pt-6 border-t border-white/5 flex flex-wrap gap-6 items-center">
+            <div className="flex items-center gap-2">
+              <Users className="w-3 h-3 text-[#DFFF00]" />
+              <span className="text-[10px] font-black italic uppercase text-white/60 tracking-widest">{event.organizer}</span>
             </div>
-            <div className="flex items-center space-x-3 transition-colors">
-              <MapPin className={cn("w-4 h-4", isFlagship ? "text-[#FFD700]/70" : "text-[#8A2BE2]/70")} />
-              <span className="text-sm font-light tracking-wide text-neutral-300">{event.venue}</span>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3 h-3 text-[#DFFF00]" />
+              <span className="text-[10px] font-black italic uppercase text-white/60 tracking-widest">{event.venue}</span>
             </div>
           </div>
         </div>
+
+        {/* Bottom Bar Decorations */}
+        <div className="absolute bottom-0 left-0 w-0 h-1 bg-[#DFFF00] group-hover:w-full transition-all duration-700" />
       </motion.div>
     </Link>
   );

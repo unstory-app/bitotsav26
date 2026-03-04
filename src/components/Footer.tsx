@@ -1,77 +1,105 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Github, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import { Github, Twitter, Instagram, Heart, ShieldCheck } from "lucide-react";
+import { SITE_CONFIG } from "@/config/site";
 
 export function Footer() {
   return (
-    <footer className="w-full relative z-10 text-white overflow-hidden">
-        {/* Golden Top Border */}
-        <div className="h-1 w-full bg-linear-to-r from-[#C5A059] via-[#FFD700] to-[#C5A059] shadow-[0_0_20px_#FFD700]" />
+    <footer className="w-full relative z-10 bg-black text-white overflow-hidden border-t-4 border-[#DFFF00]">
         
-        <div className="bg-[#05020a] relative">
-            {/* Background Texture */}
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] pointer-events-none" />
-
-            <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div className="col-span-1 md:col-span-2">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="relative w-16 h-16 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
-                           <Image src="/icons/home.png" alt="Bitotsav" fill className="object-contain" />
-                        </div>
+        <div className="relative pt-20 pb-12 px-6">
+            <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+                    
+                    {/* Brand Section */}
+                    <div className="col-span-1 md:col-span-2 space-y-8">
                         <div>
-                             <h2 className="text-3xl font-bold font-heading text-transparent bg-clip-text bg-linear-to-r from-[#FFD700] via-[#FDB931] to-[#C08F09]">BITOTSAV 2026</h2>
-                             <p className="text-[#C5A059] text-sm tracking-widest uppercase opacity-80">BIT Mesra&apos;s Premier Festival</p>
+                            <h2 className="text-5xl md:text-6xl font-black italic leading-none tracking-tighter text-white mb-2 uppercase">
+                                {SITE_CONFIG.shortName} <span className="text-[#DFFF00]">2026</span>
+                            </h2>
+                            <p className="text-[#DFFF00] font-black italic uppercase tracking-widest text-sm">
+                                {SITE_CONFIG.edition} / {SITE_CONFIG.venue.name}
+                            </p>
+                        </div>
+                        
+                        <div className="max-w-md border-l-4 border-[#DFFF00] pl-6 py-2">
+                            <p className="text-white font-black italic text-xl uppercase leading-tight mb-4">
+                                {SITE_CONFIG.tagline}
+                            </p>
+                            <p className="text-white/40 text-sm font-bold uppercase tracking-wider leading-relaxed">
+                                Experience the fusion of culture and innovation. 
+                                JOIN THE LEgendary Saga from {SITE_CONFIG.dates.short}.
+                            </p>
                         </div>
                     </div>
-                    <p className="text-neutral-400 max-w-sm leading-relaxed text-base font-serif italic border-l-2 border-[#C5A059]/30 pl-4">
-                    &quot;Experience the fusion of culture, technology, and art. Join us for 
-                    BIT Mesra&apos;s largest annual festival where innovation meets tradition.&quot;
-                    </p>
-                </div>
-                
-                <div>
-                    <h3 className="text-lg font-bold font-heading text-[#E0D8C0] mb-6 uppercase tracking-wider relative inline-block">
-                        Quick Exploration
-                        <span className="absolute -bottom-2 left-0 w-1/2 h-[2px] bg-[#FFD700]" />
-                    </h3>
-                    <ul className="space-y-3 text-neutral-400">
-                    <li><Link href="/events" className="hover:text-[#FFD700] transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] group-hover:bg-[#FFD700] transition-colors" /> Events</Link></li>
-                    <li><Link href="/schedule" className="hover:text-[#FFD700] transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] group-hover:bg-[#FFD700] transition-colors" /> Schedule</Link></li>
-                    <li><Link href="/sponsors" className="hover:text-[#FFD700] transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] group-hover:bg-[#FFD700] transition-colors" /> Sponsors</Link></li>
-                    <li><Link href="/helpdesk" className="hover:text-[#FFD700] transition-colors flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-[#C5A059] group-hover:bg-[#FFD700] transition-colors" /> Helpdesk</Link></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 className="text-lg font-bold font-heading text-[#E0D8C0] mb-6 uppercase tracking-wider relative inline-block">
-                        Connect With Us
-                        <span className="absolute -bottom-2 left-0 w-1/2 h-[2px] bg-[#FFD700]" />
-                    </h3>
-                    <div className="flex space-x-4">
-                    {[Instagram, Twitter, Linkedin, Github].map((Icon, i) => (
-                        <Link key={i} href="#" className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-[#FFD700] hover:text-[#2a0a3d] hover:border-[#FFD700] hover:shadow-[0_0_20px_#FFD700] transition-all duration-300 group transform hover:-translate-y-1">
-                            <Icon className="w-5 h-5" />
-                        </Link>
-                    ))}
+
+                    {/* Navigation */}
+                    <div className="space-y-8">
+                        <h3 className="text-lg font-black italic text-[#DFFF00] uppercase tracking-widest">
+                            Site Map
+                        </h3>
+                        <ul className="space-y-4 text-white/60 font-black italic uppercase text-lg">
+                            <li><Link href="/events" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Events</Link></li>
+                            <li><Link href="/schedule" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Schedule</Link></li>
+                            <li><Link href="/sponsors" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Sponsors</Link></li>
+                            <li><Link href="/login" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Register</Link></li>
+                        </ul>
                     </div>
+
+                    {/* Socials */}
+                    <div className="space-y-8">
+                        <h3 className="text-lg font-black italic text-[#DFFF00] uppercase tracking-widest">
+                            Pulse
+                        </h3>
+                        <div className="flex flex-wrap gap-4">
+                            {[
+                                { Icon: Instagram, href: SITE_CONFIG.socials.instagram },
+                                { Icon: Twitter, href: SITE_CONFIG.socials.twitter },
+                                { Icon: Github, href: "https://github.com/bitotsav" },
+                                { Icon: ShieldCheck, href: "/helpdesk" }
+                            ].map(({ Icon, href }, i) => (
+                                <Link 
+                                    key={i} 
+                                    href={href} 
+                                    className="w-14 h-14 bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#DFFF00] hover:text-black hover:border-transparent transition-all"
+                                >
+                                    <Icon className="w-6 h-6" />
+                                </Link>
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.2em]">
+                            Stay updated via @bitotsav
+                        </p>
+                    </div>
+
                 </div>
-                </div>
-                
-                <div className="pt-8 border-t border-[#C5A059]/20 flex flex-col md:flex-row items-center justify-between text-sm text-neutral-500">
-                <p>&copy; {new Date().getFullYear()} Bitotsav. All rights reserved.</p>
-                <div className="flex items-center mt-4 md:mt-0 font-medium">
-                    <span>Forged with</span>
-                    <Heart className="w-4 h-4 mx-2 text-red-500 fill-red-500 animate-pulse" />
-                    <span>by Team Bitotsav</span>
-                </div>
-                <div className="flex items-center mt-4 md:mt-0 text-neutral-500 text-sm">
-                    <span>Developed by </span>
-                    <a href="https://sh20raj.github.io" target="_blank" rel="noopener noreferrer" className="text-[#FFD700] hover:text-[#FDB931] transition-colors ml-1 font-medium">Shaswat Raj</a>
-                </div>
+
+                {/* Bottom Bar */}
+                <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="flex flex-col items-center md:items-start gap-2">
+                        <p className="text-[10px] font-black italic uppercase text-white/20 tracking-[0.2em]">
+                            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All RIGHTS RESERVED.
+                        </p>
+                        <div className="flex items-center text-[10px] font-black italic uppercase text-white/40 tracking-[0.2em]">
+                            Developed by <a href="https://sh20raj.github.io" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#DFFF00] transition-colors ml-2 bg-white/5 px-2 py-1">Shaswat Raj</a>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-3 text-white/20">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">FORGED WITH</span>
+                            <Heart className="w-4 h-4 text-[#DFFF00] fill-current" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">FOR THE LEGACY</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {/* Massive Watermark */}
+        <div className="absolute -bottom-20 -left-20 text-[25vw] font-black italic text-white/5 select-none pointer-events-none leading-none tracking-tighter">
+            BITOTSAV
+        </div>
+
     </footer>
   );
 }

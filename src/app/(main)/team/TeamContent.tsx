@@ -4,8 +4,10 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { TeamMemberCard } from "@/components/TeamMemberCard";
 import { TeamMember } from "@/types";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { SITE_CONFIG } from "@/config/site";
+import { Users, Code } from "lucide-react";
 
-// Static data based on fetched content (will be expanded later)
+// Static data based on fetched content
 const coreTeam: TeamMember[] = [
   { name: "John Doe", role: "President", socials: { linkedin: "#" } },
   { name: "Jane Smith", role: "Vice President", socials: { linkedin: "#" } },
@@ -24,39 +26,67 @@ const developers: TeamMember[] = [
 
 export default function TeamContent() {
   return (
-    <PageWrapper>
-      <SectionHeader 
-        title="Our Team" 
-        subtitle="Core processors and protocol maintainers."
-      />
+    <PageWrapper className="pt-32 pb-20">
+      
+      <div className="max-w-7xl mx-auto px-6 mb-32">
+        <SectionHeader 
+          title="THE CREW." 
+          subtitle="The architects and maintainers of the biggest concert experience."
+          align="left"
+        />
+      </div>
 
-      <div className="max-w-7xl mx-auto mb-20 px-4">
-        <div className="flex items-center gap-4 mb-8 border-b border-[#FFD700]/20 pb-4">
-            <div className="h-2 w-2 bg-[#FFD700]" />
-            <h3 className="text-sm font-bold font-heading text-[#FFD700] uppercase tracking-widest pl-2">
-                Core Team
-            </h3>
+      <div className="space-y-40">
+        
+        {/* Core Team Section */}
+        <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-6 mb-16 border-l-4 border-[#DFFF00] pl-6 py-2">
+                <Users className="w-8 h-8 text-[#DFFF00]" />
+                <h3 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter">
+                    CORE COUNCIL
+                </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {coreTeam.map((member, i) => (
+                <TeamMemberCard key={i} member={member} />
+              ))}
+            </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {coreTeam.map((member, i) => (
-            <TeamMemberCard key={i} member={member} />
-          ))}
+
+        {/* Development Team Section */}
+        <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-6 mb-16 border-l-4 border-[#DFFF00] pl-6 py-2">
+                <Code className="w-8 h-8 text-[#DFFF00]" />
+                <h3 className="text-4xl md:text-5xl font-black italic text-white uppercase tracking-tighter">
+                    TECH ARCHITECTS
+                </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {developers.map((member, i) => (
+                <TeamMemberCard key={i} member={member} />
+              ))}
+            </div>
+        </div>
+
+      </div>
+
+      {/* Join the Team CTA */}
+      <div className="max-w-7xl mx-auto px-6 mt-40">
+        <div className="p-16 bg-[#DFFF00] text-black text-center relative overflow-hidden flex flex-col items-center gap-8">
+            <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter relative z-10 leading-none">
+                WANT TO <br className="md:hidden" />BUILD THIS?
+            </h2>
+            <p className="max-w-2xl text-lg font-black italic uppercase tracking-tighter opacity-70 relative z-10">
+                The {SITE_CONFIG.shortName} tech team is always looking for visionaries. Join the protocol maintenance group now.
+            </p>
+            <div className="absolute inset-0 flex items-center justify-center text-[25vw] font-black italic text-black/5 select-none pointer-events-none uppercase tracking-tighter leading-none">
+                JOIN
+            </div>
         </div>
       </div>
 
-       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center gap-4 mb-8 border-b border-[#8A2BE2]/20 pb-4">
-            <div className="h-2 w-2 bg-[#8A2BE2]" />
-            <h3 className="text-sm font-bold font-heading text-[#8A2BE2] uppercase tracking-widest pl-2">
-                Development Team
-            </h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {developers.map((member, i) => (
-            <TeamMemberCard key={i} member={member} />
-          ))}
-        </div>
-      </div>
     </PageWrapper>
   );
 }

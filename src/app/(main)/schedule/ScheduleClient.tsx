@@ -5,36 +5,37 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeader } from "@/components/SectionHeader";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { cn } from "@/lib/utils";
+import { SITE_CONFIG } from "@/config/site";
 
 const scheduleData = [
   {
-    day: "Day 01",
-    date: "Feb 14",
+    day: "DAY_01",
+    date: "FEB 14",
     events: [
-      { time: "10:00 AM", name: "Inauguration Ceremony", venue: "GP Birla Auditorium", type: "Main" },
-      { time: "02:00 PM", name: "Dance Saga Prelims", venue: "OAT", type: "Dance" },
-      { time: "05:00 PM", name: "Battle of Bands", venue: "Main Stage", type: "Music" },
-      { time: "08:00 PM", name: "EDM Nite", venue: "Main Grounds", type: "Star Nite" },
+      { time: "10:00 AM", name: "INAUGURATION CEREMONY", venue: "GP BIRLA AUDITORIUM", type: "MAIN_SEQUENCE" },
+      { time: "02:00 PM", name: "DANCE SAGA PRELIMS", venue: "OAT", type: "STAGE_OPS" },
+      { time: "05:00 PM", name: "BATTLE OF BANDS", venue: "MAIN STAGE", type: "SONIC_WAR" },
+      { time: "08:00 PM", name: "EDM NITE", venue: "MAIN GROUNDS", type: "ENERGY_PEAK" },
     ]
   },
   {
-    day: "Day 02",
-    date: "Feb 15",
+    day: "DAY_02",
+    date: "FEB 15",
     events: [
-      { time: "09:00 AM", name: "Hackathon 24H Begin", venue: "Lab 1", type: "Tech" },
-      { time: "11:00 AM", name: "Robowars", venue: "SAC", type: "Tech" },
-      { time: "03:00 PM", name: "Natsamrat", venue: "Main Stage", type: "Drama" },
-      { time: "07:00 PM", name: "Fashion Show", venue: "GP Birla Auditorium", type: "Flagship" },
+      { time: "09:00 AM", name: "HACKATHON 24H BEGIN", venue: "LAB 1", type: "CODE_TRANSIT" },
+      { time: "11:00 AM", name: "ROBOWARS", venue: "SAC", type: "MECH_COMBAT" },
+      { time: "03:00 PM", name: "NATSAMRAT", venue: "MAIN STAGE", type: "DRAMA_CELL" },
+      { time: "07:00 PM", name: "FASHION SHOW", venue: "GP BIRLA AUDITORIUM", type: "GLAM_PROTOCOL" },
     ]
   },
   {
-    day: "Day 03",
-    date: "Feb 16",
+    day: "DAY_03",
+    date: "FEB 16",
     events: [
-      { time: "10:00 AM", name: "Squiz Games", venue: "OAT", type: "Informal" },
-      { time: "01:00 PM", name: "Music Solo", venue: "Mini Auditorium", type: "Music" },
-      { time: "04:00 PM", name: "Closing Ceremony", venue: "Main Stage", type: "Main" },
-      { time: "08:00 PM", name: "Live Concert", venue: "Main Stage", type: "Star Nite" },
+      { time: "10:00 AM", name: "SQUIZ GAMES", venue: "OAT", type: "INTEL_HUB" },
+      { time: "01:00 PM", name: "MUSIC SOLO", venue: "MINI AUDITORIUM", type: "SONIC_SOLO" },
+      { time: "04:00 PM", name: "CLOSING CEREMONY", venue: "MAIN STAGE", type: "TERMINAL_OPS" },
+      { time: "08:00 PM", name: "LIVE CONCERT", venue: "MAIN STAGE", type: "ABSOLUTE_SAGA" },
     ]
   }
 ];
@@ -45,47 +46,39 @@ export default function ScheduleClient() {
   return (
     <PageWrapper>
       <SectionHeader 
-        title="Schedule" 
-        subtitle="Operational timeline for the festival sequence."
+        title="TIMELINE." 
+        subtitle={`Operational sequence for ${SITE_CONFIG.shortName} 2026 phase.`}
       />
 
       {/* Day Selector */}
-      <div className="max-w-4xl mx-auto mb-16 flex flex-wrap justify-center gap-4">
+      <div className="max-w-7xl mx-auto mb-32 flex flex-wrap justify-center gap-6">
         {scheduleData.map((data, index) => (
           <button
             key={data.day}
             onClick={() => setActiveDay(index)}
             className={cn(
-              "relative px-8 py-4 border transition-all duration-500 group rounded-xl overflow-hidden",
+              "relative px-12 py-8 bg-black border-4 transition-all duration-300 group overflow-hidden",
               activeDay === index 
-                ? "border-[#FFD700] bg-[#FFD700]/10 text-white shadow-[0_0_20px_rgba(255,215,0,0.2)]" 
-                : "border-white/10 text-neutral-500 hover:border-[#FFD700]/50 hover:text-white bg-[#05020a]/50"
+                ? "border-[#DFFF00] z-10" 
+                : "border-white/10 text-white/20 hover:border-white/40"
             )}
           >
             <div className={cn(
-                "text-2xl font-bold font-heading mb-1",
-                activeDay === index ? "text-[#FFD700]" : "group-hover:text-neutral-200"
+                "text-4xl font-black italic mb-2 transition-colors uppercase leading-none",
+                activeDay === index ? "text-[#DFFF00]" : "group-hover:text-white"
             )}>{data.day}</div>
-            <div className="text-xs font-mono opacity-60 uppercase tracking-widest">{data.date}</div>
+            <div className="text-[10px] font-black italic uppercase tracking-[0.4em]">{data.date}</div>
             
+            {/* Background Accent if active */}
             {activeDay === index && (
-              <motion.div 
-                layoutId="activeDay"
-                className="absolute inset-0 border-2 border-[#FFD700] rounded-xl pointer-events-none"
-                initial={false}
-                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-              />
+                <div className="absolute top-0 right-0 w-8 h-8 bg-[#DFFF00] -rotate-45 translate-x-4 -translate-y-4" />
             )}
-            
-            {/* Hover Glow */}
-            <div className="absolute inset-0 bg-linear-to-t from-[#FFD700]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </button>
         ))}
       </div>
 
       {/* Timeline Display */}
-      <div className="max-w-4xl mx-auto relative px-4 pb-20">
-        <div className="absolute left-8 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-[#FFD700]/30 to-transparent hidden md:block" />
+      <div className="max-w-5xl mx-auto relative px-6 pb-40">
         
         <AnimatePresence mode="wait">
           <motion.div
@@ -94,32 +87,35 @@ export default function ScheduleClient() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.4 }}
-            className="space-y-6"
+            className="space-y-4"
           >
             {scheduleData[activeDay].events.map((event, idx) => (
-              <div key={idx} className="relative pl-0 md:pl-16 group">
-                <div className="absolute left-[27px] top-8 w-4 h-4 rounded-full bg-[#05020a] border-2 border-[#FFD700] shadow-[0_0_10px_#FFD700] z-10 hidden md:block group-hover:scale-125 transition-transform duration-300" />
-                
-                <div className="rounded-2xl border border-white/10 p-6 md:p-8 bg-[#05020a]/40 backdrop-blur-md hover:border-[#FFD700]/30 hover:bg-[#FFD700]/5 transition-all duration-300 relative overflow-hidden group-hover:shadow-[0_0_30px_rgba(255,215,0,0.05)]">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-                    <div className="space-y-2">
-                      <div className="text-[#FFD700] font-bold font-mono tracking-widest text-sm flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse shadow-[0_0_8px_#FFD700]" />
-                        {event.time}
-                      </div>
-                      <h3 className="text-xl md:text-3xl font-bold font-heading uppercase tracking-tight text-white group-hover:text-[#FDB931] transition-colors">
-                        {event.name}
-                      </h3>
+              <div key={idx} className="group relative">
+                <div className="bg-white/5 border border-white/10 p-10 md:p-16 hover:border-[#DFFF00] hover:bg-white/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12 group">
+                  <div className="space-y-6 flex-1">
+                    <div className="flex items-center gap-4">
+                        <div className="w-3 h-3 bg-[#DFFF00]" />
+                        <div className="text-[#DFFF00] font-black italic uppercase tracking-[0.3em] text-sm">
+                            TIME_MARKER: {event.time}
+                        </div>
                     </div>
-                    
-                    <div className="text-right">
-                      <div className="text-neutral-300 text-sm font-bold font-serif italic">{event.venue}</div>
-                      <div className="text-[10px] text-[#8A2BE2] tracking-[0.2em] font-mono mt-1 font-bold">CLASS: {event.type}</div>
-                    </div>
+                    <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white group-hover:text-[#DFFF00] transition-colors leading-none">
+                    {event.name}
+                    </h3>
                   </div>
                   
-                  {/* Subtle Hex Pattern on hover */}
-                  <div className="absolute right-0 top-0 w-40 h-40 opacity-0 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(circle,rgba(255,215,0,0.2)_1px,transparent_1px)] bg-size-[20px_20px]" />
+                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#DFFF00] pl-6 md:pl-0 md:pr-6">
+                    <div className="text-white/40 text-sm font-black italic uppercase tracking-widest mb-1">LOCATION</div>
+                    <div className="text-white font-black italic uppercase text-lg tracking-tighter">{event.venue}</div>
+                    <div className="text-[10px] text-[#DFFF00] font-black italic uppercase tracking-[0.2em] mt-4">CLASS_ID: {event.type}</div>
+                  </div>
+
+                  {/* Hover Ticker */}
+                  <div className="absolute right-0 bottom-0 overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="text-[12rem] font-black italic text-white/5 leading-none uppercase translate-x-12 translate-y-12 select-none">
+                        {scheduleData[activeDay].day}
+                      </div>
+                  </div>
                 </div>
               </div>
             ))}

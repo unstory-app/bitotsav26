@@ -28,8 +28,8 @@ interface KineticTeamHybridProps {
 }
 
 export default function KineticTeamHybrid({ 
-  title = "Creative Talent", 
-  subtitle = "Selected Works '24",
+  title = "THE ARCHITECTS.", 
+  subtitle = "CODE PROTOCOL '26",
   members 
 }: KineticTeamHybridProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export default function KineticTeamHybrid({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isMobile) return;
-    // Offset the cursor card so it doesn't block the text
+    // Offset the cursor card
     mouseX.set(e.clientX + 20); 
     mouseY.set(e.clientY + 20);
   };
@@ -64,26 +64,21 @@ export default function KineticTeamHybrid({
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative min-h-[50vh] w-full cursor-default px-6 py-24 text-neutral-200 md:px-12"
+      className="relative min-h-[50vh] w-full cursor-default px-6 py-24 bg-black text-white md:px-12"
     >
-      {/* Background Ambience - Simplified as PageWrapper handles main bg */}
-      {/* We keep a subtle overlay for this specific section area */}
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-[#05020a]/50 to-transparent" />
-
       <div className="mx-auto max-w-6xl relative z-10">
         <motion.header 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-20 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+          className="mb-32 flex flex-col gap-8 md:flex-row md:items-end md:justify-between border-b border-white/10 pb-12"
         >
           <div>
-            <h1 className="text-4xl font-bold font-heading tracking-tighter text-white sm:text-6xl md:text-8xl">
+            <h1 className="text-6xl font-black italic tracking-tighter text-white md:text-9xl uppercase leading-none">
               {title}
             </h1>
           </div>
-          <div className="h-px flex-1 bg-white/10 mx-8 hidden md:block" />
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#FFD700]">
+          <p className="text-sm font-black italic uppercase tracking-[0.3em] text-[#DFFF00]">
             {subtitle}
           </p>
         </motion.header>
@@ -105,7 +100,6 @@ export default function KineticTeamHybrid({
       </div>
 
       {/* DESKTOP ONLY: Global Floating Cursor Image */}
-      {/* We use Portal-like fixed positioning to ensure it floats above everything smoothly */}
       {!isMobile && (
         <motion.div
           style={{ x: cursorX, y: cursorY }}
@@ -114,25 +108,24 @@ export default function KineticTeamHybrid({
           <AnimatePresence mode="wait">
             {activeId && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)" }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="relative h-64 w-80 overflow-hidden rounded-xl border border-[#FFD700]/30 bg-[#05020a] shadow-[0_0_30px_rgba(255,215,0,0.2)]"
+                initial={{ opacity: 0, scale: 0.8, x: -100 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.8, x: 100 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="relative h-80 w-64 overflow-hidden border-4 border-[#DFFF00] bg-black shadow-2xl"
               >
-                {/* Find the active image */}
                 <Image
                   src={members.find((t) => t.id === activeId)?.image || ""}
                   alt="Preview"
                   fill
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
                 />
                 
                 {/* Overlay Metadata */}
-                <div className="absolute bottom-0 w-full bg-linear-to-t from-black/90 to-transparent p-4">
+                <div className="absolute bottom-0 w-full bg-black p-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[#FFD700] animate-pulse" />
-                    <span className="text-[10px] uppercase tracking-widest text-[#FFD700]">Active</span>
+                    <div className="h-2 w-2 bg-[#DFFF00]" />
+                    <span className="text-[10px] font-black italic uppercase tracking-widest text-[#DFFF00]">LIVE_AUTH_ID: {activeId.toUpperCase()}</span>
                   </div>
                 </div>
               </motion.div>
@@ -165,54 +158,63 @@ function TeamRow({
 
   return (
     <motion.div
-      layout // This enables smooth height animation on mobile
+      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ 
-        opacity: isDimmed ? 0.3 : 1, 
+        opacity: isDimmed ? 0.2 : 1, 
         y: 0,
-        backgroundColor: isActive && isMobile ? 'rgba(255,215,0,0.05)' : 'transparent'
+        backgroundColor: isActive ? '#DFFF00' : 'transparent'
       }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       onMouseEnter={() => !isMobile && setActiveId(data.id)}
       onMouseLeave={() => !isMobile && setActiveId(null)}
       onClick={() => isMobile && setActiveId(isActive ? null : data.id)}
       className={cn(
-        "group relative border-t border-white/10 transition-colors duration-500 last:border-b",
+        "group relative border-t border-white/10 transition-colors duration-300 last:border-b",
         isMobile ? 'cursor-pointer' : 'cursor-default'
       )}
     >
-      <div className="relative z-10 flex flex-col py-8 md:flex-row md:items-center md:justify-between md:py-12">
+      <div className="relative z-10 flex flex-col py-10 md:flex-row md:items-center md:justify-between md:py-16 px-4">
         
         {/* Name & Index Section */}
-        <div className="flex items-baseline gap-6 md:gap-12 pl-4 md:pl-0 transition-transform duration-500 group-hover:translate-x-4">
-          <span className="font-mono text-xs text-white/40 group-hover:text-[#FFD700] transition-colors">
-            0{index + 1}
+        <div className="flex items-baseline gap-8 md:gap-16 transition-transform duration-500 group-hover:translate-x-6">
+          <span className={cn(
+            "font-black italic text-sm transition-colors",
+            isActive ? "text-black" : "text-white/20 group-hover:text-[#DFFF00]"
+          )}>
+            PROTO_{index + 1}
           </span>
-          <h2 { ...{ className: cn(
-              "text-3xl font-medium font-heading tracking-tight transition-colors duration-300 md:text-6xl",
-              isActive ? "text-[#FFD700]" : "text-white/60 group-hover:text-white"
-          )}} >
+          <h2 className={cn(
+              "text-4xl font-black italic tracking-tighter transition-colors duration-300 md:text-8xl uppercase leading-none",
+              isActive ? "text-black" : "text-white/40 group-hover:text-white"
+          )}>
             {data.name}
           </h2>
         </div>
 
         {/* Role & Icon Section */}
-        <div className="mt-4 flex items-center justify-between pl-12 pr-4 md:mt-0 md:justify-end md:gap-12 md:pl-0 md:pr-0">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/40 transition-colors group-hover:text-[#FFD700]">
+        <div className="mt-6 flex items-center justify-between md:mt-0 md:justify-end md:gap-16">
+          <span className={cn(
+            "text-[10px] font-black italic uppercase tracking-[0.3em] transition-colors",
+            isActive ? "text-black/60" : "text-white/20 group-hover:text-[#DFFF00]"
+          )}>
             {data.role}
           </span>
           
           {/* Mobile Toggle Icon */}
-          <div className="block md:hidden text-white/50">
-            {isActive ? <Minus size={18} /> : <Plus size={18} />}
+          <div className={cn(
+            "block md:hidden",
+            isActive ? "text-black" : "text-white/40"
+          )}>
+            {isActive ? <Minus size={20} strokeWidth={3} /> : <Plus size={20} strokeWidth={3} />}
           </div>
 
           {/* Desktop Arrow */}
           <motion.div
-             animate={{ x: isActive ? 0 : -10, opacity: isActive ? 1 : 0 }}
-             className="hidden md:block text-[#FFD700]"
+             animate={{ x: isActive ? 0 : -20, opacity: isActive ? 1 : 0 }}
+             className="hidden md:block text-black"
           >
-             <ArrowUpRight size={28} strokeWidth={1.5} />
+             <ArrowUpRight size={48} strokeWidth={3} />
           </motion.div>
         </div>
       </div>
@@ -225,19 +227,19 @@ function TeamRow({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="overflow-hidden bg-[#FFD700]/5"
+            className="overflow-hidden bg-black"
           >
             <div className="p-4">
-              <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-[#FFD700]/20">
+              <div className="relative aspect-video w-full overflow-hidden border-4 border-[#DFFF00]">
                 <Image 
                   src={data.image} 
                   alt={data.name} 
-                  className="h-full w-full object-cover" 
+                  className="h-full w-full object-cover grayscale" 
                   fill
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute bottom-4 left-4">
-                   <p className="text-xs uppercase tracking-widest text-[#FFD700]">View Profile</p>
+                   <p className="text-xs font-black italic uppercase tracking-widest text-[#DFFF00]">SECURED_ACCESS</p>
                 </div>
               </div>
             </div>
