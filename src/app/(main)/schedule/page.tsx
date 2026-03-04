@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import ScheduleClient from "./ScheduleClient";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "Festival Schedule",
-  description: "View the complete three-day timeline of Bitotsav 2026 events, from cultural nights to technical workshops.",
+  title: "Schedule",
+  description: "View the complete four-day timeline of Bitotsav 2026 events, from cultural nights to technical workshops.",
   alternates: {
     canonical: '/schedule',
   },
   openGraph: {
-    title: "Festival Schedule | Bitotsav 2026",
-    description: "View the complete three-day timeline of Bitotsav 2026 events.",
-    url: 'https://bitotsav.bitmesra.ac.in/schedule',
+    title: `Festival Schedule | ${SITE_CONFIG.name}`,
+    description: "4 days of an endless saga.",
+    url: `${SITE_CONFIG.url}/schedule`,
   },
 };
 

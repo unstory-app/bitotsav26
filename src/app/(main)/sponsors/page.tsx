@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import SponsorsContent from "./SponsorsContent";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "Our Partners",
-  description: "Recognizing the corporate partners and sponsors who empower Bitotsav 2026.",
+  title: "Partners",
+  description: "Recognizing the corporate partners and visionary sponsors who empower Bitotsav 2026.",
   alternates: {
     canonical: '/sponsors',
   },
   openGraph: {
-    title: "Our Partners | Bitotsav 2026",
-    description: "Recognizing the corporate partners and sponsors who empower Bitotsav 2026.",
-    url: 'https://bitotsav.bitmesra.ac.in/sponsors',
+    title: `Partners | ${SITE_CONFIG.name}`,
+    description: "The alliance that powers North India's largest socio-cultural saga.",
+    url: `${SITE_CONFIG.url}/sponsors`,
   },
 };
 

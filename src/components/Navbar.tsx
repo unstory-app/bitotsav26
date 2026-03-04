@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@stackframe/stack";
 import { SITE_CONFIG } from "@/config/site";
@@ -10,25 +10,17 @@ import Link from "next/link";
 import { X, Zap, Activity } from "lucide-react";
 
 export function Navbar() {
-  const router = useRouter();
   const pathname = usePathname();
   const user = useUser();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [time, setTime] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     
-    const interval = setInterval(() => {
-      const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    }, 1000);
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearInterval(interval);
     };
   }, []);
 
@@ -74,22 +66,6 @@ export function Navbar() {
                     </div>
                 </div>
             </Link>
-
-            {/* Technical Metadata (Desktop Only) */}
-            <div className="hidden lg:flex items-center gap-6 border-l border-white/10 pl-8 ml-4">
-                <div className="flex flex-col">
-                    <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em]">SIGNAL STRENGTH</span>
-                    <div className="flex gap-0.5 mt-1">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className={cn("w-3 h-1", i < 3 ? "bg-[#DFFF00]/40" : "bg-white/5")} />
-                        ))}
-                    </div>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em]">NODE ID</span>
-                    <span className="text-[10px] font-black italic text-white/40 uppercase tracking-wider">0x{Math.floor(Math.random() * 1000).toString(16).toUpperCase()}..SEC</span>
-                </div>
-            </div>
         </div>
 
         {/* Center: Navigation Links (Desktop Only) */}
@@ -115,15 +91,8 @@ export function Navbar() {
             ))}
         </div>
 
-        {/* Right: Clock & Mobile Trigger */}
-        <div className="flex items-center gap-8">
-            <div className="hidden md:flex flex-col items-end border-r border-white/10 pr-8 mr-4">
-                <span className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.2em]">SYSTEM CLOCK</span>
-                <span className="text-xl font-black italic text-white uppercase tracking-tighter leading-none font-mono">
-                    {time || "00:00:00"}
-                </span>
-            </div>
-
+        {/* Right: Mobile Trigger & Access */}
+        <div className="flex items-center gap-4">
             <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 text-white hover:bg-[#DFFF00] hover:text-black transition-all"

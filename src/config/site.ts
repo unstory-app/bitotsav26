@@ -3,6 +3,10 @@ export const SITE_CONFIG = {
   shortName: "Bitotsav",
   edition: "The 35th Edition",
   tagline: "Where tradition meets tomorrow.",
+  description: "Bitotsav 2026 is North India's largest socio-cultural fest at BIT Mesra. Experience the ultimate 4-day saga of music, dance, arts, and competitive excellence.",
+  url: "https://bitotsav.in", // Placeholder or official URL
+  ogImage: "/og-image.png",
+  keywords: ["Bitotsav", "BIT Mesra", "Cultural Fest", "Ranchi", "Engineering College Fest", "India's Largest Fest"],
   dates: {
     short: "Feb 13 — 16, 2026",
     long: "February 13th to 16th, 2026",

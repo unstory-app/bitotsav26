@@ -34,14 +34,16 @@ const lato = localFont({
   display: "swap",
 });
 
+import { SITE_CONFIG } from "@/config/site";
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bitotsav.bitmesra.ac.in'),
+  metadataBase: new URL(SITE_CONFIG.url),
   title: {
-    default: "Bitotsav 2026 | BIT Mesra",
-    template: "%s | Bitotsav 2026"
+    default: `${SITE_CONFIG.name} | BIT Mesra`,
+    template: `%s | ${SITE_CONFIG.name}`
   },
-  description: "The Endless Saga - BIT Mesra's Premier Cultural, Sports & Technical Festival",
-  keywords: ["Bitotsav", "2026", "BIT Mesra", "Cultural Fest", "Technical Fest", "Sports Fest"],
+  description: SITE_CONFIG.description,
+  keywords: SITE_CONFIG.keywords,
   authors: [{ name: "Bitotsav Team" }],
   creator: "Bitotsav Team",
   publisher: "BIT Mesra",
@@ -54,27 +56,27 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: "Bitotsav 2026 | BIT Mesra",
-    description: "The Endless Saga - BIT Mesra's Premier Cultural, Sports & Technical Festival",
-    url: 'https://bitotsav.bitmesra.ac.in',
-    siteName: 'Bitotsav 2026',
+    title: `${SITE_CONFIG.name} | BIT Mesra`,
+    description: SITE_CONFIG.description,
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
     locale: 'en_IN',
     type: 'website',
     images: [
       {
-        url: '/og-main.png',
+        url: SITE_CONFIG.ogImage,
         width: 1200,
         height: 630,
-        alt: 'Bitotsav 2026',
+        alt: SITE_CONFIG.name,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Bitotsav 2026 | BIT Mesra",
-    description: "The Endless Saga - BIT Mesra's Premier Cultural, Sports & Technical Festival",
+    title: `${SITE_CONFIG.name} | BIT Mesra`,
+    description: SITE_CONFIG.description,
     creator: '@bitotsav',
-    images: ['/og-main.png'],
+    images: [SITE_CONFIG.ogImage],
   },
   robots: {
     index: true,

@@ -7,6 +7,7 @@ export interface Event {
   venue: string;
   category: EventCategory;
   description?: string;
+  about?: string; // Short catchphrase or intro
   image?: string; // Potential future use
   date?: string;  // Potential future use
 }

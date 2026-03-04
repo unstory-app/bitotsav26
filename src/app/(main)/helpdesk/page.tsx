@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import HelpdeskContent from "./HelpdeskContent";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "Support Center",
-  description: "Get assistance, join our community, or contact the Bitotsav 2026 team for support.",
+  title: "Support",
+  description: "Get immediate assistance, join our community, or contact the Bitotsav 2026 team for support.",
   alternates: {
     canonical: '/helpdesk',
   },
   openGraph: {
-    title: "Support Center | Bitotsav 2026",
-    description: "Get assistance, join our community, or contact the Bitotsav 2026 team for support.",
-    url: 'https://bitotsav.bitmesra.ac.in/helpdesk',
+    title: `Support | ${SITE_CONFIG.name}`,
+    description: "Dedicated assistance for North India's largest festival.",
+    url: `${SITE_CONFIG.url}/helpdesk`,
   },
 };
 

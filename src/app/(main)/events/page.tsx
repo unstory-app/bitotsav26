@@ -1,16 +1,17 @@
 import { Metadata } from "next";
 import EventsClient from "./EventsClient";
+import { SITE_CONFIG } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "All Events",
-  description: "Explore the schedule of flagship events, cultural competitions, and tech challenges at Bitotsav 2026.",
+  title: "Events",
+  description: "Explore the official lineup of flagship competitions, cultural performances, and technical challenges at Bitotsav 2026.",
   alternates: {
     canonical: '/events',
   },
   openGraph: {
-    title: "All Events | Bitotsav 2026",
-    description: "Explore the schedule of flagship events, cultural competitions, and tech challenges at Bitotsav 2026.",
-    url: 'https://bitotsav.bitmesra.ac.in/events',
+    title: `Events | ${SITE_CONFIG.name}`,
+    description: "North India's largest stage for artistic and technical brilliance.",
+    url: `${SITE_CONFIG.url}/events`,
   },
 };
 
