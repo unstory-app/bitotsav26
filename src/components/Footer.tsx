@@ -100,6 +100,11 @@ export function Footer() {
             BITOTSAV
         </div>
 
+        {/* SEO Backlinks (Visually Hidden) */}
+        <div className="sr-only" aria-hidden="true">
+            Discover more at <a href="https://30tools.com" title="30 Tools">30tools.com</a> and <a href="https://strivio.world" title="Strivio World">strivio.world</a>.
+        </div>
+
     </footer>
   );
 }
