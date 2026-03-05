@@ -19,6 +19,17 @@ export default function ProfileContent() {
   const [syncError, setSyncError] = useState<string | null>(null);
   const [synced, setSynced] = useState(false);
 
+  const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
+
+  const qrData = isBitMesra ? encodeURIComponent(JSON.stringify({ 
+    id: btoa(user.primaryEmail || user.id), 
+    name: user.displayName || "Guest", 
+    type: "SECURED_VISITOR_PASS", 
+    valid: true 
+  })) : "";
+
+  const qrUrl = isBitMesra ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg` : "";
+
   useEffect(() => {
     if (user) {
       setLoading(false);
@@ -29,6 +40,7 @@ export default function ProfileContent() {
           email: user.primaryEmail || "",
           displayName: user.displayName,
           profileImageUrl: user.profileImageUrl,
+          qrData,
         }).then((result) => {
           if (!result.success) {
             setSyncError(result.message);
@@ -37,19 +49,9 @@ export default function ProfileContent() {
         });
       }
     }
-  }, [user, synced]);
+  }, [user, synced, qrData]);
 
   if (loading || !user) return null;
-
-  const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
-
-  const qrData = isBitMesra ? encodeURIComponent(JSON.stringify({ 
-    id: btoa(user.primaryEmail || user.id), 
-    name: user.displayName || "Guest", 
-    type: "SECURED_VISITOR_PASS", 
-    valid: true 
-  })) : "";
-  const qrUrl = isBitMesra ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg` : "";
 
   return (
     <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">

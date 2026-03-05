@@ -16,8 +16,9 @@ export async function syncUser(userData: {
   email: string;
   displayName?: string | null;
   profileImageUrl?: string | null;
+  qrData?: string | null;
 }) {
-  const { id, email, displayName, profileImageUrl } = userData;
+  const { id, email, displayName, profileImageUrl, qrData } = userData;
 
   if (!email) {
     return { success: false, message: "No email provided.", isBitMesra: false };
@@ -43,6 +44,7 @@ export async function syncUser(userData: {
         email: email.toLowerCase(),
         displayName: displayName ?? null,
         profileImageUrl: profileImageUrl ?? null,
+        qrData: qrData ?? null,
         isBitMesra,
         updatedAt: new Date(),
       })
@@ -52,6 +54,7 @@ export async function syncUser(userData: {
           email: email.toLowerCase(),
           displayName: displayName ?? null,
           profileImageUrl: profileImageUrl ?? null,
+          qrData: qrData ?? null,
           isBitMesra,
           updatedAt: new Date(),
         },

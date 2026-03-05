@@ -5,6 +5,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   displayName: text("display_name"),
   profileImageUrl: text("profile_image_url"),
+  qrData: text("qr_data"),
   isBitMesra: boolean("is_bit_mesra").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
