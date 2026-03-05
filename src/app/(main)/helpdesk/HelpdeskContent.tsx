@@ -96,7 +96,7 @@ export default function HelpdeskContent() {
                  </div>
                  <h3 className="text-3xl font-black italic text-red-600 mb-2 uppercase tracking-tighter">DISTRESS SIGNAL</h3>
                  <div className="text-white font-black italic text-xl border-l-4 border-red-600 pl-6 py-2">
-                    +91 94718 28932
+                    +91 95088 46600
                  </div>
               </motion.div>
             </motion.div>

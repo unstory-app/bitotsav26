@@ -6,9 +6,9 @@ import { SignIn } from "@stackframe/stack";
 
 export default function LoginContent() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-24 sm:py-32 relative overflow-x-hidden w-full">
       {/* Background Ticker */}
-      <div className="absolute top-10 left-0 right-0 h-20 bg-white/5 flex items-center overflow-hidden -rotate-2">
+      <div className="absolute top-10 left-0 right-0 h-20 bg-white/5 flex items-center overflow-hidden -rotate-2 pointer-events-none">
         <div className="flex gap-20 animate-marquee whitespace-nowrap opacity-20">
             {[...Array(10)].map((_, i) => (
                 <span key={i} className="text-4xl font-black italic text-white uppercase tracking-tighter">
@@ -22,7 +22,7 @@ export default function LoginContent() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-lg bg-black border-4 border-[#DFFF00] p-12 relative shadow-[20px_20px_0px_#DFFF00]"
+        className="w-full max-w-lg bg-black border-4 border-[#DFFF00] p-6 sm:p-12 relative shadow-[10px_10px_0px_#DFFF00] sm:shadow-[20px_20px_0px_#DFFF00] my-10 z-10"
       >
         <div className="text-center mb-12">
             <div className="flex justify-center mb-8">

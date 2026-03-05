@@ -29,11 +29,10 @@ export function Navbar() {
     { name: "EVENTS", link: SITE_CONFIG.links.events },
     { name: "SCHEDULE", link: "/schedule" },
     { name: "SPONSORS", link: SITE_CONFIG.links.sponsors },
-    { name: "LEGEND", link: "/leaderboard" },
-    { name: "HELPDESK", link: "/helpdesk" },
-    ...(user
-      ? [{ name: "PROFILE", link: SITE_CONFIG.links.profile }]
-      : [{ name: "ACCESS", link: SITE_CONFIG.links.registration }]),
+    { name: "BOARD", link: "/leaderboard" },
+    // ...(user
+    //   ? [{ name: "PROFILE", link: SITE_CONFIG.links.profile }]
+    //   : [{ name: "ACCESS", link: SITE_CONFIG.links.registration }]),
   ];
 
   return (
