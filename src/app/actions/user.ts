@@ -3,6 +3,7 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { stackServerApp } from "@/stack/server";
 
 const BIT_MESRA_DOMAIN = "@bitmesra.ac.in";
 
@@ -20,11 +21,21 @@ export async function syncUser(userData: {
 }) {
   const { id, email, displayName, profileImageUrl, qrData } = userData;
 
-  if (!email) {
+  // 1. SECURE FROM BACKEND: Verify session on server
+  const stackUser = await stackServerApp.getUser();
+  
+  if (!stackUser || stackUser.id !== id) {
+    return { success: false, message: "UNAUTHORIZED_ACCESS: SESSION_MISMATCH", isBitMesra: false };
+  }
+
+  // 2. DOMAIN_PROTECTION: Refetch email from secure session if possible, or use provided
+  const secureEmail = stackUser.primaryEmail || email;
+
+  if (!secureEmail) {
     return { success: false, message: "No email provided.", isBitMesra: false };
   }
 
-  const isBitMesra = email.toLowerCase().endsWith(BIT_MESRA_DOMAIN);
+  const isBitMesra = secureEmail.toLowerCase().endsWith(BIT_MESRA_DOMAIN);
 
   if (!isBitMesra) {
     return {
@@ -41,7 +52,7 @@ export async function syncUser(userData: {
       .insert(users)
       .values({
         id,
-        email: email.toLowerCase(),
+        email: secureEmail.toLowerCase(),
         displayName: displayName ?? null,
         profileImageUrl: profileImageUrl ?? null,
         qrData: qrData ?? null,
@@ -51,7 +62,7 @@ export async function syncUser(userData: {
       .onConflictDoUpdate({
         target: users.id,
         set: {
-          email: email.toLowerCase(),
+          email: secureEmail.toLowerCase(),
           displayName: displayName ?? null,
           profileImageUrl: profileImageUrl ?? null,
           qrData: qrData ?? null,

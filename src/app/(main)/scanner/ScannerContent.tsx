@@ -4,24 +4,68 @@ import { useEffect, useState, useRef } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Zap, 
   Camera, 
   CheckCircle, 
   XCircle, 
-  AlertTriangle,
   RefreshCcw,
   User,
   ShieldCheck
 } from "lucide-react";
 import { recordScan } from "@/app/actions/scan";
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
+
+interface ScanResult {
+  success: boolean;
+  message: string;
+  user?: {
+    name: string | null;
+    email: string;
+  };
+}
 
 export default function ScannerContent() {
-  const [scanResult, setScanResult] = useState<any>(null);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(true);
   const [selectedDay, setSelectedDay] = useState<1 | 2 | 3>(1);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
+  const onScanSuccess = useCallback(async (decodedText: string) => {
+    try {
+        // Pause scanning to process
+        setIsScanning(false);
+        if (scannerRef.current) {
+            await scannerRef.current.clear();
+            scannerRef.current = null;
+        }
+
+        // 1. Parse Data
+        let parsedData;
+        try {
+            parsedData = JSON.parse(decodeURIComponent(decodedText));
+        } catch {
+            setError("INVALID_QR_FORMAT: DATA_CORRUPTED");
+            return;
+        }
+
+        const email = atob(parsedData.id); // Assuming ID is base64 encoded email as per ProfileContent logic
+
+        // 2. Call Server Action
+        const result = await recordScan({ email, day: selectedDay });
+
+        if (result.success) {
+            setScanResult(result as ScanResult);
+            setError(null);
+        } else {
+            setError(result.message || "SCAN_ERROR: UNKNOWN");
+            setScanResult(result.user ? { success: false, message: result.message, user: result.user } : null);
+        }
+    } catch (err) {
+        console.error("Scan processing error:", err);
+        setError("SYSTEM_FAILURE: RECOVERY_REQUIRED");
+    }
+  }, [selectedDay]);
 
   useEffect(() => {
     if (isScanning && !scannerRef.current) {
@@ -42,45 +86,9 @@ export default function ScannerContent() {
             scannerRef.current = null;
         }
     };
-  }, [isScanning, selectedDay]);
+  }, [isScanning, selectedDay, onScanSuccess]);
 
-  async function onScanSuccess(decodedText: string) {
-    try {
-        // Pause scanning to process
-        setIsScanning(false);
-        if (scannerRef.current) {
-            await scannerRef.current.clear();
-            scannerRef.current = null;
-        }
-
-        // 1. Parse Data
-        let parsedData;
-        try {
-            parsedData = JSON.parse(decodeURIComponent(decodedText));
-        } catch (e) {
-            setError("INVALID_QR_FORMAT: DATA_CORRUPTED");
-            return;
-        }
-
-        const email = atob(parsedData.id); // Assuming ID is base64 encoded email as per ProfileContent logic
-
-        // 2. Call Server Action
-        const result = await recordScan({ email, day: selectedDay });
-
-        if (result.success) {
-            setScanResult(result);
-            setError(null);
-        } else {
-            setError(result.message || "SCAN_ERROR: UNKNOWN");
-            setScanResult(result.user ? { user: result.user } : null);
-        }
-    } catch (err) {
-        console.error("Scan processing error:", err);
-        setError("SYSTEM_FAILURE: RECOVERY_REQUIRED");
-    }
-  }
-
-  function onScanFailure(error: any) {
+  function onScanFailure() {
     // We intentionally ignore scanning failures (e.g. no QR in frame)
   }
 
@@ -151,7 +159,7 @@ export default function ScannerContent() {
                                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="space-y-6">
                                         <XCircle className="w-24 h-24 text-red-600 mx-auto" />
                                         <div className="space-y-2">
-                                            <p className="text-red-600 font-black italic uppercase text-2xl font-black italic uppercase">ACCESS_DENIED</p>
+                                            <p className="text-red-600 font-black italic uppercase text-2xl">ACCESS_DENIED</p>
                                             <p className="text-white/40 text-[10px] font-black italic uppercase tracking-[0.2em]">{error || "UNKNOWN_ERROR"}</p>
                                         </div>
                                     </motion.div>
