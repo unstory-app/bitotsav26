@@ -11,6 +11,7 @@ import {
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { syncUser } from "@/app/actions/user";
+import { cn } from "@/lib/utils";
 
 export default function ProfileContent() {
   const user = useUser({ or: "redirect" });
@@ -40,13 +41,15 @@ export default function ProfileContent() {
 
   if (loading || !user) return null;
 
-  const qrData = encodeURIComponent(JSON.stringify({ 
+  const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
+
+  const qrData = isBitMesra ? encodeURIComponent(JSON.stringify({ 
     id: btoa(user.primaryEmail || user.id), 
     name: user.displayName || "Guest", 
     type: "SECURED_VISITOR_PASS", 
     valid: true 
-  }));
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg`;
+  })) : "";
+  const qrUrl = isBitMesra ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg` : "";
 
   return (
     <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">
@@ -176,31 +179,58 @@ export default function ProfileContent() {
            <motion.div 
              initial={{ opacity: 0, x: 50 }}
              animate={{ opacity: 1, x: 0 }}
-             className="bg-white p-2 relative shadow-[20px_20px_0px_rgba(223,255,0,0.1)] group hover:shadow-[20px_20px_0px_#DFFF00] transition-all duration-700"
+             className={cn(
+                 "p-2 relative shadow-[20px_20px_0px_rgba(223,255,0,0.1)] group transition-all duration-700",
+                 isBitMesra ? "bg-white hover:shadow-[20px_20px_0px_#DFFF00]" : "bg-red-600/10 border-2 border-red-600 shadow-none"
+             )}
             >
                 <div className="absolute inset-x-0 -top-6 flex justify-center">
-                    <div className="bg-black text-[#DFFF00] px-6 py-2 border-2 border-[#DFFF00] font-black italic uppercase tracking-widest text-[10px]">
-                       GATE SCANNER PROTOCOL
+                    <div className={cn(
+                        "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px]",
+                        isBitMesra ? "bg-black text-[#DFFF00] border-[#DFFF00]" : "bg-red-600 text-white border-red-600"
+                    )}>
+                       {isBitMesra ? "GATE SCANNER PROTOCOL" : "AUTH_ERROR: RED_ZONE"}
                     </div>
                 </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                    src={qrUrl}
-                    alt="QR Pass" 
-                    className="w-full h-auto grayscale group-hover:grayscale-0 transition-opacity"
-                />
-                <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <CheckCircle className="w-24 h-24 text-black" />
-                </div>
+                
+                {isBitMesra ? (
+                    <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                            src={qrUrl}
+                            alt="QR Pass" 
+                            className="w-full h-auto grayscale group-hover:grayscale-0 transition-opacity"
+                        />
+                        <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <CheckCircle className="w-24 h-24 text-black" />
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-full aspect-square flex flex-col items-center justify-center p-8 text-center space-y-6">
+                        <AlertTriangle className="w-20 h-20 text-red-600 animate-pulse" />
+                        <div>
+                            <p className="text-red-600 font-black italic uppercase text-lg leading-tight mb-2">ACCESS_DENIED</p>
+                            <p className="text-white/40 font-black italic uppercase text-[10px] tracking-widest leading-relaxed">
+                                QR Generation Restricted to <span className="text-red-600">@BITMESRA.AC.IN</span> Domains Only.
+                            </p>
+                        </div>
+                    </div>
+                )}
            </motion.div>
 
            <div className="grid grid-cols-1 gap-4 print:hidden">
                 <button 
-                  onClick={() => window.print()}
-                  className="w-full py-8 bg-white/2 border-2 border-white/10 text-white font-black italic uppercase tracking-widest text-lg flex items-center justify-center gap-6 hover:bg-[#DFFF00] hover:text-black hover:border-transparent transition-all active:scale-[0.98]"
+                  onClick={() => isBitMesra && window.print()}
+                  disabled={!isBitMesra}
+                  className={cn(
+                      "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98]",
+                      isBitMesra 
+                        ? "bg-white/2 border-2 border-white/10 text-white hover:bg-[#DFFF00] hover:text-black hover:border-transparent" 
+                        : "bg-white/5 border-2 border-white/5 text-white/20 cursor-not-allowed"
+                  )}
                 >
                     <Printer className="w-6 h-6" />
-                    GENERATE HARD COPY
+                    {isBitMesra ? "GENERATE HARD COPY" : "HARD COPY RESTRICTED"}
                 </button>
            </div>
 
