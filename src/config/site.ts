@@ -3,25 +3,26 @@ export const SITE_CONFIG = {
   shortName: "Bitotsav",
   edition: "The 35th Edition",
   tagline: "Where tradition meets tomorrow.",
-  description: "Bitotsav 2026 is North India's largest socio-cultural fest at BIT Mesra. Experience the ultimate 4-day saga of music, dance, arts, and competitive excellence.",
+  description:
+    "Bitotsav 2026 is North India's largest socio-cultural fest at BIT Mesra. Experience the ultimate 4-day saga of music, dance, arts, and competitive excellence.",
   url: "https://bitotsav.bitmesra.ac.in", // Placeholder or official URL
   ogImage: "/og-image.png",
   keywords: [
-    "Bitotsav", 
-    "BIT Mesra", 
-    "Bitotsav 2026", 
-    "BIT Mesra Ranchi", 
-    "Cultural Fest", 
-    "Engineering Fest India", 
-    "Ranchi Events", 
-    "North India Fest", 
-    "College Festival India"
+    "Bitotsav",
+    "BIT Mesra",
+    "Bitotsav 2026",
+    "BIT Mesra Ranchi",
+    "Cultural Fest",
+    "Engineering Fest India",
+    "Ranchi Events",
+    "North India Fest",
+    "College Festival India",
   ],
   dates: {
-    short: "Feb 13 — 16, 2026",
-    long: "February 13th to 16th, 2026",
-    start: "2026-02-13",
-    end: "2026-02-16",
+    short: "Mar 19 — 23, 2026",
+    long: "March 19th to 23rd, 2026",
+    start: "2026-03-19",
+    end: "2026-03-23",
   },
   venue: {
     name: "BIT Mesra",
@@ -46,26 +47,41 @@ export const SITEPARTNERS = [
   {
     name: "TITLE PARTNERS",
     partners: [
-      { name: "SBI", logo: "https://api.dicebear.com/9.x/initials/svg?seed=SBI" },
+      {
+        name: "SBI",
+        logo: "https://api.dicebear.com/9.x/initials/svg?seed=SBI",
+      },
     ],
   },
   {
     name: "POWERED BY",
     partners: [
-      { name: "RedBull", logo: "https://api.dicebear.com/9.x/initials/svg?seed=RedBull" },
+      {
+        name: "RedBull",
+        logo: "https://api.dicebear.com/9.x/initials/svg?seed=RedBull",
+      },
     ],
   },
   {
     name: "STRATEGIC PARTNERS",
     partners: [
-      { name: "CMPDI", logo: "https://api.dicebear.com/9.x/initials/svg?seed=CMPDI" },
-      { name: "NTPC", logo: "https://api.dicebear.com/9.x/initials/svg?seed=NTPC" },
+      {
+        name: "CMPDI",
+        logo: "https://api.dicebear.com/9.x/initials/svg?seed=CMPDI",
+      },
+      {
+        name: "NTPC",
+        logo: "https://api.dicebear.com/9.x/initials/svg?seed=NTPC",
+      },
     ],
   },
   {
     name: "MEDIA PARTNERS",
     partners: [
-      { name: "Spotify", logo: "https://api.dicebear.com/9.x/initials/svg?seed=Spotify" },
+      {
+        name: "Spotify",
+        logo: "https://api.dicebear.com/9.x/initials/svg?seed=Spotify",
+      },
     ],
   },
 ];

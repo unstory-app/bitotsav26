@@ -42,6 +42,7 @@ export function Footer() {
                             <li><Link href="/schedule" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Schedule</Link></li>
                             <li><Link href="/sponsors" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Sponsors</Link></li>
                             <li><Link href="/login" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Register</Link></li>
+                            <li><Link href="/team" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Team</Link></li>
                         </ul>
                     </div>
 

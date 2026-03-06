@@ -28,8 +28,8 @@ export default function ScannerContent() {
   const [passkey, setPasskey] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [selectedDay, setSelectedDay] = useState<1 | 2 | 3>(1);
-  const [stats, setStats] = useState<[number, number, number]>([0, 0, 0]);
+  const [selectedDay, setSelectedDay] = useState<0 | 1 | 2 | 3>(0);
+  const [stats, setStats] = useState<[number, number, number, number]>([0, 0, 0, 0]);
   const [recentScans, setRecentScans] = useState<ScanResult[]>([]);
   const [lastScanned, setLastScanned] = useState<{ email: string; time: number } | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
@@ -38,7 +38,7 @@ export default function ScannerContent() {
   useEffect(() => {
     if (isAuthorized) {
         getScanStats("17092006").then(res => {
-            if (res.success) setStats(res.counts as [number, number, number]);
+            if (res.success) setStats(res.counts as [number, number, number, number]);
         });
     }
   }, [isAuthorized]);
@@ -76,8 +76,9 @@ export default function ScannerContent() {
             
             // Update stats
             setStats(prev => {
-                const next = [...prev] as [number, number, number];
-                next[selectedDay - 1]++;
+                const next = [...prev] as [number, number, number, number];
+                // index matches day: day 0 -> index 0, day 1 -> index 1, etc.
+                next[selectedDay]++;
                 return next;
             });
 
@@ -169,8 +170,8 @@ export default function ScannerContent() {
             </div>
 
             {/* Stats Dashboard */}
-            <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 md:mb-12">
-                {[1, 2, 3].map((d) => (
+            <div className="grid grid-cols-4 gap-2 md:gap-4 mb-8 md:mb-12">
+                {[0, 1, 2, 3].map((d) => (
                     <div key={d} className={cn(
                         "p-3 md:p-6 border-2 transition-all",
                         selectedDay === d ? "bg-[#DFFF00]/10 border-[#DFFF00]" : "bg-white/5 border-white/10"
@@ -179,7 +180,7 @@ export default function ScannerContent() {
                             "text-[8px] md:text-[10px] font-black italic uppercase tracking-widest mb-1",
                             selectedDay === d ? "text-[#DFFF00]" : "text-white/30"
                         )}>DAY 0{d}_TOTAL</p>
-                        <p className="text-xl md:text-4xl font-black italic text-white">{stats[d-1]}</p>
+                        <p className="text-xl md:text-3xl font-black italic text-white">{stats[d]}</p>
                     </div>
                 ))}
             </div>
@@ -190,10 +191,10 @@ export default function ScannerContent() {
                 <div className="lg:col-span-12 xl:col-span-7 space-y-6">
                     {/* Day Selector - Inline on Mobile */}
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                        {[1, 2, 3].map((d) => (
+                        {[0, 1, 2, 3].map((d) => (
                             <button
                                 key={d}
-                                onClick={() => setSelectedDay(d as 1 | 2 | 3)}
+                                onClick={() => setSelectedDay(d as 0 | 1 | 2 | 3)}
                                 className={cn(
                                     "px-6 py-3 font-black italic uppercase tracking-widest text-[10px] border-2 transition-all whitespace-nowrap",
                                     selectedDay === d 

@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
  * Records a scan for a specific user and day.
  * Validates with a hardcoded passkey: 17092006
  */
-export async function recordScan(userData: { email: string; day: 1 | 2 | 3; passkey: string }) {
+export async function recordScan(userData: { email: string; day: 0 | 1 | 2 | 3; passkey: string }) {
   const { email, day, passkey } = userData;
 
   if (passkey !== "17092006") {
@@ -40,6 +40,7 @@ export async function recordScan(userData: { email: string; day: 1 | 2 | 3; pass
 
     // 3. Record the scan
     const updateData: Partial<typeof users.$inferInsert> = { updatedAt: new Date() };
+    if (day === 0) updateData.day0Scan = true;
     if (day === 1) updateData.day1Scan = true;
     if (day === 2) updateData.day2Scan = true;
     if (day === 3) updateData.day3Scan = true;
@@ -69,13 +70,14 @@ export async function getScanStats(passkey: string) {
 
   try {
     const allUsers = await db.select().from(users);
+    const day0 = allUsers.filter(u => u.day0Scan).length;
     const day1 = allUsers.filter(u => u.day1Scan).length;
     const day2 = allUsers.filter(u => u.day2Scan).length;
     const day3 = allUsers.filter(u => u.day3Scan).length;
 
-    return { success: true, counts: [day1, day2, day3] };
+    return { success: true, counts: [day0, day1, day2, day3] };
   } catch (error) {
     console.error("Failed to get stats:", error);
-    return { success: false, message: "DB_ERROR", counts: [0, 0, 0] };
+    return { success: false, message: "DB_ERROR", counts: [0, 0, 0, 0] };
   }
 }
