@@ -30,9 +30,6 @@ export function Navbar() {
     { name: "SCHEDULE", link: "/schedule" },
     { name: "SPONSORS", link: SITE_CONFIG.links.sponsors },
     { name: "BOARD", link: "/leaderboard" },
-    // ...(user
-    //   ? [{ name: "PROFILE", link: SITE_CONFIG.links.profile }]
-    //   : [{ name: "ACCESS", link: SITE_CONFIG.links.registration }]),
   ];
 
   return (
@@ -133,7 +130,12 @@ export function Navbar() {
                 </div>
 
                 <div className="space-y-4 flex-1">
-                    {navItems.map((item, idx) => (
+                    {[
+                      ...navItems,
+                      ...(user
+                        ? [{ name: "PROFILE", link: SITE_CONFIG.links.profile }]
+                        : [{ name: "ACCESS", link: SITE_CONFIG.links.registration }]),
+                    ].map((item, idx) => (
                         <motion.div
                             key={item.name}
                             initial={{ x: -20, opacity: 0 }}
