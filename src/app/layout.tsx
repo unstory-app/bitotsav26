@@ -121,6 +121,49 @@ export default function RootLayout({
           "antialiased bg-black text-white selection:bg-white selection:text-black overflow-x-hidden font-mono"
         )}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": SITE_CONFIG.name,
+              "url": SITE_CONFIG.url,
+              "logo": `${SITE_CONFIG.url}/favicon.png`,
+              "sameAs": [
+                SITE_CONFIG.socials.instagram,
+                SITE_CONFIG.socials.twitter,
+                SITE_CONFIG.socials.facebook
+              ],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-XXXXXXXXXX",
+                "contactType": "technical support",
+                "areaServed": "IN",
+                "availableLanguage": "en"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": SITE_CONFIG.name,
+              "url": SITE_CONFIG.url,
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": `${SITE_CONFIG.url}/events?q={search_term_string}`
+                },
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
         <StackProvider app={stackServerApp}>
           <StackTheme theme={customTheme}>
           

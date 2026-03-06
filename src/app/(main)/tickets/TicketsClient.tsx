@@ -9,7 +9,7 @@ import { PageWrapper } from "@/components/ui/page-wrapper";
 const ticketTiers = [
   {
      name: "DAY PASS",
-    price: "₹499",
+    price: "TBD",
     description: "Single day authorization for the experience.",
     icon: Ticket,
     features: ["Access: 1 Selected Day", "Pro Nite: General Standing", "Stall Access: Included"],
@@ -17,7 +17,7 @@ const ticketTiers = [
   },
   {
     name: "FEST PASS PRO",
-    price: "₹1499",
+    price: "TBD",
     description: "Full system access for all 4 days.",
     icon: Star,
     features: ["Access: All 4 Days", "Pro Nite: Priority Standing", "Priority Entry", "Official Merch Kit"],
@@ -25,7 +25,7 @@ const ticketTiers = [
   },
   {
     name: "ELITE ACCESS",
-    price: "₹2999",
+    price: "TBD",
     description: "The ultimate concert override.",
     icon: Crown,
     features: ["Access: VIP Zone", "Artist Meet & Greet", "Exclusive Lounge", "Premium Merch Kit", "Backstage Experience"],
@@ -75,7 +75,7 @@ export default function TicketsClient() {
             </div>
 
             <div className={cn("mb-12 pb-12 border-b", tier.recommended ? "border-black/10" : "border-white/10")}>
-                <span className="text-6xl font-black italic tracking-tighter">{tier.price}</span>
+                <span className={cn("font-black italic tracking-tighter", tier.price === "TBD" ? "text-4xl" : "text-6xl")}>{tier.price}</span>
                 <span className={cn("text-[10px] font-black italic uppercase ml-2", tier.recommended ? "text-black/40" : "text-white/40")}>/ AUTHORIZATION</span>
             </div>
 

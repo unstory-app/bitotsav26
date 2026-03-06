@@ -4,14 +4,14 @@ import { useEffect, useState, useRef } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Camera, 
+  Zap,
   CheckCircle, 
   XCircle, 
   RefreshCcw,
   User,
   ShieldCheck
 } from "lucide-react";
-import { recordScan } from "@/app/actions/scan";
+import { recordScan, getScanStats } from "@/app/actions/scan";
 import { cn } from "@/lib/utils";
 import { useCallback } from "react";
 
@@ -25,53 +25,83 @@ interface ScanResult {
 }
 
 export default function ScannerContent() {
+  const [passkey, setPasskey] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState(true);
   const [selectedDay, setSelectedDay] = useState<1 | 2 | 3>(1);
+  const [stats, setStats] = useState<[number, number, number]>([0, 0, 0]);
+  const [recentScans, setRecentScans] = useState<ScanResult[]>([]);
+  const [lastScanned, setLastScanned] = useState<{ email: string; time: number } | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-  const onScanSuccess = useCallback(async (decodedText: string) => {
-    try {
-        // Pause scanning to process
-        setIsScanning(false);
-        if (scannerRef.current) {
-            await scannerRef.current.clear();
-            scannerRef.current = null;
-        }
+  // Auto-fetch stats on mount
+  useEffect(() => {
+    if (isAuthorized) {
+        getScanStats("17092006").then(res => {
+            if (res.success) setStats(res.counts as [number, number, number]);
+        });
+    }
+  }, [isAuthorized]);
 
+  const onScanSuccess = useCallback(async (decodedText: string) => {
+    // If not authorized or already processing, skip
+    if (!isAuthorized) return;
+
+    try {
         // 1. Parse Data
         let parsedData;
         try {
             parsedData = JSON.parse(decodeURIComponent(decodedText));
         } catch {
-            setError("INVALID_QR_FORMAT: DATA_CORRUPTED");
+            setScanResult({ success: false, message: "INVALID_QR: CORRUPTED" });
             return;
         }
 
-        const email = atob(parsedData.id); // Assuming ID is base64 encoded email as per ProfileContent logic
+        const email = atob(parsedData.id);
+
+        // Cooldown: Don't scan the same person within 5 seconds
+        if (lastScanned?.email === email && Date.now() - lastScanned.time < 5000) {
+            return;
+        }
 
         // 2. Call Server Action
-        const result = await recordScan({ email, day: selectedDay });
+        const result = await recordScan({ email, day: selectedDay, passkey: "17092006" });
+
+        setLastScanned({ email, time: Date.now() });
 
         if (result.success) {
-            setScanResult(result as ScanResult);
-            setError(null);
+            const successRes = result as ScanResult;
+            setScanResult(successRes);
+            setRecentScans(prev => [successRes, ...prev.slice(0, 4)]);
+            
+            // Update stats
+            setStats(prev => {
+                const next = [...prev] as [number, number, number];
+                next[selectedDay - 1]++;
+                return next;
+            });
+
+            // Clear result after 2 seconds for rapid-fire
+            setTimeout(() => setScanResult(null), 2000);
         } else {
-            setError(result.message || "SCAN_ERROR: UNKNOWN");
-            setScanResult(result.user ? { success: false, message: result.message, user: result.user } : null);
+            const failRes = { success: false, message: result.message, user: result.user } as ScanResult;
+            setScanResult(failRes);
+            setRecentScans(prev => [failRes, ...prev.slice(0, 4)]);
+            setTimeout(() => {
+                setScanResult(null);
+            }, 3000);
         }
     } catch (err) {
         console.error("Scan processing error:", err);
-        setError("SYSTEM_FAILURE: RECOVERY_REQUIRED");
+        setScanResult({ success: false, message: "SYSTEM_FAILURE" });
     }
-  }, [selectedDay]);
+  }, [selectedDay, isAuthorized, lastScanned]);
 
   useEffect(() => {
-    if (isScanning && !scannerRef.current) {
+    if (isAuthorized && !scannerRef.current) {
         scannerRef.current = new Html5QrcodeScanner(
           "reader",
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          { fps: 15, qrbox: { width: 250, height: 250 } },
           /* verbose= */ false
         );
 
@@ -80,173 +110,207 @@ export default function ScannerContent() {
 
     return () => {
         if (scannerRef.current) {
-            scannerRef.current.clear().catch(error => {
-                console.error("Failed to clear scanner:", error);
-            });
+            scannerRef.current.clear().catch(() => {});
             scannerRef.current = null;
         }
     };
-  }, [isScanning, selectedDay, onScanSuccess]);
+  }, [isAuthorized, onScanSuccess]);
 
-  function onScanFailure() {
-    // We intentionally ignore scanning failures (e.g. no QR in frame)
-  }
+  function onScanFailure() {}
 
-  function resetScanner() {
-    setScanResult(null);
-    setError(null);
-    setIsScanning(true);
+  if (!isAuthorized) {
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center p-6">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-md w-full bg-white/5 border-2 border-white/10 p-10 space-y-8"
+            >
+                <div className="text-center space-y-2">
+                    <Zap className="w-12 h-12 text-[#DFFF00] mx-auto mb-4" />
+                    <h2 className="text-3xl font-black italic uppercase text-white">SCANNER_LOCK</h2>
+                    <p className="text-white/40 text-[10px] font-black italic uppercase tracking-widest">ENTER_PROTOCOL_KEY_001</p>
+                </div>
+                <input 
+                    type="password"
+                    placeholder="PASSKEY_REQUIRED"
+                    className="w-full bg-black border-2 border-white/10 p-4 font-black italic text-[#DFFF00] placeholder:text-white/10 uppercase tracking-widest focus:border-[#DFFF00] outline-none transition-all"
+                    value={passkey}
+                    onChange={(e) => setPasskey(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && passkey === "17092006") setIsAuthorized(true);
+                    }}
+                />
+                <button 
+                    onClick={() => passkey === "17092006" && setIsAuthorized(true)}
+                    className="w-full py-4 bg-[#DFFF00] text-black font-black italic uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all"
+                >
+                    INITIALIZE_CONSOLE
+                </button>
+            </motion.div>
+        </div>
+    );
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-black relative overflow-hidden px-6">
+    <div className="min-h-screen pt-24 md:pt-32 pb-20 bg-black relative overflow-hidden px-4 md:px-6">
         {/* Background Grids */}
         <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#DFFF00]/5 blur-[120px] pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto relative z-10">
+        
+        <div className="max-w-6xl mx-auto relative z-10">
             {/* Header */}
-            <div className="mb-16 border-l-8 border-[#DFFF00] pl-8 py-4">
-                <h1 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none mb-2">
+            <div className="mb-8 md:mb-16 border-l-4 md:border-l-8 border-[#DFFF00] pl-4 md:pl-8 py-2 md:py-4">
+                <h1 className="text-4xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none mb-2">
                     SCANNER <span className="text-[#DFFF00]">CONSOLE.</span>
                 </h1>
-                <p className="text-white/40 font-black italic uppercase tracking-[0.3em] text-xs">
+                <p className="text-white/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em] text-[8px] md:text-xs">
                     GATE_VALIDATION_PROTOCOL // SECTOR_ALPHA
                 </p>
             </div>
 
-            {/* Day Selector */}
-            <div className="flex gap-4 mb-12">
+            {/* Stats Dashboard */}
+            <div className="grid grid-cols-3 gap-2 md:gap-4 mb-8 md:mb-12">
                 {[1, 2, 3].map((d) => (
-                    <button
-                        key={d}
-                        onClick={() => {
-                            setSelectedDay(d as 1 | 2 | 3);
-                            resetScanner();
-                        }}
-                        className={cn(
-                            "flex-1 py-4 font-black italic uppercase tracking-widest text-xs border-2 transition-all",
-                            selectedDay === d 
-                                ? "bg-[#DFFF00] text-black border-[#DFFF00] shadow-[10px_10px_0px_rgba(223,255,0,0.1)]" 
-                                : "bg-white/5 text-white/40 border-white/10 hover:border-white/20"
-                        )}
-                    >
-                        DAY 0{d}
-                    </button>
+                    <div key={d} className={cn(
+                        "p-3 md:p-6 border-2 transition-all",
+                        selectedDay === d ? "bg-[#DFFF00]/10 border-[#DFFF00]" : "bg-white/5 border-white/10"
+                    )}>
+                        <p className={cn(
+                            "text-[8px] md:text-[10px] font-black italic uppercase tracking-widest mb-1",
+                            selectedDay === d ? "text-[#DFFF00]" : "text-white/30"
+                        )}>DAY 0{d}_TOTAL</p>
+                        <p className="text-xl md:text-4xl font-black italic text-white">{stats[d-1]}</p>
+                    </div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-                {/* Visual Scanner Area */}
-                <div className="relative group">
-                    <div className={cn(
-                        "aspect-square bg-black border-4 transition-colors duration-500 overflow-hidden relative",
-                        isScanning ? "border-white/10" : scanResult?.success ? "border-[#DFFF00]" : "border-red-600"
-                    )}>
-                        <div id="reader" className={cn("w-full h-full", !isScanning && "hidden")} />
-                        
-                        {!isScanning && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center">
-                                {scanResult?.success ? (
-                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="space-y-6">
-                                        <CheckCircle className="w-24 h-24 text-[#DFFF00] mx-auto" />
-                                        <div className="space-y-2">
-                                            <p className="text-[#DFFF00] font-black italic uppercase text-2xl">ACCESS_GRANTED</p>
-                                            <p className="text-white/40 text-[10px] font-black italic uppercase tracking-[0.2em]">IDENTITY_VERIFIED</p>
-                                        </div>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="space-y-6">
-                                        <XCircle className="w-24 h-24 text-red-600 mx-auto" />
-                                        <div className="space-y-2">
-                                            <p className="text-red-600 font-black italic uppercase text-2xl">ACCESS_DENIED</p>
-                                            <p className="text-white/40 text-[10px] font-black italic uppercase tracking-[0.2em]">{error || "UNKNOWN_ERROR"}</p>
-                                        </div>
-                                    </motion.div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12 items-start">
+                
+                {/* Visual Scanner Area - TOP on Mobile */}
+                <div className="lg:col-span-12 xl:col-span-7 space-y-6">
+                    {/* Day Selector - Inline on Mobile */}
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                        {[1, 2, 3].map((d) => (
+                            <button
+                                key={d}
+                                onClick={() => setSelectedDay(d as 1 | 2 | 3)}
+                                className={cn(
+                                    "px-6 py-3 font-black italic uppercase tracking-widest text-[10px] border-2 transition-all whitespace-nowrap",
+                                    selectedDay === d 
+                                        ? "bg-[#DFFF00] text-black border-[#DFFF00]" 
+                                        : "bg-white/5 text-white/40 border-white/10"
                                 )}
-                            </div>
-                        )}
-
-                        {/* Corner Accents */}
-                        <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/20" />
-                        <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-white/20" />
-                        <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-white/20" />
-                        <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/20" />
+                            >
+                                SELECT_DAY_0{d}
+                            </button>
+                        ))}
                     </div>
 
-                    <button 
-                        onClick={resetScanner}
-                        className="mt-6 w-full py-4 bg-white/5 border border-white/10 text-white font-black italic uppercase tracking-widest text-xs flex items-center justify-center gap-4 hover:bg-white/10 transition-all"
-                    >
-                        <RefreshCcw className={cn("w-4 h-4", !isScanning && "animate-spin")} />
-                        RE-INITIALIZE SCANNER
-                    </button>
+                    <div className={cn(
+                        "aspect-square max-w-lg mx-auto md:mx-0 w-full bg-black border-4 transition-colors duration-300 overflow-hidden relative",
+                        scanResult?.success ? "border-[#DFFF00]" : scanResult === null ? "border-white/10" : "border-red-600"
+                    )}>
+                        <div id="reader" className="w-full h-full" />
+                        
+                        {/* Rapid Fire Feedback Overlay */}
+                        <AnimatePresence>
+                            {scanResult && (
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className={cn(
+                                        "absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center backdrop-blur-sm",
+                                        scanResult.success ? "bg-[#DFFF00]/80" : "bg-red-600/80"
+                                    )}
+                                >
+                                    {scanResult.success ? (
+                                        <CheckCircle className="w-24 h-24 text-black mb-4" />
+                                    ) : (
+                                        <XCircle className="w-24 h-24 text-white mb-4" />
+                                    )}
+                                    <h3 className={cn(
+                                        "text-3xl font-black italic uppercase leading-none mb-2",
+                                        scanResult.success ? "text-black" : "text-white"
+                                    )}>
+                                        {scanResult.success ? "VALIDATED" : "REJECTED"}
+                                    </h3>
+                                    <p className={cn(
+                                        "text-xs font-black italic uppercase tracking-widest opacity-60",
+                                        scanResult.success ? "text-black" : "text-white"
+                                    )}>
+                                        {scanResult.message}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
 
-                {/* Right: Scanned User Info Display */}
-                <div className="space-y-8">
+                {/* Right: Scanned User Info Display & Recent Scans */}
+                <div className="lg:col-span-12 xl:col-span-5 space-y-6 md:space-y-8">
+                    {/* Active Info */}
                     <AnimatePresence mode="wait">
                         {scanResult?.user ? (
                             <motion.div 
                                 key="userinfo"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="bg-white/5 border-2 border-white/10 p-10 space-y-8"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white/5 border-2 border-white/10 p-6 md:p-10 space-y-6 md:space-y-8"
                             >
-                                <div className="flex items-center gap-6">
-                                    <div className="w-20 h-20 bg-[#DFFF00] flex items-center justify-center">
-                                        <User className="w-10 h-10 text-black" />
+                                <div className="flex items-center gap-4 md:gap-6">
+                                    <div className="w-16 h-16 md:w-20 md:h-20 bg-[#DFFF00] flex items-center justify-center">
+                                        <User className="w-8 h-8 md:w-10 md:h-10 text-black" />
                                     </div>
-                                    <div className="space-y-1">
-                                        <p className="text-white font-black italic uppercase leading-none text-2xl tracking-tighter">
+                                    <div className="space-y-1 overflow-hidden">
+                                        <p className="text-white font-black italic uppercase leading-none text-xl md:text-2xl tracking-tighter truncate">
                                             {scanResult.user.name || "UNIT_00"}
                                         </p>
-                                        <p className="text-[#DFFF00] font-black italic uppercase text-[10px] tracking-widest">
+                                        <p className="text-[#DFFF00] font-black italic uppercase text-[8px] md:text-[10px] tracking-widest truncate">
                                             {scanResult.user.email}
                                         </p>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div className="p-4 border border-white/5 bg-black/40 flex items-center justify-between">
-                                        <span className="text-[10px] font-black italic text-white/40 uppercase tracking-widest">GATE_SECTOR</span>
-                                        <span className="font-black italic text-white uppercase text-xs">MAIN_STAGE</span>
-                                    </div>
-                                    <div className="p-4 border border-white/5 bg-black/40 flex items-center justify-between">
-                                        <span className="text-[10px] font-black italic text-white/40 uppercase tracking-widest">TOKEN_STATUS</span>
-                                        <span className={cn(
-                                            "font-black italic uppercase text-xs",
-                                            scanResult.success ? "text-[#DFFF00]" : "text-red-600"
-                                        )}>
-                                            {scanResult.success ? "VALIDATED" : "REJECTED"}
-                                        </span>
-                                    </div>
-                                </div>
                             </motion.div>
                         ) : (
-                            <motion.div 
-                                key="idle"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.5 }}
-                                className="border-4 border-dashed border-white/5 p-20 flex flex-col items-center justify-center text-center space-y-6"
-                            >
-                                <Camera className="w-16 h-16 text-white/20" />
-                                <p className="text-white/20 font-black italic uppercase tracking-widest text-xs">
-                                    AWAITING_UPLINK...<br/>SCAN_QR_TO_VALIDATE
-                                </p>
-                            </motion.div>
+                            <div className="p-10 md:p-20 border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center space-y-4">
+                                <RefreshCcw className="w-10 h-10 text-white/10 animate-spin-slow" />
+                                <p className="text-white/20 font-black italic uppercase tracking-widest text-[10px]">AWAITING_INPUT_STREAM...</p>
+                            </div>
                         )}
                     </AnimatePresence>
 
-                    <div className="p-8 bg-[#DFFF00]/5 border border-[#DFFF00]/10 space-y-4">
-                        <div className="flex items-center gap-4 text-[#DFFF00]">
-                            <ShieldCheck className="w-5 h-5" />
-                            <span className="text-xs font-black italic uppercase tracking-widest">ORGANIZER_NOTICE</span>
+                    {/* Recent History */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-white/40 px-2">
+                            <ShieldCheck className="w-4 h-4" />
+                            <span className="text-[10px] font-black italic uppercase tracking-widest">RECENT_LOGS</span>
                         </div>
-                        <p className="text-[10px] text-white/40 font-black italic uppercase leading-relaxed tracking-wider">
-                            SCAN THE UNIQUE PASS GENERATED BY STUDENTS. ENSURE YOU HAVE SELECTED THE CORRECT DAY (01-03) BEFORE PROCEEDING. SYSTEM LOGS ALL ACTIONS.
-                        </p>
+                        <div className="space-y-2">
+                            {recentScans.map((scan, i) => (
+                                <motion.div 
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    key={i} 
+                                    className="p-4 bg-white/2 border border-white/5 flex items-center justify-between"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {scan.success ? <CheckCircle className="w-4 h-4 text-[#DFFF00]" /> : <XCircle className="w-4 h-4 text-red-600" />}
+                                        <div className="space-y-0.5">
+                                            <p className="text-white text-[10px] font-bold italic uppercase">{scan.user?.name || "GUEST"}</p>
+                                            <p className="text-white/20 text-[8px] font-black italic">{scan.user?.email}</p>
+                                        </div>
+                                    </div>
+                                    <span className={cn(
+                                        "text-[8px] font-black italic uppercase",
+                                        scan.success ? "text-[#DFFF00]" : "text-red-600"
+                                    )}>{scan.success ? "OK" : "ERR"}</span>
+                                </motion.div>
+                            ))}
+                            {recentScans.length === 0 && (
+                                <p className="text-center py-8 text-white/10 text-[10px] font-black italic uppercase border border-dashed border-white/5">NO_SCAN_HISTORY</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

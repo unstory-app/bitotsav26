@@ -75,18 +75,18 @@ export default function ProfileContent() {
       )}
 
       {/* Header Section */}
-      <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10 print:hidden">
-          <div className="border-l-12 border-[#DFFF00] pl-10 py-6">
-              <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-24 relative z-10 print:hidden">
+          <div className="border-l-8 md:border-l-12 border-[#DFFF00] pl-6 md:pl-10 py-4 md:py-6">
+              <h1 className="text-5xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
                   ACCESS <span className="text-[#DFFF00]">ID.</span>
               </h1>
-              <p className="text-lg md:text-xl text-white/40 font-black italic uppercase tracking-[0.3em]">
+              <p className="text-sm md:text-xl text-white/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em]">
                   UNIQUE AUTHENTICATION TOKEN LOGGED EST 2026.
               </p>
           </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 mb-32 relative z-10 flex flex-col lg:flex-row gap-16 items-start">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 items-start">
         
         {/* The Pass Container - 3D Tilt Effect */}
         <motion.div 
@@ -110,7 +110,7 @@ export default function ProfileContent() {
                 </div>
             </div>
 
-            <div className="p-10 md:p-20 relative">
+            <div className="p-6 md:p-20 relative">
                 {/* Vertical Meta Label */}
                 <div className="absolute top-0 right-0 h-full w-12 border-l border-white/5 flex items-center justify-center pointer-events-none">
                     <span className="text-[10px] font-black italic uppercase tracking-[0.8em] text-white/5 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#DFFF00]/10 transition-colors">
@@ -143,11 +143,11 @@ export default function ProfileContent() {
                            <Zap className="w-3 h-3 fill-current" />
                            PERFORMER RANK: #001
                         </div>
-                        <h2 className="text-6xl md:text-8xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#DFFF00] transition-colors">
+                        <h2 className="text-4xl md:text-8xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#DFFF00] transition-colors">
                             {user.displayName || "UNIT NAME ERR"}
                         </h2>
-                        <div className="flex flex-col gap-1 border-l-4 border-[#DFFF00] pl-6 py-2">
-                           <span className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">PRIMARY UPLINK</span>
+                        <div className="flex flex-col gap-1 border-l-4 border-[#DFFF00] pl-4 md:pl-6 py-2">
+                           <span className="text-[8px] md:text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">PRIMARY UPLINK</span>
                            <span className="text-xl font-black italic text-white uppercase tracking-tighter break-all">
                                 {user.primaryEmail}
                            </span>
@@ -156,18 +156,18 @@ export default function ProfileContent() {
                 </div>
 
                 {/* Footer Badges */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 border-t border-white/5 relative z-10">
-                    <div className="space-y-2">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">ISSUE DATE</div>
-                        <div className="text-sm font-black italic text-white uppercase">FEB 13 2026</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 pt-10 md:pt-12 border-t border-white/5 relative z-10">
+                    <div className="space-y-1 md:space-y-2">
+                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">ISSUE DATE</div>
+                        <div className="text-xs md:text-sm font-black italic text-white uppercase">FEB 13 2026</div>
                     </div>
-                    <div className="space-y-2">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">AUTH LEVEL</div>
-                        <div className="text-sm font-black italic text-[#DFFF00] uppercase">ACCESS LEVEL VIP</div>
+                    <div className="space-y-1 md:space-y-2">
+                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">AUTH LEVEL</div>
+                        <div className="text-xs md:text-sm font-black italic text-[#DFFF00] uppercase">LEVEL VIP</div>
                     </div>
-                    <div className="space-y-2 col-span-2 md:col-span-1 border-t md:border-t-0 md:border-l border-white/5 pt-6 md:pt-0 md:pl-8">
-                        <div className="text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">TRANSIT KEY</div>
-                        <div className="text-sm font-black italic text-white uppercase opacity-40">{user.id.slice(0, 12).toUpperCase()}</div>
+                    <div className="space-y-1 md:space-y-2 col-span-2 md:col-span-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-8">
+                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">TRANSIT KEY</div>
+                        <div className="text-xs md:text-sm font-black italic text-white uppercase opacity-40 leading-none truncate">{user.id.slice(0, 12).toUpperCase()}</div>
                     </div>
                 </div>
             </div>
@@ -236,12 +236,12 @@ export default function ProfileContent() {
                 </button>
            </div>
 
-           <div className="p-10 border-2 border-white/5 space-y-6 bg-white/1">
+           <div className="p-6 md:p-10 border-2 border-white/5 space-y-4 md:space-y-6 bg-white/1">
                 <div className="flex items-center gap-4 text-[#DFFF00]">
                     <AlertTriangle className="w-5 h-5" />
                     <span className="text-[10px] font-black italic uppercase tracking-[0.2em]">SECURITY NOTICE</span>
                 </div>
-                <p className="text-white/30 text-xs font-black italic uppercase leading-relaxed tracking-wider">
+                <p className="text-white/30 text-[10px] md:text-xs font-black italic uppercase leading-relaxed tracking-wider">
                     KEEP THIS SIGNAL SECURE. AUTHORIZED PERSONNEL ONLY. ANY MISUSE WILL RESULT IN IMMEDIATE REVOCATION OF TRANSIT CREDENTIALS.
                 </p>
            </div>
