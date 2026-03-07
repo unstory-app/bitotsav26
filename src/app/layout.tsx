@@ -113,6 +113,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <meta name="google-site-verification" content="pOn0RhcfnjRt_NMpo1MYuvu5NKl-QU52wHTPEUwRwDU" />
       <body
         className={cn(
           cinzel.variable,
