@@ -1,8 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { TeamMemberCard } from "@/components/TeamMemberCard";
-import { TeamMember } from "@/types";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { SITE_CONFIG } from "@/config/site";
 import Link from "next/link";
@@ -21,9 +19,9 @@ const studentCoordinators = [
   { name: "Soumya Prasad", role: "Student Coordinator", image: "/team/saumyaprasad.png" },
 ];
 
-const developers: TeamMember[] = [
-  { name: "Shaswat Raj", role: "Lead Developer", socials: { linkedin: "#", github: "https://github.com/sh20raj" } },
-  { name: "Shivansh Kumar", role: "Developer", socials: { linkedin: "#" } },
+const developers = [
+  { name: "Shaswat Raj", role: "Lead Developer", image: "/team/sh20raj.jpg", socials: { linkedin: "https://www.linkedin.com/in/sh20raj/", github: "https://github.com/sh20raj" } },
+  { name: "Shivansh Kumar", role: "Developer", image: null, socials: { linkedin: "#" } },
 ];
 
 function CoordinatorCard({ name, role, image }: { name: string; role: string; image: string | null }) {
@@ -134,7 +132,7 @@ export default function TeamContent() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {developers.map((member, i) => (
-              <TeamMemberCard key={i} member={member} />
+              <CoordinatorCard key={i} name={member.name} role={member.role} image={member.image} />
             ))}
           </div>
         </div>

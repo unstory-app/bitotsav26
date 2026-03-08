@@ -81,7 +81,7 @@ export function Footer() {
                             &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. HERITAGE PRESERVED.
                         </p>
                         <div className="flex items-center text-[10px] font-black italic uppercase text-[#FDF5E6]/40 tracking-[0.2em]">
-                            Reforged by <a href="https://sh20raj.github.io" target="_blank" rel="noopener noreferrer" className="text-[#FDF5E6] hover:text-[#D4AF37] transition-colors ml-2 bg-[#FDF5E6]/5 px-2 py-1">Shaswat Raj</a>
+                            Reforged by <a href="https://www.linkedin.com/in/sh20raj" target="_blank" rel="noopener noreferrer" className="text-[#FDF5E6] hover:text-[#D4AF37] transition-colors ml-2 bg-[#FDF5E6]/5 px-2 py-1">Shaswat Raj</a>
                         </div>
                     </div>
 
@@ -102,7 +102,7 @@ export function Footer() {
         </div>
 
         {/* SEO Backlinks (Visually Hidden) */}
-        <div className="sr-only" aria-hidden="true">
+        <div className="" aria-hidden="true">
             Discover more at <a href="https://30tools.com" title="30 Tools">30tools.com</a> and <a href="https://strivio.world" title="Strivio World">strivio.world</a>.
         </div>
 
