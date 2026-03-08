@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Zap, 
+  Star, 
   CheckCircle,
   Printer,
+  ShieldCheck,
   AlertTriangle
 } from "lucide-react";
 import { useUser } from "@stackframe/stack";
@@ -24,11 +25,11 @@ export default function ProfileContent() {
   const qrData = isBitMesra ? encodeURIComponent(JSON.stringify({ 
     id: btoa(user.primaryEmail || user.id), 
     name: user.displayName || "Guest", 
-    type: "SECURED_VISITOR_PASS", 
+    type: "HERITAGE_ARTISAN_PASS", 
     valid: true 
   })) : "";
 
-  const qrUrl = isBitMesra ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=DFFF00&color=000&format=svg` : "";
+  const qrUrl = isBitMesra ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=FDF5E6&color=1A0505&format=svg` : "";
 
   useEffect(() => {
     if (user) {
@@ -54,9 +55,9 @@ export default function ProfileContent() {
   if (loading || !user) return null;
 
   return (
-    <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">
+    <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
       {/* Texture Overlays */}
-      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
       <div className="absolute bottom-0 left-0 w-full h-1/2 z-0 pointer-events-none bg-linear-to-t from-[#D4AF37]/5 to-transparent" />
 
       {/* Sync Error Banner */}
@@ -68,8 +69,8 @@ export default function ProfileContent() {
         >
           <AlertTriangle className="w-10 h-10 shrink-0" />
           <div>
-            <p className="text-xl mb-1 font-black underline">SYSTEM CRITICAL: ACCESS SYNC FAILED</p>
-            <p className="opacity-70 text-sm tracking-widest">{syncError}</p>
+            <p className="text-xl mb-1 font-black underline font-heading">VALIDATION ERROR: ACCOUNT SYNC DELAYED</p>
+            <p className="opacity-70 text-sm tracking-widest uppercase">{syncError}</p>
           </div>
         </motion.div>
       )}
@@ -77,11 +78,11 @@ export default function ProfileContent() {
       {/* Header Section */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-24 relative z-10 print:hidden">
           <div className="border-l-8 md:border-l-12 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6">
-              <h1 className="text-5xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
-                  ACCESS <span className="text-[#D4AF37]">ID.</span>
+              <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
+                  ARTISAN <span className="text-[#D4AF37]">PASS.</span>
               </h1>
-              <p className="text-sm md:text-xl text-white/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em]">
-                  UNIQUE AUTHENTICATION TOKEN LOGGED EST 2026.
+              <p className="text-sm md:text-xl text-[#FDF5E6]/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em] font-heading">
+                  LEGACY ENTRANCE // THE 35TH EDITION
               </p>
           </div>
       </div>
@@ -92,63 +93,57 @@ export default function ProfileContent() {
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ rotateY: 5, rotateX: -5 }}
-            style={{ perspective: 1000 }}
-            className="w-full lg:w-3/5 bg-black border-4 border-white/10 relative overflow-hidden group shadow-[0_50px_100px_-20px_#D4AF37/10] transition-all duration-700 hover:border-[#D4AF37]/40"
+            className="w-full lg:w-3/5 bg-[#1A0505] border-4 border-[#D4AF37]/20 relative overflow-hidden group shadow-[0_50px_100px_-20px_#D4AF37/10] transition-all duration-700 hover:border-[#D4AF37]/40 stamp-edge"
         >
             {/* Scanned Texture */}
-            <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
+            <div className="absolute inset-0 opacity-[0.05] pointer-events-none tapestry-pattern mix-blend-overlay" />
             
-            {/* Top Ticker Tape */}
-            <div className="h-10 bg-[#D4AF37] flex items-center overflow-hidden border-b-2 border-black/20">
-                <div className="flex gap-12 animate-marquee-fast whitespace-nowrap">
-                    {[...Array(6)].map((_, i) => (
-                        <span key={i} className="text-[10px] font-black italic text-black uppercase tracking-[0.4em]">
-                            ★ HIGH SENSITIVITY DATA ★ AUTH LEVEL VIP ★ BITOTSAV 2026 ★ SECURE ID: {user.id.slice(0, 12).toUpperCase()} —
-                        </span>
-                    ))}
-                </div>
+            {/* Decoration Bar */}
+            <div className="h-10 bg-[#D4AF37] flex items-center justify-center border-b-2 border-black/20">
+                <span className="text-[10px] font-black italic text-[#1A0505] uppercase tracking-[0.4em] font-heading">
+                    BITOTSAV MMXXVI • HERITAGE REVEALED
+                </span>
             </div>
 
             <div className="p-6 md:p-20 relative">
                 {/* Vertical Meta Label */}
-                <div className="absolute top-0 right-0 h-full w-12 border-l border-white/5 flex items-center justify-center pointer-events-none">
-                    <span className="text-[10px] font-black italic uppercase tracking-[0.8em] text-white/5 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#D4AF37]/10 transition-colors">
-                        VIP ACCESS PROTOCOL B26
+                <div className="absolute top-0 right-0 h-full w-12 border-l border-[#D4AF37]/10 flex items-center justify-center pointer-events-none">
+                    <span className="text-[10px] font-black italic uppercase tracking-[0.8em] text-[#D4AF37]/10 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#D4AF37]/20 transition-colors font-heading">
+                        ARTISAN GUILD // MEMBER
                     </span>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-12 items-center md:items-start mb-20 relative z-10">
                     {/* Portrait Frame */}
                     <div className="relative">
-                        <div className="w-48 h-48 md:w-64 md:h-64 bg-white/5 border-4 border-white/10 p-2 overflow-hidden group-hover:border-[#D4AF37] transition-all duration-700">
+                        <div className="w-48 h-48 md:w-64 md:h-64 bg-white/5 heritage-border p-2 overflow-hidden transition-all duration-700 group-hover:scale-[1.02]">
                            {user.profileImageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={user.profileImageUrl} alt="Avatar" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                                <img src={user.profileImageUrl} alt="Member" className="w-full h-full object-cover transition-all duration-700" />
                             ) : (
-                                <div className="w-full h-full bg-black flex items-center justify-center text-7xl font-black italic text-[#D4AF37]">
+                                <div className="w-full h-full bg-secondary flex items-center justify-center text-7xl font-black italic text-[#D4AF37] font-heading">
                                     {(user.displayName || user.primaryEmail || "?")[0]?.toUpperCase()}
                                 </div>
                             )}
                         </div>
                         {/* Status Blinker */}
-                        <div className="absolute -top-4 -left-4 px-4 py-2 bg-[#D4AF37] text-black font-black italic text-[8px] uppercase tracking-widest flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                            ACTIVE
+                        <div className="absolute -top-4 -left-4 px-4 py-2 bg-[#D4AF37] text-[#1A0505] font-black italic text-[8px] uppercase tracking-widest flex items-center gap-2 font-heading">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#1A0505] animate-pulse" />
+                            CONFIRMED
                         </div>
                     </div>
 
                     <div className="flex-1 text-center md:text-left space-y-6">
-                        <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-1 text-[10px] font-black italic uppercase tracking-widest text-[#D4AF37]">
-                           <Zap className="w-3 h-3 fill-current" />
-                           PERFORMER RANK: #001
+                        <div className="inline-flex items-center gap-3 bg-[#D4AF37]/5 border border-[#D4AF37]/20 px-4 py-1 text-[10px] font-black italic uppercase tracking-widest text-[#D4AF37] font-heading">
+                           <Star className="w-3 h-3 fill-current" />
+                           GAATHA GUEST #001
                         </div>
-                        <h2 className="text-4xl md:text-8xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#D4AF37] transition-colors">
-                            {user.displayName || "UNIT NAME ERR"}
+                        <h2 className="text-4xl md:text-8xl font-black italic text-[#FDF5E6] uppercase leading-[0.85] tracking-tighter group-hover:text-[#D4AF37] transition-colors font-heading">
+                            {user.displayName || "GUEST ARTISAN"}
                         </h2>
                         <div className="flex flex-col gap-1 border-l-4 border-[#D4AF37] pl-4 md:pl-6 py-2">
-                           <span className="text-[8px] md:text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">PRIMARY UPLINK</span>
-                           <span className="text-xl font-black italic text-white uppercase tracking-tighter break-all">
+                           <span className="text-[8px] md:text-[10px] font-black italic text-[#FDF5E6]/30 uppercase tracking-[0.3em] font-heading">DIGITAL LINEAGE</span>
+                           <span className="text-xl font-black italic text-[#FDF5E6] uppercase tracking-tighter break-all">
                                 {user.primaryEmail}
                            </span>
                         </div>
@@ -158,22 +153,22 @@ export default function ProfileContent() {
                 {/* Footer Badges */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 pt-10 md:pt-12 border-t border-white/5 relative z-10">
                     <div className="space-y-1 md:space-y-2">
-                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">ISSUE DATE</div>
-                        <div className="text-xs md:text-sm font-black italic text-white uppercase">FEB 13 2026</div>
+                        <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">ISSUE DATE</div>
+                        <div className="text-xs md:text-sm font-black italic text-[#FDF5E6] uppercase">MAR 19 2026</div>
                     </div>
                     <div className="space-y-1 md:space-y-2">
-                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">AUTH LEVEL</div>
-                        <div className="text-xs md:text-sm font-black italic text-[#D4AF37] uppercase">LEVEL VIP</div>
+                        <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">INVITATION</div>
+                        <div className="text-xs md:text-sm font-black italic text-[#D4AF37] uppercase">EXPERIENCE PASS</div>
                     </div>
                     <div className="space-y-1 md:space-y-2 col-span-2 md:col-span-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-8">
-                        <div className="text-[7px] md:text-[8px] font-black italic text-white/20 uppercase tracking-[0.4em]">TRANSIT KEY</div>
-                        <div className="text-xs md:text-sm font-black italic text-white uppercase opacity-40 leading-none truncate">{user.id.slice(0, 12).toUpperCase()}</div>
+                        <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">SIGIL CODE</div>
+                        <div className="text-xs md:text-sm font-black italic text-[#FDF5E6] uppercase opacity-40 leading-none truncate">{user.id.slice(0, 12).toUpperCase()}</div>
                     </div>
                 </div>
             </div>
             
             {/* Background Decor */}
-            <div className="absolute -bottom-10 -left-10 text-[20vw] font-black italic text-white/2 select-none pointer-events-none uppercase">ACCESS</div>
+            <div className="absolute -bottom-10 -left-10 text-[20vw] font-black italic text-[#FDF5E6]/2 select-none pointer-events-none uppercase font-heading">HERITAGE</div>
         </motion.div>
 
         {/* QR Section & Actions */}
@@ -188,10 +183,10 @@ export default function ProfileContent() {
             >
                 <div className="absolute inset-x-0 -top-6 flex justify-center">
                     <div className={cn(
-                        "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px]",
-                        isBitMesra ? "bg-black text-[#D4AF37] border-[#D4AF37]" : "bg-red-600 text-white border-red-600"
+                        "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px] font-heading",
+                        isBitMesra ? "bg-[#1A0505] text-[#D4AF37] border-[#D4AF37]" : "bg-red-900 text-white border-red-600"
                     )}>
-                       {isBitMesra ? "GATE SCANNER PROTOCOL" : "AUTH_ERROR: RED_ZONE"}
+                       {isBitMesra ? "HERITAGE VALIDATION" : "DOMAIN RESTRICTED"}
                     </div>
                 </div>
                 
@@ -211,9 +206,9 @@ export default function ProfileContent() {
                     <div className="w-full aspect-square flex flex-col items-center justify-center p-8 text-center space-y-6">
                         <AlertTriangle className="w-20 h-20 text-red-600 animate-pulse" />
                         <div>
-                            <p className="text-red-600 font-black italic uppercase text-lg leading-tight mb-2">ACCESS_DENIED</p>
-                            <p className="text-white/40 font-black italic uppercase text-[10px] tracking-widest leading-relaxed">
-                                QR Generation Restricted to <span className="text-red-600">@BITMESRA.AC.IN</span> Domains Only.
+                            <p className="text-red-800 font-black italic uppercase text-lg leading-tight mb-2 font-heading">ACCESS RESTRICTED</p>
+                            <p className="text-[#FDF5E6]/40 font-black italic uppercase text-[10px] tracking-widest leading-relaxed font-heading">
+                                Pass Generation Restricted to <span className="text-red-600">@BITMESRA.AC.IN</span> Domains.
                             </p>
                         </div>
                     </div>
@@ -225,24 +220,24 @@ export default function ProfileContent() {
                   onClick={() => isBitMesra && window.print()}
                   disabled={!isBitMesra}
                   className={cn(
-                      "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98]",
+                      "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98] font-heading",
                       isBitMesra 
-                        ? "bg-white/2 border-2 border-white/10 text-white hover:bg-[#D4AF37] hover:text-black hover:border-transparent" 
+                        ? "bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 text-[#FDF5E6] hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent" 
                         : "bg-white/5 border-2 border-white/5 text-white/20 cursor-not-allowed"
                   )}
                 >
                     <Printer className="w-6 h-6" />
-                    {isBitMesra ? "GENERATE HARD COPY" : "HARD COPY RESTRICTED"}
+                    {isBitMesra ? "GET PHYSICAL INVITE" : "RESTRICTED ACCESS"}
                 </button>
            </div>
 
-           <div className="p-6 md:p-10 border-2 border-white/5 space-y-4 md:space-y-6 bg-white/1">
+           <div className="p-6 md:p-10 border-2 border-[#D4AF37]/10 space-y-4 md:space-y-6 bg-[#D4AF37]/5">
                 <div className="flex items-center gap-4 text-[#D4AF37]">
-                    <AlertTriangle className="w-5 h-5" />
-                    <span className="text-[10px] font-black italic uppercase tracking-[0.2em]">SECURITY NOTICE</span>
+                    <ShieldCheck className="w-5 h-5 font-heading" />
+                    <span className="text-[10px] font-black italic uppercase tracking-[0.2em] font-heading">HERITAGE ETIQUETTE</span>
                 </div>
-                <p className="text-white/30 text-[10px] md:text-xs font-black italic uppercase leading-relaxed tracking-wider">
-                    KEEP THIS SIGNAL SECURE. AUTHORIZED PERSONNEL ONLY. ANY MISUSE WILL RESULT IN IMMEDIATE REVOCATION OF TRANSIT CREDENTIALS.
+                <p className="text-[#FDF5E6]/30 text-[10px] md:text-xs font-black italic uppercase leading-relaxed tracking-wider font-heading">
+                    This digital sigil is your entrance to the Gaatha. Present it with pride. Unauthorized transfer will result in exclusion from the 35th Edition events.
                 </p>
            </div>
         </div>

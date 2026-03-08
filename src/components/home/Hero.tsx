@@ -2,22 +2,17 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
-import { Marquee } from "@/components/ui/marquee";
+import { ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/config/site";
-
-const locations = [
-  "RANCHI", "BIT MESRA", "MAIN ATHLETIC GROUND", "BITOTSAV ARENA", 
-  "CULTURAL SPECTACLE", "TECHNICAL EXPLOSION", "SPORTS MANIA"
-];
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen bg-black flex flex-col justify-between overflow-hidden pt-20">
+    <section className="relative min-h-screen bg-[#1A0505] flex flex-col justify-center overflow-hidden pt-20 tapestry-bg">
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
       
       {/* Background Graphic Elements */}
-      <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-white/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-[#D4AF37]/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6">
@@ -27,90 +22,93 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-4 mb-8"
+          className="flex items-center gap-4 mb-4 md:mb-8 font-heading"
         >
-          <div className="w-12 h-12 rounded-full bg-[#D4AF37] flex items-center justify-center text-black">
-            <Play className="w-5 h-5 fill-current ml-1" />
+          <div className="px-4 py-1 border border-[#D4AF37] text-[#D4AF37] text-[10px] font-black tracking-[0.4em] uppercase">
+             THE 35TH EDITION • SINCE 1991
           </div>
-          <span className="text-sm font-black italic tracking-widest text-white/60 uppercase">
-             Live Experience / {SITE_CONFIG.edition}
-          </span>
         </motion.div>
 
         {/* Massive Interlocking Titles */}
-        <div className="text-center select-none">
-          <motion.h1
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-[12vw] md:text-[8vw] font-black leading-[0.8] tracking-tighter text-white mb-2 italic"
-          >
-            BITOTSAV
-          </motion.h1>
-          
+        <div className="text-center select-none relative mb-12">
+          {/* Main Visual - The Stamp */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.5, rotate: -5 }}
-            animate={{ opacity: 1, scale: 1, rotate: -2 }}
-            transition={{ type: "spring", stiffness: 100, delay: 0.4 }}
-            className="inline-block bg-[#D4AF37] px-6 py-2 md:px-12 md:py-4 -mt-4 mb-4"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="relative z-20 mb-8 md:mb-12 max-w-[90vw] md:max-w-[40vw] mx-auto"
           >
-            <h2 className="text-[10vw] md:text-[6vw] font-black leading-none text-black italic">
-              2026
-            </h2>
+            <div className="relative group perspective-1000">
+               <motion.div 
+                 whileHover={{ rotateY: 5, rotateX: -5 }}
+                 className="inheritance-shadow transition-transform duration-700 stamp-edge p-2 bg-[#D4AF37]"
+               >
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                 <img 
+                    src="/Users/shaswatraj/.gemini/antigravity/brain/ad95aa9e-c43b-4dd5-bf5a-7d05b8d3d965/folk_heritage_hero_art_stamp_1772988780634.png" 
+                    alt="Bitotsav Hero Art"
+                    className="w-full h-auto object-cover"
+                 />
+               </motion.div>
+               {/* Label on the Stamp */}
+               <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-[#1A0505] border-2 border-[#D4AF37] p-2 md:p-6 shadow-2xl z-30">
+                  <h1 className="text-3xl md:text-7xl font-black text-[#D4AF37] font-heading leading-none">
+                    BITOTSAV
+                  </h1>
+                  <p className="text-[#FDF5E6] font-heading text-[10px] md:text-lg tracking-[0.5em] md:tracking-[0.8em] font-black">
+                    MMXXVI
+                  </p>
+               </div>
+            </div>
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-[12vw] md:text-[8vw] font-black leading-[0.8] tracking-tighter text-white italic outline-text neon-stroke"
-          >
-            FESTIVAL
-          </motion.h1>
         </div>
 
         {/* CTA Area */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="mt-16 flex flex-col md:flex-row items-center gap-8"
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex flex-col md:flex-row items-center gap-12"
         >
           <Link href={SITE_CONFIG.links.registration}>
-            <button className="px-12 py-6 bg-white text-black font-black italic text-xl uppercase tracking-tighter hover:bg-[#D4AF37] transition-colors group flex items-center gap-4">
-              Get Your Pass
+            <button className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black text-xl uppercase tracking-tighter hover:bg-[#FDF5E6] transition-all duration-500 group flex items-center gap-4 font-heading stamp-edge border-2 border-transparent">
+              Claim Your Passage
               <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </button>
           </Link>
           
-          <div className="text-left">
-            <p className="text-[#D4AF37] font-black italic uppercase tracking-tight text-xl">
+          <div className="text-center md:text-left">
+            <p className="text-[#D4AF37] font-black uppercase tracking-[0.2em] text-2xl font-heading">
               {SITE_CONFIG.dates.short}
             </p>
-            <p className="text-white/40 font-bold uppercase text-xs tracking-[0.2em]">
+            <p className="text-[#FDF5E6]/40 font-bold uppercase text-[10px] tracking-[0.5em] font-heading">
               {SITE_CONFIG.venue.full}
             </p>
           </div>
         </motion.div>
       </div>
 
-      {/* Marquee Ticker at Bottom */}
-      <div className="pb-12 -rotate-1 scale-105">
-        <Marquee items={locations} speed="medium" variant="yellow" />
+      {/* Heritage Markings */}
+      <div className="absolute bottom-12 left-0 w-full overflow-hidden whitespace-nowrap opacity-10 pointer-events-none font-heading">
+         <div className="flex gap-20 animate-marquee text-[12vw] font-black text-[#FDF5E6] uppercase">
+            {[...Array(4)].map((_, i) => (
+                <span key={i}>HERITAGE • CULTURE • TRADITION •</span>
+            ))}
+         </div>
       </div>
 
-      {/* Corner Labels (Concert Style) */}
-      <div className="absolute bottom-8 left-8 hidden md:block">
-        <p className="text-[10px] text-white/30 tracking-[0.5em] uppercase vertical-text origin-left rotate-180">
-          Cultural / Technical / Sports
+      {/* Corner Labels */}
+      <div className="absolute bottom-8 left-8 hidden md:block font-heading">
+        <p className="text-[10px] text-[#D4AF37]/40 tracking-[0.5em] uppercase vertical-text origin-left rotate-180">
+          Gaatha // The 35th Edition
         </p>
       </div>
-      <div className="absolute top-24 right-8 hidden md:block border border-[#D4AF37]/20 p-4">
-        <div className="w-32 h-32 border-2 border-[#D4AF37] flex items-center justify-center p-2">
-           <div className="w-full h-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] font-black italic text-lg text-center leading-none">
-             WORLD<br/>CLASS<br/>STAGE
-           </div>
-        </div>
+      <div className="absolute top-24 right-8 hidden md:block border border-[#D4AF37]/20 p-2 heritage-border">
+         <div className="w-32 h-32 flex items-center justify-center p-2 bg-[#1A0505] tapestry-bg">
+            <div className="w-full h-full border border-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] font-black text-xs text-center leading-none uppercase font-heading tracking-widest">
+              Artisan<br/>Heritage<br/>Pass
+            </div>
+         </div>
       </div>
 
     </section>

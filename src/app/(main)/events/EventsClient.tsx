@@ -18,9 +18,9 @@ export default function EventsClient() {
     : events.filter(event => event.category === filter);
 
   return (
-    <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">
+    <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
       {/* Texture Overlays */}
-      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
       <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none bg-linear-to-b from-transparent via-[#D4AF37]/5 to-transparent" />
 
       {/* Page Header */}
@@ -39,16 +39,16 @@ export default function EventsClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-[0.8] tracking-tighter mb-6">
-                THE <br /> <span className="text-[#D4AF37] drop-shadow-[0_0_30px_rgba(223,255,0,0.3)]">LINEUP.</span>
+              <h1 className="text-7xl md:text-9xl font-black text-[#FDF5E6] uppercase leading-[0.8] tracking-tighter mb-6 font-heading">
+                THE <br /> <span className="text-[#D4AF37]">EVENTS.</span>
               </h1>
               <div className="flex flex-col md:flex-row md:items-center gap-8">
-                <p className="text-xl md:text-2xl text-white/50 font-black italic uppercase tracking-tighter max-w-xl border-l border-white/10 pl-6">
-                  {SITE_CONFIG.shortName} 2026: THE ULTIMATE STAGE FOR COMPETITIVE EXCELLENCE.
+                <p className="text-xl md:text-2xl text-[#FDF5E6]/50 font-black uppercase tracking-tighter max-w-xl border-l-2 border-[#D4AF37]/30 pl-6 font-heading">
+                  {SITE_CONFIG.shortName} 2026 — Gaatha of Culture, Talent &amp; Excellence.
                 </p>
-                <div className="hidden md:block h-px flex-1 bg-white/10" />
-                <div className="text-[10px] font-black italic uppercase tracking-[0.4em] text-[#D4AF37]/40 rotate-180 [writing-mode:vertical-lr]">
-                  EST. 2026 / BITOTSAV
+                <div className="hidden md:block h-px flex-1 bg-[#D4AF37]/10" />
+                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]/40 rotate-180 [writing-mode:vertical-lr] font-heading">
+                  BITOTSAV MMXXVI
                 </div>
               </div>
             </motion.div>
@@ -57,21 +57,21 @@ export default function EventsClient() {
 
       {/* Filter Tabs - Backstage Pass Style */}
       <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
-        <div className="flex flex-wrap items-center gap-4 border-y border-white/10 py-8">
-            <span className="text-[10px] font-black italic uppercase tracking-[0.3em] text-[#D4AF37] mr-8">FILTER BY DEPT:</span>
+        <div className="flex flex-wrap items-center gap-4 border-y border-[#D4AF37]/20 py-8">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] mr-8 font-heading">FILTER:</span>
             {categories.map((category) => (
             <button
                 key={category}
                 onClick={() => setFilter(category)}
                 className={cn(
-                "relative px-10 py-4 overflow-hidden group transition-all duration-300 border-2",
+                "relative px-10 py-4 overflow-hidden group transition-all duration-300 border-2 font-heading",
                 filter === category
-                    ? "bg-[#D4AF37] border-[#D4AF37] text-black"
-                    : "bg-transparent border-white/10 text-white/40 hover:text-white hover:border-white/30"
+                    ? "bg-[#D4AF37] border-[#D4AF37] text-[#1A0505]"
+                    : "bg-transparent border-[#D4AF37]/20 text-[#FDF5E6]/40 hover:text-[#FDF5E6] hover:border-[#D4AF37]/50"
                 )}
             >
-                <span className="relative z-10 text-xs font-black italic uppercase tracking-[0.2em] transition-transform group-hover:scale-110 block">
-                    {category === "All" ? "ACCESS ALL" : category}
+                <span className="relative z-10 text-xs font-black uppercase tracking-[0.2em] transition-transform group-hover:scale-110 block">
+                    {category === "All" ? "ALL EVENTS" : category}
                 </span>
                 
                 {filter === category && (
