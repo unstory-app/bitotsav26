@@ -64,10 +64,10 @@ export default function EventDetails({ event }: EventDetailsProps) {
               <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#D4AF37] transition-all">
                 <div className="flex items-center space-x-3 text-white/30 mb-2">
                   <Calendar className="w-4 h-4" />
-                  <span className="text-[10px] font-black italic uppercase tracking-widest">SEQUENCE_ID</span>
+                  <span className="text-[10px] font-black italic uppercase tracking-widest">SEQUENCE ID</span>
                 </div>
                 <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#D4AF37] transition-colors tracking-tighter">
-                    TBA_SIGNAL
+                    TBA SIGNAL
                 </p>
               </div>
             </div>

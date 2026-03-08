@@ -107,7 +107,7 @@ export default function ScheduleClient() {
                   <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#D4AF37] pl-6 md:pl-0 md:pr-6">
                     <div className="text-white/40 text-sm font-black italic uppercase tracking-widest mb-1">LOCATION</div>
                     <div className="text-white font-black italic uppercase text-lg tracking-tighter">{event.venue}</div>
-                    <div className="text-[10px] text-[#D4AF37] font-black italic uppercase tracking-[0.2em] mt-4">CLASS_ID: {event.type}</div>
+                    <div className="text-[10px] text-[#D4AF37] font-black italic uppercase tracking-[0.2em] mt-4">CLASS ID: {event.type}</div>
                   </div>
 
                   {/* Hover Ticker */}
