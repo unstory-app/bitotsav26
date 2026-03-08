@@ -9,7 +9,7 @@ import { SITE_CONFIG } from "@/config/site";
 
 const scheduleData = [
   {
-    day: "DAY_01",
+    day: "DAY 01",
     date: "FEB 14",
     events: [
       { time: "10:00 AM", name: "INAUGURATION CEREMONY", venue: "GP BIRLA AUDITORIUM", type: "MAIN_SEQUENCE" },
@@ -19,7 +19,7 @@ const scheduleData = [
     ]
   },
   {
-    day: "DAY_02",
+    day: "DAY 02",
     date: "FEB 15",
     events: [
       { time: "09:00 AM", name: "HACKATHON 24H BEGIN", venue: "LAB 1", type: "CODE_TRANSIT" },
@@ -29,7 +29,7 @@ const scheduleData = [
     ]
   },
   {
-    day: "DAY_03",
+    day: "DAY 03",
     date: "FEB 16",
     events: [
       { time: "10:00 AM", name: "SQUIZ GAMES", venue: "OAT", type: "INTEL_HUB" },
