@@ -7,13 +7,13 @@ import { SITE_CONFIG } from "@/config/site";
 
 export function CTA() {
   return (
-    <section className="py-40 bg-[#DFFF00] relative overflow-hidden flex items-center justify-center">
+    <section className="py-40 bg-[#D4AF37] relative overflow-hidden flex items-center justify-center">
       
       {/* Decorative Ticker Tape Borders */}
       <div className="absolute top-0 left-0 right-0 h-8 bg-black flex items-center overflow-hidden">
         <div className="flex gap-20 animate-marquee whitespace-nowrap">
             {[...Array(10)].map((_, i) => (
-                <span key={i} className="text-[10px] font-black italic text-[#DFFF00] uppercase tracking-[0.5em]">
+                <span key={i} className="text-[10px] font-black italic text-[#D4AF37] uppercase tracking-[0.5em]">
                     SECURE ACCESS — AUTHORIZE NOW — {SITE_CONFIG.shortName.toUpperCase()} 2026 — 
                 </span>
             ))}
@@ -23,7 +23,7 @@ export function CTA() {
       <div className="absolute bottom-0 left-0 right-0 h-8 bg-black flex items-center overflow-hidden">
         <div className="flex gap-20 animate-marquee whitespace-nowrap direction-reverse">
             {[...Array(10)].map((_, i) => (
-                <span key={i} className="text-[10px] font-black italic text-[#DFFF00] uppercase tracking-[0.5em]">
+                <span key={i} className="text-[10px] font-black italic text-[#D4AF37] uppercase tracking-[0.5em]">
                     {SITE_CONFIG.edition.toUpperCase()} — THE ENDLESS SAGA — LIMITLESS ENERGY — 
                 </span>
             ))}
@@ -39,7 +39,7 @@ export function CTA() {
             className="flex flex-col items-center gap-10"
           >
               <div className="w-24 h-24 bg-black flex items-center justify-center transform rotate-45 border-4 border-black group-hover:rotate-90 transition-transform duration-700">
-                  <Zap className="w-10 h-10 text-[#DFFF00] -rotate-45" />
+                  <Zap className="w-10 h-10 text-[#D4AF37] -rotate-45" />
               </div>
 
               <h2 className="text-6xl md:text-9xl font-black italic text-black uppercase tracking-tighter leading-[0.85]">
@@ -51,10 +51,10 @@ export function CTA() {
               </p>
 
               <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
-                <Link href="/login" className="px-16 py-8 bg-black text-[#DFFF00] text-2xl font-black italic uppercase tracking-widest hover:scale-105 transition-all">
+                <Link href="/login" className="px-16 py-8 bg-black text-[#D4AF37] text-2xl font-black italic uppercase tracking-widest hover:scale-105 transition-all">
                     Get Digital Pass
                 </Link>
-                <Link href="/events" className="px-16 py-8 border-4 border-black text-black text-2xl font-black italic uppercase tracking-widest hover:bg-black hover:text-[#DFFF00] transition-all">
+                <Link href="/events" className="px-16 py-8 border-4 border-black text-black text-2xl font-black italic uppercase tracking-widest hover:bg-black hover:text-[#D4AF37] transition-all">
                     Explore Saga
                 </Link>
               </div>

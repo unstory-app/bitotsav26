@@ -23,10 +23,10 @@ export function ThemeRevealSection() {
                 >
                     <h2 className="text-6xl md:text-9xl font-black italic text-white leading-none tracking-tighter mb-8">
                         JOIN THE<br/>
-                        <span className="text-[#DFFF00]">LEGACY.</span>
+                        <span className="text-[#D4AF37]">LEGACY.</span>
                     </h2>
                     
-                    <div className="space-y-4 border-l-2 border-[#DFFF00] pl-6 max-w-md">
+                    <div className="space-y-4 border-l-2 border-[#D4AF37] pl-6 max-w-md">
                         <p className="text-white font-black italic text-xl md:text-2xl uppercase">
                             {SITE_CONFIG.dates.long}
                         </p>
@@ -45,14 +45,14 @@ export function ThemeRevealSection() {
                     className="flex flex-col gap-4 w-full md:w-auto"
                 >
                     <Link href={SITE_CONFIG.links.registration} className="group">
-                        <div className="px-12 py-8 bg-[#DFFF00] text-black font-black italic text-2xl uppercase tracking-tighter flex items-center justify-between gap-8 hover:bg-white transition-colors">
+                        <div className="px-12 py-8 bg-[#D4AF37] text-black font-black italic text-2xl uppercase tracking-tighter flex items-center justify-between gap-8 hover:bg-white transition-colors">
                             Register Now
                             <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
                         </div>
                     </Link>
                     
                     <Link href="/theme-reveal" className="group">
-                        <div className="px-12 py-8 border-2 border-white/10 text-white font-black italic text-2xl uppercase tracking-tighter flex items-center justify-between gap-8 hover:border-[#DFFF00] hover:text-[#DFFF00] transition-all">
+                        <div className="px-12 py-8 border-2 border-white/10 text-white font-black italic text-2xl uppercase tracking-tighter flex items-center justify-between gap-8 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all">
                             Theme Details
                             <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
                         </div>

@@ -31,49 +31,49 @@ export default function EventDetails({ event }: EventDetailsProps) {
             
             <div className="space-y-8">
               <div className="flex items-center space-x-3">
-                <span className="h-2 w-12 bg-[#DFFF00]"></span>
-                <span className="text-xs font-black italic tracking-[0.3em] uppercase text-[#DFFF00]">PROTOCOL_DETAILS</span>
+                <span className="h-2 w-12 bg-[#D4AF37]"></span>
+                <span className="text-xs font-black italic tracking-[0.3em] uppercase text-[#D4AF37]">PROTOCOL_DETAILS</span>
               </div>
               <p className="text-2xl md:text-4xl text-white font-black italic uppercase leading-tight tracking-tighter">
-                Access granted to <span className="text-[#DFFF00]">{event.name}</span>. 
+                Access granted to <span className="text-[#D4AF37]">{event.name}</span>. 
                 Experience the terminal point of {event.category.toLowerCase()} at {SITE_CONFIG.shortName} &apos;26. 
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-12 border-t border-white/10">
-              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#DFFF00] transition-all">
+              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#D4AF37] transition-all">
                 <div className="flex items-center space-x-3 text-white/30 mb-2">
                   <Users className="w-4 h-4" />
                   <span className="text-[10px] font-black italic uppercase tracking-widest">COMMANDER</span>
                 </div>
-                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#DFFF00] transition-colors tracking-tighter">
+                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#D4AF37] transition-colors tracking-tighter">
                     {event.organizer}
                 </p>
               </div>
               
-              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#DFFF00] transition-all">
+              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#D4AF37] transition-all">
                 <div className="flex items-center space-x-3 text-white/30 mb-2">
                   <MapPin className="w-4 h-4" />
                   <span className="text-[10px] font-black italic uppercase tracking-widest">VIRTUAL_ZONE</span>
                 </div>
-                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#DFFF00] transition-colors tracking-tighter">
+                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#D4AF37] transition-colors tracking-tighter">
                     {event.venue}
                 </p>
               </div>
 
-              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#DFFF00] transition-all">
+              <div className="space-y-2 group p-8 bg-white/5 border border-white/10 hover:border-[#D4AF37] transition-all">
                 <div className="flex items-center space-x-3 text-white/30 mb-2">
                   <Calendar className="w-4 h-4" />
                   <span className="text-[10px] font-black italic uppercase tracking-widest">SEQUENCE_ID</span>
                 </div>
-                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#DFFF00] transition-colors tracking-tighter">
+                <p className="text-2xl font-black italic uppercase text-white group-hover:text-[#D4AF37] transition-colors tracking-tighter">
                     TBA_SIGNAL
                 </p>
               </div>
             </div>
 
             <div className="pt-12">
-               <Link href="/tickets" className="inline-block px-12 py-6 bg-[#DFFF00] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all">
+               <Link href="/tickets" className="inline-block px-12 py-6 bg-[#D4AF37] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all">
                     Authorize Entry
                </Link>
             </div>
@@ -81,11 +81,11 @@ export default function EventDetails({ event }: EventDetailsProps) {
 
           {/* Visual Side */}
           <div className="lg:col-span-5 relative mt-12 lg:mt-0">
-            <div className="relative aspect-4/5 bg-black border-4 border-[#DFFF00] group overflow-hidden">
-                <div className="absolute inset-0 bg-[#DFFF00]/5" />
+            <div className="relative aspect-4/5 bg-black border-4 border-[#D4AF37] group overflow-hidden">
+                <div className="absolute inset-0 bg-[#D4AF37]/5" />
                 
                 {/* Decorative Ticker */}
-                <div className="absolute top-0 left-0 right-0 h-10 bg-[#DFFF00] flex items-center overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-10 bg-[#D4AF37] flex items-center overflow-hidden">
                     <div className="flex gap-10 animate-marquee whitespace-nowrap">
                         {[...Array(5)].map((_, i) => (
                             <span key={i} className="text-[10px] font-black italic text-black uppercase tracking-[0.3em]">
@@ -106,13 +106,13 @@ export default function EventDetails({ event }: EventDetailsProps) {
                 </div>
 
                 <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <h3 className="text-6xl font-black italic transition-colors duration-700 uppercase tracking-tighter text-center leading-none text-white/20 group-hover:text-[#DFFF00]/40">
+                  <h3 className="text-6xl font-black italic transition-colors duration-700 uppercase tracking-tighter text-center leading-none text-white/20 group-hover:text-[#D4AF37]/40">
                       {event.name}
                   </h3>
                 </div>
 
                 {/* Corner Accents */}
-                <div className="absolute bottom-0 right-0 w-24 h-24 bg-[#DFFF00] -rotate-45 translate-x-12 translate-y-12" />
+                <div className="absolute bottom-0 right-0 w-24 h-24 bg-[#D4AF37] -rotate-45 translate-x-12 translate-y-12" />
             </div>
           </div>
         </div>

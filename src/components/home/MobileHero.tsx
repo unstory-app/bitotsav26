@@ -11,7 +11,7 @@ export function MobileHero() {
     <section className="relative min-h-screen flex flex-col justify-between overflow-hidden bg-black md:hidden pt-20">
       
       {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-[300px] bg-[#DFFF00]/10 blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-[300px] bg-[#D4AF37]/10 blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 w-full px-6 flex flex-col items-center">
         
@@ -42,7 +42,7 @@ export function MobileHero() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="inline-block bg-[#DFFF00] px-6 py-2 -rotate-2"
+            className="inline-block bg-[#D4AF37] px-6 py-2 -rotate-2"
           >
             <h2 className="text-5xl font-black italic text-black">
               2026
@@ -57,7 +57,7 @@ export function MobileHero() {
           transition={{ delay: 0.6 }}
           className="mt-12 text-center"
         >
-          <p className="text-[#DFFF00] font-black italic uppercase text-lg">
+          <p className="text-[#D4AF37] font-black italic uppercase text-lg">
             {SITE_CONFIG.dates.short}
           </p>
           <p className="text-white/40 font-bold uppercase text-[10px] tracking-widest mt-1">
@@ -73,7 +73,7 @@ export function MobileHero() {
           className="mt-12 w-full"
         >
           <Link href={SITE_CONFIG.links.registration}>
-            <button className="w-full py-5 bg-white text-black font-black italic text-lg uppercase tracking-tighter hover:bg-[#DFFF00] transition-colors flex items-center justify-center gap-3">
+            <button className="w-full py-5 bg-white text-black font-black italic text-lg uppercase tracking-tighter hover:bg-[#D4AF37] transition-colors flex items-center justify-center gap-3">
               Register Now
               <ArrowRight className="w-5 h-5" />
             </button>

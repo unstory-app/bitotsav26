@@ -12,7 +12,7 @@ export function PremiumButton({ children, className, ...props }: PremiumButtonPr
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "relative group px-10 py-5 font-black italic uppercase tracking-[0.2em] text-sm md:text-base overflow-hidden border-4 border-[#DFFF00] bg-black text-[#DFFF00] hover:bg-[#DFFF00] hover:text-black transition-all duration-300 shadow-[10px_10px_0px_rgba(223,255,0,0.2)]",
+        "relative group px-10 py-5 font-black italic uppercase tracking-[0.2em] text-sm md:text-base overflow-hidden border-4 border-[#D4AF37] bg-black text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 shadow-[10px_10px_0px_rgba(223,255,0,0.2)]",
         className
       )}
       {...props}

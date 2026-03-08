@@ -56,18 +56,18 @@ export default function TicketsClient() {
             className={cn(
               "relative p-12 flex flex-col transition-all duration-500 group",
               tier.recommended 
-                ? "bg-[#DFFF00] text-black shadow-[0_0_80px_rgba(223,255,0,0.1)]" 
-                : "bg-white/5 text-white border border-white/10 hover:border-[#DFFF00] hover:bg-white/10"
+                ? "bg-[#D4AF37] text-black shadow-[0_0_80px_rgba(223,255,0,0.1)]" 
+                : "bg-white/5 text-white border border-white/10 hover:border-[#D4AF37] hover:bg-white/10"
             )}
           >
             {tier.recommended && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black text-[#DFFF00] text-[10px] font-black italic uppercase tracking-[0.3em]">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black text-[#D4AF37] text-[10px] font-black italic uppercase tracking-[0.3em]">
                 MOST POPULAR
               </div>
             )}
 
             <div className="mb-10">
-                <tier.icon className={cn("w-12 h-12 mb-8", tier.recommended ? "text-black" : "text-[#DFFF00]")} />
+                <tier.icon className={cn("w-12 h-12 mb-8", tier.recommended ? "text-black" : "text-[#D4AF37]")} />
                 <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-4">{tier.name}</h3>
                 <p className={cn("text-xs font-black italic uppercase tracking-widest", tier.recommended ? "text-black/40" : "text-white/40")}>
                     {tier.description}
@@ -82,7 +82,7 @@ export default function TicketsClient() {
             <ul className="space-y-6 mb-12 flex-1">
                 {tier.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-4">
-                        <Check className={cn("w-4 h-4", tier.recommended ? "text-black" : "text-[#DFFF00]")} />
+                        <Check className={cn("w-4 h-4", tier.recommended ? "text-black" : "text-[#D4AF37]")} />
                         <span className={cn("text-[10px] font-black italic uppercase tracking-widest", tier.recommended ? "text-black/60" : "text-white/60")}>
                             {feature}
                         </span>
@@ -93,8 +93,8 @@ export default function TicketsClient() {
             <button className={cn(
                 "w-full py-6 text-lg font-black italic uppercase tracking-widest transition-all",
                 tier.recommended 
-                    ? "bg-black text-[#DFFF00] hover:scale-105" 
-                    : "bg-[#DFFF00] text-black hover:scale-105"
+                    ? "bg-black text-[#D4AF37] hover:scale-105" 
+                    : "bg-[#D4AF37] text-black hover:scale-105"
             )}>
                 Authorize Now
             </button>
@@ -106,7 +106,7 @@ export default function TicketsClient() {
       <div className="max-w-7xl mx-auto px-6 mt-32">
         <div className="bg-white text-black p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group">
             <div className="space-y-6 relative z-10 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-[#DFFF00] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest">
+                <div className="inline-flex items-center gap-2 bg-[#D4AF37] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest">
                     <Zap className="w-3 h-3 fill-current" />
                     EXCLUSIVE OVERRIDE
                 </div>
@@ -118,7 +118,7 @@ export default function TicketsClient() {
                 </p>
             </div>
             
-            <button className="px-12 py-6 bg-black text-white text-xl font-black italic uppercase tracking-tighter hover:bg-[#DFFF00] hover:text-black transition-all relative z-10">
+            <button className="px-12 py-6 bg-black text-white text-xl font-black italic uppercase tracking-tighter hover:bg-[#D4AF37] hover:text-black transition-all relative z-10">
                 Verify Identity
             </button>
 

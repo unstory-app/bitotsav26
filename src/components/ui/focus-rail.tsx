@@ -207,7 +207,7 @@ export function FocusRail({
                 key={absIndex}
                 className={cn(
                   "absolute aspect-3/4 w-[280px] md:w-[340px] bg-white text-black shadow-2xl transition-all duration-300 will-change-transform",
-                  isCenter ? "z-20 border-4 border-[#DFFF00]" : "z-10 border border-white/10"
+                  isCenter ? "z-20 border-4 border-[#D4AF37]" : "z-10 border border-white/10"
                 )}
                 initial={false}
                 animate={{
@@ -262,7 +262,7 @@ export function FocusRail({
                 className="space-y-2"
               >
                 {activeItem.meta && (
-                  <span className="text-xs font-black italic uppercase tracking-[0.3em] text-[#DFFF00]">
+                  <span className="text-xs font-black italic uppercase tracking-[0.3em] text-[#D4AF37]">
                     {activeItem.meta}
                   </span>
                 )}
@@ -282,7 +282,7 @@ export function FocusRail({
             <div className="flex items-center gap-1 bg-white p-1">
               <button
                 onClick={handlePrev}
-                className="p-3 text-black transition hover:bg-black hover:text-[#DFFF00] active:scale-95"
+                className="p-3 text-black transition hover:bg-black hover:text-[#D4AF37] active:scale-95"
                 aria-label="Previous"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -292,7 +292,7 @@ export function FocusRail({
               </span>
               <button
                 onClick={handleNext}
-                className="p-3 text-black transition hover:bg-black hover:text-[#DFFF00] active:scale-95"
+                className="p-3 text-black transition hover:bg-black hover:text-[#D4AF37] active:scale-95"
                 aria-label="Next"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -302,7 +302,7 @@ export function FocusRail({
             {activeItem.href && (
               <Link
                 href={activeItem.href}
-                className="group flex items-center gap-3 bg-[#DFFF00] px-8 py-4 text-sm font-black italic uppercase tracking-widest text-black transition-transform hover:scale-105 active:scale-95"
+                className="group flex items-center gap-3 bg-[#D4AF37] px-8 py-4 text-sm font-black italic uppercase tracking-widest text-black transition-transform hover:scale-105 active:scale-95"
               >
                 Explore Session
                 <ArrowUpRight className="h-5 w-5 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" />

@@ -33,10 +33,10 @@ export default function AboutContent() {
             className="relative p-10 bg-white/5 border border-white/10 group overflow-hidden"
           >
             {/* Hover Background */}
-            <div className="absolute inset-0 bg-[#DFFF00] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            <div className="absolute inset-0 bg-[#D4AF37] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             
             <div className="relative z-10 space-y-4">
-                <stat.icon className="w-8 h-8 text-[#DFFF00] group-hover:text-black transition-colors" />
+                <stat.icon className="w-8 h-8 text-[#D4AF37] group-hover:text-black transition-colors" />
                 <div className="text-4xl md:text-6xl font-black italic tracking-tighter text-white group-hover:text-black transition-colors uppercase leading-none">
                 {stat.value}
                 </div>
@@ -46,7 +46,7 @@ export default function AboutContent() {
             </div>
 
             {/* Decorative Corner */}
-            <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-[#DFFF00] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-[#D4AF37] opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.div>
         ))}
       </div>
@@ -61,9 +61,9 @@ export default function AboutContent() {
             className="space-y-8"
         >
             <h3 className="text-5xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">
-                WHENCE IT <br/> <span className="text-[#DFFF00]">ORIGINATED.</span>
+                WHENCE IT <br/> <span className="text-[#D4AF37]">ORIGINATED.</span>
             </h3>
-            <div className="w-20 h-2 bg-[#DFFF00]" />
+            <div className="w-20 h-2 bg-[#D4AF37]" />
         </motion.div>
 
         <motion.div
@@ -97,10 +97,10 @@ export default function AboutContent() {
       </div>
 
       {/* Night Events Teaser */}
-      <div className="max-w-7xl mx-auto bg-black border-4 border-[#DFFF00] p-12 md:p-24 relative overflow-hidden group mb-32">
+      <div className="max-w-7xl mx-auto bg-black border-4 border-[#D4AF37] p-12 md:p-24 relative overflow-hidden group mb-32">
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
              <div className="max-w-2xl text-center md:text-left">
-                <div className="inline-block bg-[#DFFF00] px-3 py-1 mb-6 text-black text-[10px] font-black italic uppercase tracking-[0.2em]">
+                <div className="inline-block bg-[#D4AF37] px-3 py-1 mb-6 text-black text-[10px] font-black italic uppercase tracking-[0.2em]">
                     STAR_NIGHTS.2026
                 </div>
                 <h3 className="text-5xl md:text-8xl font-black italic text-white mb-6 uppercase tracking-tighter leading-none">THE MAIN <br className="hidden md:block" /> STAGE.</h3>
@@ -110,7 +110,7 @@ export default function AboutContent() {
              </div>
              
              <div className="w-full md:w-auto">
-                <div className="px-16 py-8 bg-[#DFFF00] text-black font-black italic text-2xl uppercase tracking-widest text-center">
+                <div className="px-16 py-8 bg-[#D4AF37] text-black font-black italic text-2xl uppercase tracking-widest text-center">
                     AWAITING_SIGNAL
                 </div>
              </div>

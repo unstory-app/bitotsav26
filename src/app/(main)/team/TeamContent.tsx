@@ -28,13 +28,13 @@ export default function TeamContent() {
     <PageWrapper className="pt-32 pb-20 bg-black min-h-screen relative overflow-hidden">
       {/* Texture Overlays */}
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
-      <div className="absolute top-0 right-0 w-1/2 h-full z-0 pointer-events-none bg-linear-to-l from-[#DFFF00]/5 to-transparent" />
+      <div className="absolute top-0 right-0 w-1/2 h-full z-0 pointer-events-none bg-linear-to-l from-[#D4AF37]/5 to-transparent" />
       
       {/* Header Section */}
       <div className="max-w-7xl mx-auto px-6 mb-32 relative z-10">
-          <div className="border-l-12 border-[#DFFF00] pl-10 py-6">
+          <div className="border-l-12 border-[#D4AF37] pl-10 py-6">
               <h1 className="text-7xl md:text-9xl font-black italic text-white uppercase leading-none tracking-tighter mb-4">
-                  THE <span className="text-[#DFFF00]">CREW.</span>
+                  THE <span className="text-[#D4AF37]">CREW.</span>
               </h1>
               <p className="text-lg md:text-xl text-white/40 font-black italic uppercase tracking-[0.3em]">
                   OPERATIONAL ARCHITECTS AND CORE PROTOCOL MAINTAINERS.
@@ -51,7 +51,7 @@ export default function TeamContent() {
             </div>
             
             <div className="flex items-center gap-6 mb-16">
-                <div className="w-12 h-1 bg-[#DFFF00]" />
+                <div className="w-12 h-1 bg-[#D4AF37]" />
                 <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
                     CORE LEADERSHIP
                 </h3>
@@ -71,7 +71,7 @@ export default function TeamContent() {
             </div>
 
             <div className="flex items-center gap-6 mb-16">
-                <div className="w-12 h-1 bg-[#DFFF00]" />
+                <div className="w-12 h-1 bg-[#D4AF37]" />
                 <h3 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter leading-none">
                     TECH DEPARTMENTS
                 </h3>
@@ -88,7 +88,7 @@ export default function TeamContent() {
       {/* Join the Team CTA */}
       <div className="max-w-7xl mx-auto px-6 mt-48 pb-40 relative z-10">
         <div className="p-16 md:p-24 bg-white/5 border-2 border-white/10 relative group overflow-hidden">
-            <div className="absolute inset-0 bg-linear-to-tr from-[#DFFF00]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute inset-0 bg-linear-to-tr from-[#D4AF37]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             
             {/* Decors */}
             <div className="absolute top-0 right-0 p-8 border-l border-b border-white/10 text-[8px] font-black italic text-white/20 uppercase tracking-[0.5em]">
@@ -98,7 +98,7 @@ export default function TeamContent() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-16 relative z-10">
                 <div className="flex-1 text-center md:text-left">
                     <h2 className="text-6xl md:text-8xl font-black italic text-white uppercase tracking-tighter leading-[0.85] mb-8">
-                        WANT TO <br /><span className="text-[#DFFF00]">JOIN CREW?</span>
+                        WANT TO <br /><span className="text-[#D4AF37]">JOIN CREW?</span>
                     </h2>
                     <p className="max-w-xl text-lg font-black italic uppercase tracking-widest text-white/40 leading-relaxed border-l-4 border-white/10 pl-8">
                         The {SITE_CONFIG.shortName} protocol maintenance group is always looking for new visionaries to scale the experience.
@@ -107,7 +107,7 @@ export default function TeamContent() {
                 
                 <Link 
                     href="/helpdesk" 
-                    className="shrink-0 w-full md:w-auto px-16 py-10 bg-[#DFFF00] text-black font-black italic uppercase tracking-[0.5em] text-xl transform hover:scale-105 transition-all shadow-[10px_10px_0px_white]"
+                    className="shrink-0 w-full md:w-auto px-16 py-10 bg-[#D4AF37] text-black font-black italic uppercase tracking-[0.5em] text-xl transform hover:scale-105 transition-all shadow-[10px_10px_0px_white]"
                 >
                     INITIALIZE SYNC
                 </Link>

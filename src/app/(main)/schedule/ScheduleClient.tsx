@@ -59,19 +59,19 @@ export default function ScheduleClient() {
             className={cn(
               "relative px-12 py-8 bg-black border-4 transition-all duration-300 group overflow-hidden",
               activeDay === index 
-                ? "border-[#DFFF00] z-10" 
+                ? "border-[#D4AF37] z-10" 
                 : "border-white/10 text-white/20 hover:border-white/40"
             )}
           >
             <div className={cn(
                 "text-4xl font-black italic mb-2 transition-colors uppercase leading-none",
-                activeDay === index ? "text-[#DFFF00]" : "group-hover:text-white"
+                activeDay === index ? "text-[#D4AF37]" : "group-hover:text-white"
             )}>{data.day}</div>
             <div className="text-[10px] font-black italic uppercase tracking-[0.4em]">{data.date}</div>
             
             {/* Background Accent if active */}
             {activeDay === index && (
-                <div className="absolute top-0 right-0 w-8 h-8 bg-[#DFFF00] -rotate-45 translate-x-4 -translate-y-4" />
+                <div className="absolute top-0 right-0 w-8 h-8 bg-[#D4AF37] -rotate-45 translate-x-4 -translate-y-4" />
             )}
           </button>
         ))}
@@ -91,23 +91,23 @@ export default function ScheduleClient() {
           >
             {scheduleData[activeDay].events.map((event, idx) => (
               <div key={idx} className="group relative">
-                <div className="bg-white/5 border border-white/10 p-10 md:p-16 hover:border-[#DFFF00] hover:bg-white/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12 group">
+                <div className="bg-white/5 border border-white/10 p-10 md:p-16 hover:border-[#D4AF37] hover:bg-white/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12 group">
                   <div className="space-y-6 flex-1">
                     <div className="flex items-center gap-4">
-                        <div className="w-3 h-3 bg-[#DFFF00]" />
-                        <div className="text-[#DFFF00] font-black italic uppercase tracking-[0.3em] text-sm">
+                        <div className="w-3 h-3 bg-[#D4AF37]" />
+                        <div className="text-[#D4AF37] font-black italic uppercase tracking-[0.3em] text-sm">
                             TIME_MARKER: {event.time}
                         </div>
                     </div>
-                    <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white group-hover:text-[#DFFF00] transition-colors leading-none">
+                    <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white group-hover:text-[#D4AF37] transition-colors leading-none">
                     {event.name}
                     </h3>
                   </div>
                   
-                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#DFFF00] pl-6 md:pl-0 md:pr-6">
+                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#D4AF37] pl-6 md:pl-0 md:pr-6">
                     <div className="text-white/40 text-sm font-black italic uppercase tracking-widest mb-1">LOCATION</div>
                     <div className="text-white font-black italic uppercase text-lg tracking-tighter">{event.venue}</div>
-                    <div className="text-[10px] text-[#DFFF00] font-black italic uppercase tracking-[0.2em] mt-4">CLASS_ID: {event.type}</div>
+                    <div className="text-[10px] text-[#D4AF37] font-black italic uppercase tracking-[0.2em] mt-4">CLASS_ID: {event.type}</div>
                   </div>
 
                   {/* Hover Ticker */}

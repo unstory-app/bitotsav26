@@ -28,7 +28,7 @@ export function Marquee({
     <div
       className={cn(
         "relative flex overflow-hidden whitespace-nowrap py-4 border-y border-black/10 select-none",
-        variant === "yellow" && "bg-[#DFFF00] text-black font-black italic uppercase",
+        variant === "yellow" && "bg-[#D4AF37] text-black font-black italic uppercase",
         variant === "outline" && "bg-transparent text-white font-black italic uppercase neon-stroke",
         variant === "white" && "bg-white text-black font-black italic uppercase",
         className

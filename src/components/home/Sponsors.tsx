@@ -16,7 +16,7 @@ export function Sponsors() {
              transition={{ duration: 0.8 }}
              className="flex flex-col items-center"
           >
-            <div className="inline-flex items-center gap-2 bg-[#DFFF00] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest text-black mb-8">
+            <div className="inline-flex items-center gap-2 bg-[#D4AF37] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest text-black mb-8">
                 PARTNERS IN THE SAGA
             </div>
             <h2 className="text-6xl md:text-9xl font-black italic tracking-tighter text-white uppercase leading-none">
@@ -39,7 +39,7 @@ export function Sponsors() {
                           key={`${sponsor.name}-${index}`}
                           className="relative flex flex-col items-center gap-4 group px-10"
                         >
-                            <div className="w-48 h-24 bg-white p-6 flex items-center justify-center group-hover:bg-[#DFFF00] transition-all duration-500 grayscale group-hover:grayscale-0 transform group-hover:scale-110 relative">
+                            <div className="w-48 h-24 bg-white p-6 flex items-center justify-center group-hover:bg-[#D4AF37] transition-all duration-500 grayscale group-hover:grayscale-0 transform group-hover:scale-110 relative">
                                 <Image 
                                     src={sponsor.logo} 
                                     alt={sponsor.name} 
@@ -47,7 +47,7 @@ export function Sponsors() {
                                     className="p-4 object-contain" 
                                 />
                             </div>
-                            <span className="text-[10px] font-black italic tracking-[0.3em] text-[#DFFF00] uppercase opacity-40 group-hover:opacity-100 transition-all">
+                            <span className="text-[10px] font-black italic tracking-[0.3em] text-[#D4AF37] uppercase opacity-40 group-hover:opacity-100 transition-all">
                                 {pkg.name}
                             </span>
                         </div>

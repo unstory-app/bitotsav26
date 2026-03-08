@@ -38,7 +38,7 @@ export function Features() {
                 transition={{ duration: 0.8 }}
                 className="max-w-2xl"
             >
-                <div className="inline-flex items-center gap-2 bg-[#DFFF00] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest text-black mb-6">
+                <div className="inline-flex items-center gap-2 bg-[#D4AF37] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest text-black mb-6">
                     <Star className="w-3 h-3 fill-current" />
                     THE FLAGSHIPS
                 </div>
@@ -66,7 +66,7 @@ export function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.2 }}
-              className="group relative bg-white/5 border border-white/10 aspect-3/4 overflow-hidden flex flex-col justify-end p-10 hover:border-[#DFFF00] transition-all duration-500"
+              className="group relative bg-white/5 border border-white/10 aspect-3/4 overflow-hidden flex flex-col justify-end p-10 hover:border-[#D4AF37] transition-all duration-500"
             >
               {/* Background revealed on hover */}
               <div className="absolute inset-0 opacity-20 grayscale group-hover:opacity-60 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
@@ -80,8 +80,8 @@ export function Features() {
               </div>
 
               <div className="relative z-10 space-y-4">
-                <feature.icon className="w-12 h-12 text-[#DFFF00]" />
-                <h3 className="text-4xl font-black italic uppercase leading-none tracking-tighter text-white group-hover:text-[#DFFF00] transition-colors">
+                <feature.icon className="w-12 h-12 text-[#D4AF37]" />
+                <h3 className="text-4xl font-black italic uppercase leading-none tracking-tighter text-white group-hover:text-[#D4AF37] transition-colors">
                     {feature.title}
                 </h3>
                 <p className="text-sm font-black italic uppercase tracking-tighter text-white/40 group-hover:text-white transition-colors">
@@ -90,7 +90,7 @@ export function Features() {
               </div>
 
               {/* Decorative corner */}
-              <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-white/0 group-hover:border-[#DFFF00] transition-all duration-500" />
+              <div className="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-white/0 group-hover:border-[#D4AF37] transition-all duration-500" />
             </motion.div>
           ))}
         </div>

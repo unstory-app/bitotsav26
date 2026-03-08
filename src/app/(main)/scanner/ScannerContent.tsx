@@ -160,7 +160,7 @@ export default function ScannerContent() {
         
         <div className="max-w-6xl mx-auto relative z-10">
             {/* Header */}
-            <div className="mb-8 md:mb-16 border-l-4 md:border-l-8 border-[#DFFF00] pl-4 md:pl-8 py-2 md:py-4">
+            <div className="mb-8 md:mb-16 border-l-4 md:border-l-8 border-[#D4AF37] pl-4 md:pl-8 py-2 md:py-4">
                 <h1 className="text-4xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none mb-2">
                     SCANNER <span className="text-[#D4AF37]">CONSOLE.</span>
                 </h1>

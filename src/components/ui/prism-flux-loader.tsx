@@ -62,7 +62,7 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
           return (
              <div
                key={i}
-               className={`absolute flex items-center justify-center border border-[#DFFF00]/40 bg-black/40 backdrop-blur-sm shadow-[0_0_20px_rgba(223,255,0,0.1)]`}
+               className={`absolute flex items-center justify-center border border-[#D4AF37]/40 bg-black/40 backdrop-blur-sm shadow-[0_0_20px_rgba(223,255,0,0.1)]`}
                style={{
                  width: size,
                  height: size,
@@ -70,7 +70,7 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
                  backfaceVisibility: "visible",
                }}
              >
-              <PlusIcon className="text-[#DFFF00] w-8 h-8 opacity-60" />
+              <PlusIcon className="text-[#D4AF37] w-8 h-8 opacity-60" />
              </div>
            );
          })}
@@ -81,7 +81,7 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
            <div className="text-2xl font-black italic text-white tracking-widest uppercase animate-pulse">
              LOADING_BITOTSAV
            </div>
-           <div className="text-[10px] font-black italic text-[#DFFF00]/40 uppercase tracking-[0.3em]">
+           <div className="text-[10px] font-black italic text-[#D4AF37]/40 uppercase tracking-[0.3em]">
              {currentStatus}_IN_PROGRESS...
            </div>
        </div>

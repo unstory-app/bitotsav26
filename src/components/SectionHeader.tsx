@@ -29,7 +29,7 @@ export function SectionHeader({
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
         className={cn(
-            "inline-block border-l-4 border-[#DFFF00] pl-6 py-1",
+            "inline-block border-l-4 border-[#D4AF37] pl-6 py-1",
             align === "center" && "border-l-0 border-b-4 border-t-4 px-8 py-2",
             align === "right" && "border-l-0 border-r-4 pr-6 pl-0"
         )}

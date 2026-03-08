@@ -64,7 +64,7 @@ export default function LeaderboardContent() {
             initial={{ opacity: 0, scale: 1 }}
             whileInView={{ opacity: 1, scale: 1.05 }}
             viewport={{ once: true }}
-            className="md:order-2 bg-[#DFFF00] p-16 text-center space-y-8 relative overflow-hidden shadow-[0_0_80px_rgba(223,255,0,0.15)] z-10"
+            className="md:order-2 bg-[#D4AF37] p-16 text-center space-y-8 relative overflow-hidden shadow-[0_0_80px_rgba(223,255,0,0.15)] z-10"
           >
              <div className="absolute top-0 left-0 w-full h-2 bg-black/10" />
              <Trophy className="w-24 h-24 text-black mx-auto" />
@@ -112,7 +112,7 @@ export default function LeaderboardContent() {
                         { icon: Zap, label: "Ping", val: "12ms" }
                     ].map((stat, i) => (
                         <div key={i} className="px-6 py-3 bg-white/5 border border-white/10 flex items-center gap-4">
-                            <stat.icon className="w-4 h-4 text-[#DFFF00]" />
+                            <stat.icon className="w-4 h-4 text-[#D4AF37]" />
                             <div className="text-left">
                                 <div className="text-[8px] font-black italic text-white/20 uppercase tracking-widest">{stat.label}</div>
                                 <div className="text-sm font-black italic text-white uppercase">{stat.val}</div>
@@ -129,7 +129,7 @@ export default function LeaderboardContent() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  className="group grid grid-cols-12 gap-8 px-10 py-8 bg-white/2 border border-white/5 items-center hover:bg-[#DFFF00] transition-all duration-500 cursor-default"
+                  className="group grid grid-cols-12 gap-8 px-10 py-8 bg-white/2 border border-white/5 items-center hover:bg-[#D4AF37] transition-all duration-500 cursor-default"
                 >
                   <div className="col-span-1 text-2xl font-black italic text-white/20 group-hover:text-black/20">
                     #{team.rank.toString().padStart(2, "0")}

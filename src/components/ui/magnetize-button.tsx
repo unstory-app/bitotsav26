@@ -66,9 +66,9 @@ function MagnetizeButton({
         <Button
             className={cn(
                 "min-w-48 relative touch-none py-8 px-12",
-                "bg-black border-4 border-[#DFFF00]",
-                "hover:bg-[#DFFF00] hover:text-black transition-all duration-300",
-                "text-[#DFFF00] font-black italic uppercase tracking-[0.2em] text-lg rounded-none",
+                "bg-black border-4 border-[#D4AF37]",
+                "hover:bg-[#D4AF37] hover:text-black transition-all duration-300",
+                "text-[#D4AF37] font-black italic uppercase tracking-[0.2em] text-lg rounded-none",
                 "shadow-[15px_15px_0px_rgba(223,255,0,0.1)]",
                 className
             )}
@@ -86,7 +86,7 @@ function MagnetizeButton({
                     animate={particlesControl}
                     className={cn(
                         "absolute w-2 h-2",
-                        "bg-[#DFFF00] transition-opacity duration-300",
+                        "bg-[#D4AF37] transition-opacity duration-300",
                         isAttracting ? "opacity-100 scale-150" : "opacity-20"
                     )}
                 />

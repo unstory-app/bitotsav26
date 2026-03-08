@@ -78,7 +78,7 @@ export default function KineticTeamHybrid({
               {title}
             </h1>
           </div>
-          <p className="text-sm font-black italic uppercase tracking-[0.3em] text-[#DFFF00]">
+          <p className="text-sm font-black italic uppercase tracking-[0.3em] text-[#D4AF37]">
             {subtitle}
           </p>
         </motion.header>
@@ -112,7 +112,7 @@ export default function KineticTeamHybrid({
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.8, x: 100 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="relative h-80 w-64 overflow-hidden border-4 border-[#DFFF00] bg-black shadow-2xl"
+                className="relative h-80 w-64 overflow-hidden border-4 border-[#D4AF37] bg-black shadow-2xl"
               >
                 <Image
                   src={members.find((t) => t.id === activeId)?.image || ""}
@@ -124,8 +124,8 @@ export default function KineticTeamHybrid({
                 {/* Overlay Metadata */}
                 <div className="absolute bottom-0 w-full bg-black p-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-[#DFFF00]" />
-                    <span className="text-[10px] font-black italic uppercase tracking-widest text-[#DFFF00]">LIVE_AUTH_ID: {activeId.toUpperCase()}</span>
+                    <div className="h-2 w-2 bg-[#D4AF37]" />
+                    <span className="text-[10px] font-black italic uppercase tracking-widest text-[#D4AF37]">LIVE_AUTH_ID: {activeId.toUpperCase()}</span>
                   </div>
                 </div>
               </motion.div>
@@ -163,7 +163,7 @@ function TeamRow({
       animate={{ 
         opacity: isDimmed ? 0.2 : 1, 
         y: 0,
-        backgroundColor: isActive ? '#DFFF00' : 'transparent'
+        backgroundColor: isActive ? '#D4AF37' : 'transparent'
       }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       onMouseEnter={() => !isMobile && setActiveId(data.id)}
@@ -180,7 +180,7 @@ function TeamRow({
         <div className="flex items-baseline gap-8 md:gap-16 transition-transform duration-500 group-hover:translate-x-6">
           <span className={cn(
             "font-black italic text-sm transition-colors",
-            isActive ? "text-black" : "text-white/20 group-hover:text-[#DFFF00]"
+            isActive ? "text-black" : "text-white/20 group-hover:text-[#D4AF37]"
           )}>
             PROTO_{index + 1}
           </span>
@@ -196,7 +196,7 @@ function TeamRow({
         <div className="mt-6 flex items-center justify-between md:mt-0 md:justify-end md:gap-16">
           <span className={cn(
             "text-[10px] font-black italic uppercase tracking-[0.3em] transition-colors",
-            isActive ? "text-black/60" : "text-white/20 group-hover:text-[#DFFF00]"
+            isActive ? "text-black/60" : "text-white/20 group-hover:text-[#D4AF37]"
           )}>
             {data.role}
           </span>
@@ -230,7 +230,7 @@ function TeamRow({
             className="overflow-hidden bg-black"
           >
             <div className="p-4">
-              <div className="relative aspect-video w-full overflow-hidden border-4 border-[#DFFF00]">
+              <div className="relative aspect-video w-full overflow-hidden border-4 border-[#D4AF37]">
                 <Image 
                   src={data.image} 
                   alt={data.name} 
@@ -239,7 +239,7 @@ function TeamRow({
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute bottom-4 left-4">
-                   <p className="text-xs font-black italic uppercase tracking-widest text-[#DFFF00]">SECURED_ACCESS</p>
+                   <p className="text-xs font-black italic uppercase tracking-widest text-[#D4AF37]">SECURED_ACCESS</p>
                 </div>
               </div>
             </div>
