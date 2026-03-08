@@ -6,16 +6,19 @@
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-heading: "Inter", sans-serif; /* Bold Sans for headings */
+  --font-heading: var(--font-cinzel), serif;
+  --font-body: var(--font-playfair), serif;
   --font-mono: "JetBrains Mono", monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Concert / High-Energy Theme Colors */
-  --color-primary: #dfff00; /* Neon Yellow / Concert Yellow */
-  --color-accent: #e2ff00;
-  --color-secondary: #0a0a0a;
+  /* Folk Heritage Theme Colors */
+  --color-primary: #d4af37; /* Heritage Gold */
+  --color-accent: #ffd700;
+  --color-secondary: #3d0a0a; /* Rich Maroon */
+  --color-heritage-red: #800000;
+  --color-heritage-cream: #fdf5e6;
 
   --animate-marquee: marquee var(--duration, 40s) linear infinite;
   --animate-marquee-fast: marquee var(--duration, 20s) linear infinite;
@@ -42,25 +45,25 @@
 }
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #1a0505; /* Deep Maroon-Black */
+  --foreground: #fdf5e6; /* Cream */
 
-  --primary: #dfff00;
-  --primary-foreground: #000000;
+  --primary: #d4af37;
+  --primary-foreground: #1a0505;
 
-  --accent: #dfff00;
-  --accent-foreground: #000000;
+  --accent: #ffd700;
+  --accent-foreground: #1a0505;
 
-  --secondary: #121212;
-  --secondary-foreground: #ffffff;
+  --secondary: #3d0a0a;
+  --secondary-foreground: #fdf5e6;
 
-  --muted: #1a1a1a;
-  --muted-foreground: #a3a3a3;
+  --muted: #2d0f0f;
+  --muted-foreground: rgba(253, 245, 230, 0.5);
 
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.05);
+  --border: rgba(212, 175, 55, 0.2);
+  --input: rgba(212, 175, 55, 0.1);
 
-  --radius: 0.5rem;
+  --radius: 0rem; /* Sharp edges for traditional feel */
 }
 
 body {
@@ -77,10 +80,10 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-style: italic; /* Signature Concert Vibe */
+  font-style: normal;
 }
 
 /* Custom Scrollbar */
@@ -89,40 +92,87 @@ h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #1a0505;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #3d0a0a;
+  border: 1px solid var(--primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
 
-/* Premium / Concert Utilities */
-.neon-stroke {
-  -webkit-text-stroke: 1px var(--primary);
-  color: transparent;
+/* Folk Heritage Utilities */
+.stamp-edge {
+  clip-path: polygon(
+    0% 5%,
+    5% 0%,
+    10% 5%,
+    15% 0%,
+    20% 5%,
+    25% 0%,
+    30% 5%,
+    35% 0%,
+    40% 5%,
+    45% 0%,
+    50% 5%,
+    55% 0%,
+    60% 5%,
+    65% 0%,
+    70% 5%,
+    75% 0%,
+    80% 5%,
+    85% 0%,
+    90% 5%,
+    95% 0%,
+    100% 5%,
+    100% 95%,
+    95% 100%,
+    90% 95%,
+    85% 100%,
+    80% 95%,
+    75% 100%,
+    70% 95%,
+    65% 100%,
+    60% 95%,
+    55% 100%,
+    50% 95%,
+    45% 100%,
+    40% 95%,
+    35% 100%,
+    30% 95%,
+    25% 100%,
+    20% 95%,
+    15% 100%,
+    10% 95%,
+    5% 100%,
+    0% 95%
+  );
 }
 
-.concert-outline {
-  filter: drop-shadow(0 0 1px var(--primary))
-    drop-shadow(0 0 2px var(--primary));
+.tapestry-bg {
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  background-blend-mode: overlay;
+  background-color: var(--background);
 }
 
-.marquee-yellow {
-  background-color: var(--primary);
-  color: black;
-  font-weight: 900;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.tapestry-pattern {
+  background-image: url("/Users/shaswatraj/.gemini/antigravity/brain/ad95aa9e-c43b-4dd5-bf5a-7d05b8d3d965/indian_folk_tapestry_pattern_1772987622718.png");
+  background-size: 400px;
+  background-repeat: repeat;
 }
 
-/* Glassmorphism Refined */
+.heritage-border {
+  border: 2px solid var(--primary);
+  box-shadow:
+    0 0 0 4px var(--background),
+    0 0 0 6px var(--primary);
+}
+
 .glass {
-  background: rgba(10, 10, 10, 0.6);
+  background: rgba(26, 5, 5, 0.8);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.1);
 }

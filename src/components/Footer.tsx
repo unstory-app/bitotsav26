@@ -4,7 +4,7 @@ import { SITE_CONFIG } from "@/config/site";
 
 export function Footer() {
   return (
-    <footer className="w-full relative z-10 bg-black text-white overflow-hidden border-t-4 border-[#DFFF00]">
+    <footer className="w-full relative z-10 bg-[#1A0505] text-[#FDF5E6] overflow-hidden border-t-4 border-[#D4AF37] tapestry-bg">
         
         <div className="relative pt-20 pb-12 px-6">
             <div className="max-w-7xl mx-auto">
@@ -13,43 +13,43 @@ export function Footer() {
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-2 space-y-8">
                         <div>
-                            <h2 className="text-5xl md:text-6xl font-black italic leading-none tracking-tighter text-white mb-2 uppercase">
-                                {SITE_CONFIG.shortName} <span className="text-[#DFFF00]">2026</span>
+                            <h2 className="text-5xl md:text-6xl font-black italic leading-none tracking-tighter text-[#FDF5E6] mb-2 uppercase font-heading">
+                                {SITE_CONFIG.shortName} <span className="text-[#D4AF37]">2026</span>
                             </h2>
-                            <p className="text-[#DFFF00] font-black italic uppercase tracking-widest text-sm">
+                            <p className="text-[#D4AF37] font-black italic uppercase tracking-widest text-sm">
                                 {SITE_CONFIG.edition} / {SITE_CONFIG.venue.name}
                             </p>
                         </div>
                         
-                        <div className="max-w-md border-l-4 border-[#DFFF00] pl-6 py-2">
-                            <p className="text-white font-black italic text-xl uppercase leading-tight mb-4">
+                        <div className="max-w-md border-l-4 border-[#D4AF37] pl-6 py-2">
+                            <p className="text-[#FDF5E6] font-black italic text-xl uppercase leading-tight mb-4 font-heading">
                                 {SITE_CONFIG.tagline}
                             </p>
-                            <p className="text-white/40 text-sm font-bold uppercase tracking-wider leading-relaxed">
-                                Experience the fusion of culture and innovation. 
-                                JOIN THE LEgendary Saga from {SITE_CONFIG.dates.short}.
+                            <p className="text-[#FDF5E6]/40 text-sm font-bold uppercase tracking-wider leading-relaxed">
+                                Experience the fusion of heritage and innovation. 
+                                JOIN THE LegendARY SAGA FROM {SITE_CONFIG.dates.short}.
                             </p>
                         </div>
                     </div>
 
                     {/* Navigation */}
                     <div className="space-y-8">
-                        <h3 className="text-lg font-black italic text-[#DFFF00] uppercase tracking-widest">
-                            Site Map
+                        <h3 className="text-lg font-black italic text-[#D4AF37] uppercase tracking-widest font-heading">
+                            The Map
                         </h3>
-                        <ul className="space-y-4 text-white/60 font-black italic uppercase text-lg">
-                            <li><Link href="/events" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Events</Link></li>
-                            <li><Link href="/schedule" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Schedule</Link></li>
-                            <li><Link href="/sponsors" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Sponsors</Link></li>
-                            <li><Link href="/login" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Register</Link></li>
-                            <li><Link href="/team" className="hover:text-[#DFFF00] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-white/20 group-hover:bg-[#DFFF00] transition-colors" /> Team</Link></li>
+                        <ul className="space-y-4 text-[#FDF5E6]/60 font-black italic uppercase text-lg">
+                            <li><Link href="/events" className="hover:text-[#D4AF37] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-[#D4AF37]/20 group-hover:bg-[#D4AF37] transition-colors" /> Events</Link></li>
+                            <li><Link href="/schedule" className="hover:text-[#D4AF37] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-[#D4AF37]/20 group-hover:bg-[#D4AF37] transition-colors" /> Schedule</Link></li>
+                            <li><Link href="/sponsors" className="hover:text-[#D4AF37] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-[#D4AF37]/20 group-hover:bg-[#D4AF37] transition-colors" /> Sponsors</Link></li>
+                            <li><Link href="/login" className="hover:text-[#D4AF37] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-[#D4AF37]/20 group-hover:bg-[#D4AF37] transition-colors" /> Authorship</Link></li>
+                            <li><Link href="/team" className="hover:text-[#D4AF37] transition-colors flex items-center gap-4 group"><span className="w-2 h-2 bg-[#D4AF37]/20 group-hover:bg-[#D4AF37] transition-colors" /> Team</Link></li>
                         </ul>
                     </div>
 
                     {/* Socials */}
                     <div className="space-y-8">
-                        <h3 className="text-lg font-black italic text-[#DFFF00] uppercase tracking-widest">
-                            Pulse
+                        <h3 className="text-lg font-black italic text-[#D4AF37] uppercase tracking-widest font-heading">
+                            Connect
                         </h3>
                         <div className="flex flex-wrap gap-4">
                             {[
@@ -61,35 +61,35 @@ export function Footer() {
                                 <Link 
                                     key={i} 
                                     href={href} 
-                                    className="w-14 h-14 bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#DFFF00] hover:text-black hover:border-transparent transition-all"
+                                    className="w-14 h-14 bg-[#FDF5E6]/5 border border-[#D4AF37]/10 flex items-center justify-center hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent transition-all"
                                 >
                                     <Icon className="w-6 h-6" />
                                 </Link>
                             ))}
                         </div>
-                        <p className="text-[10px] text-white/30 uppercase font-black tracking-[0.2em]">
-                            Stay updated via @bitotsav
+                        <p className="text-[10px] text-[#FDF5E6]/30 uppercase font-black tracking-[0.2em]">
+                            FOLK CULTURE @bitotsav
                         </p>
                     </div>
 
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="pt-12 border-t border-[#D4AF37]/10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="flex flex-col items-center md:items-start gap-2">
-                        <p className="text-[10px] font-black italic uppercase text-white/20 tracking-[0.2em]">
-                            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All RIGHTS RESERVED.
+                        <p className="text-[10px] font-black italic uppercase text-[#FDF5E6]/20 tracking-[0.2em]">
+                            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. HERITAGE PRESERVED.
                         </p>
-                        <div className="flex items-center text-[10px] font-black italic uppercase text-white/40 tracking-[0.2em]">
-                            Developed by <a href="https://sh20raj.github.io" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#DFFF00] transition-colors ml-2 bg-white/5 px-2 py-1">Shaswat Raj</a>
+                        <div className="flex items-center text-[10px] font-black italic uppercase text-[#FDF5E6]/40 tracking-[0.2em]">
+                            Reforged by <a href="https://sh20raj.github.io" target="_blank" rel="noopener noreferrer" className="text-[#FDF5E6] hover:text-[#D4AF37] transition-colors ml-2 bg-[#FDF5E6]/5 px-2 py-1">Shaswat Raj</a>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-3 text-white/20">
-                            <span className="text-[10px] font-bold uppercase tracking-widest">FORGED WITH</span>
-                            <Heart className="w-4 h-4 text-[#DFFF00] fill-current" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">FOR THE LEGACY</span>
+                        <div className="flex items-center gap-3 text-[#FDF5E6]/20">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">ROOTED IN</span>
+                            <Heart className="w-4 h-4 text-[#D4AF37] fill-current" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">BIT MESRA SAGA</span>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@ export function Footer() {
         </div>
 
         {/* Massive Watermark */}
-        <div className="absolute -bottom-20 -left-20 text-[25vw] font-black italic text-white/5 select-none pointer-events-none leading-none tracking-tighter">
+        <div className="absolute -bottom-20 -left-20 text-[25vw] font-black italic text-[#FDF5E6]/5 select-none pointer-events-none leading-none tracking-tighter font-heading opacity-5">
             BITOTSAV
         </div>
 

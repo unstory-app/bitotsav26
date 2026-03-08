@@ -1,15 +1,16 @@
 export const DESIGN_SYSTEM = {
   colors: {
-    background: "#050505",
-    foreground: "#ffffff",
-    primary: "#DFFF00", // "Concert Yellow" / Neon Yellow
-    secondary: "#1A1A1A",
-    accent: "#E2FF00",
-    muted: "#404040",
-    border: "rgba(255, 255, 255, 0.1)",
+    background: "#1A0505",
+    foreground: "#FDF5E6",
+    primary: "#D4AF37", // "Heritage Gold"
+    secondary: "#3D0A0A",
+    accent: "#FFD700",
+    muted: "#2D0F0F",
+    border: "rgba(212, 175, 55, 0.2)",
   },
   fonts: {
     heading: "var(--font-heading)",
+    body: "var(--font-body)",
     sans: "var(--font-sans)",
     mono: "var(--font-mono)",
   },
