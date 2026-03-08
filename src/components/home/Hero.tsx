@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { SITE_CONFIG } from "@/config/site";
@@ -41,21 +42,21 @@ export function Hero() {
             <div className="relative group perspective-1000">
                <motion.div 
                  whileHover={{ rotateY: 5, rotateX: -5 }}
-                 className="inheritance-shadow transition-transform duration-700 stamp-edge p-2 bg-[#D4AF37]"
+                 className="transition-transform duration-700 stamp-edge p-2 bg-[#D4AF37]"
                >
-                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                 <img 
-                    src="/Users/shaswatraj/.gemini/antigravity/brain/ad95aa9e-c43b-4dd5-bf5a-7d05b8d3d965/folk_heritage_hero_art_stamp_1772988780634.png" 
-                    alt="Bitotsav Hero Art"
-                    className="w-full h-auto object-cover"
+                 <Image
+                   src="/assets/gaatha.png"
+                   alt="Gaatha - Bitotsav 2026 Theme"
+                   width={600}
+                   height={750}
+                   className="w-full h-auto object-cover"
+                   priority
                  />
                </motion.div>
-               {/* Label on the Stamp */}
-               <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-[#1A0505] border-2 border-[#D4AF37] p-2 md:p-6 shadow-2xl z-30">
-                  <h1 className="text-3xl md:text-7xl font-black text-[#D4AF37] font-heading leading-none">
-                    BITOTSAV
-                  </h1>
-                  <p className="text-[#FDF5E6] font-heading text-[10px] md:text-lg tracking-[0.5em] md:tracking-[0.8em] font-black">
+               {/* Label + Logo on the Stamp */}
+               <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-[#1A0505] border-2 border-[#D4AF37] p-2 md:p-4 shadow-2xl z-30">
+                  <Image src="/assets/bitotsav.png" alt="Bitotsav" width={160} height={80} className="w-28 md:w-40 h-auto invert opacity-90" />
+                  <p className="text-[#FDF5E6] font-heading text-[9px] tracking-[0.6em] font-black text-center mt-1">
                     MMXXVI
                   </p>
                </div>

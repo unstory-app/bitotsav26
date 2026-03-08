@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { SectionHeader } from "@/components/SectionHeader";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { cn } from "@/lib/utils";
 import { SITE_CONFIG } from "@/config/site";
@@ -10,76 +10,130 @@ import { SITE_CONFIG } from "@/config/site";
 const scheduleData = [
   {
     day: "DAY 01",
-    date: "FEB 14",
+    date: "MAR 19",
+    fullDate: "March 19, 2026 — Wednesday",
     events: [
-      { time: "10:00 AM", name: "INAUGURATION CEREMONY", venue: "GP BIRLA AUDITORIUM", type: "MAIN_SEQUENCE" },
-      { time: "02:00 PM", name: "DANCE SAGA PRELIMS", venue: "OAT", type: "STAGE_OPS" },
-      { time: "05:00 PM", name: "BATTLE OF BANDS", venue: "MAIN STAGE", type: "SONIC_WAR" },
-      { time: "08:00 PM", name: "EDM NITE", venue: "MAIN GROUNDS", type: "ENERGY_PEAK" },
+      { time: "10:00 AM", name: "Inauguration Ceremony", venue: "GP Birla Auditorium", type: "Opening" },
+      { time: "02:00 PM", name: "Dance Saga Prelims", venue: "Open Air Theatre", type: "Cultural" },
+      { time: "05:00 PM", name: "Battle of Bands", venue: "Main Stage", type: "Music" },
+      { time: "08:00 PM", name: "Night Cultural Show", venue: "Main Grounds", type: "Flagship" },
     ]
   },
   {
     day: "DAY 02",
-    date: "FEB 15",
+    date: "MAR 20",
+    fullDate: "March 20, 2026 — Thursday",
     events: [
-      { time: "09:00 AM", name: "HACKATHON 24H BEGIN", venue: "LAB 1", type: "CODE_TRANSIT" },
-      { time: "11:00 AM", name: "ROBOWARS", venue: "SAC", type: "MECH_COMBAT" },
-      { time: "03:00 PM", name: "NATSAMRAT", venue: "MAIN STAGE", type: "DRAMA_CELL" },
-      { time: "07:00 PM", name: "FASHION SHOW", venue: "GP BIRLA AUDITORIUM", type: "GLAM_PROTOCOL" },
+      { time: "09:00 AM", name: "Hackathon 24H Begin", venue: "Lab Complex", type: "Technical" },
+      { time: "11:00 AM", name: "Robo Wars", venue: "SAC Grounds", type: "Technical" },
+      { time: "03:00 PM", name: "Natsamrat", venue: "Main Stage", type: "Drama" },
+      { time: "07:00 PM", name: "Fashion Show", venue: "GP Birla Auditorium", type: "Cultural" },
     ]
   },
   {
     day: "DAY 03",
-    date: "FEB 16",
+    date: "MAR 21",
+    fullDate: "March 21, 2026 — Friday",
     events: [
-      { time: "10:00 AM", name: "SQUIZ GAMES", venue: "OAT", type: "INTEL_HUB" },
-      { time: "01:00 PM", name: "MUSIC SOLO", venue: "MINI AUDITORIUM", type: "SONIC_SOLO" },
-      { time: "04:00 PM", name: "CLOSING CEREMONY", venue: "MAIN STAGE", type: "TERMINAL_OPS" },
-      { time: "08:00 PM", name: "LIVE CONCERT", venue: "MAIN STAGE", type: "ABSOLUTE_SAGA" },
+      { time: "10:00 AM", name: "Quiz Games", venue: "Open Air Theatre", type: "Technical" },
+      { time: "01:00 PM", name: "Music Solo", venue: "Mini Auditorium", type: "Music" },
+      { time: "04:00 PM", name: "Sports Finals", venue: "Athletic Ground", type: "Sports" },
+      { time: "08:00 PM", name: "Celebrity Night", venue: "Main Stage", type: "Flagship" },
+    ]
+  },
+  {
+    day: "DAY 04",
+    date: "MAR 22",
+    fullDate: "March 22, 2026 — Saturday",
+    events: [
+      { time: "10:00 AM", name: "Valedictory Ceremony", venue: "GP Birla Auditorium", type: "Closing" },
+      { time: "12:00 PM", name: "Prize Distribution", venue: "GP Birla Auditorium", type: "Closing" },
+      { time: "04:00 PM", name: "Cultural Fiesta", venue: "Open Air Theatre", type: "Cultural" },
+      { time: "08:00 PM", name: "Grand Finale Concert", venue: "Main Stage", type: "Flagship" },
     ]
   }
 ];
+
+const typeColors: Record<string, string> = {
+  Opening:   "text-[#D4AF37]",
+  Cultural:  "text-orange-400",
+  Music:     "text-purple-400",
+  Flagship:  "text-rose-400",
+  Technical: "text-blue-400",
+  Drama:     "text-teal-400",
+  Sports:    "text-green-400",
+  Closing:   "text-[#D4AF37]",
+};
 
 export default function ScheduleClient() {
   const [activeDay, setActiveDay] = useState(0);
 
   return (
-    <PageWrapper>
-      <SectionHeader 
-        title="TIMELINE." 
-        subtitle={`Operational sequence for ${SITE_CONFIG.shortName} 2026 phase.`}
-      />
+    <PageWrapper className="bg-[#1A0505] min-h-screen tapestry-bg">
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
+
+      {/* Header with folk dancers art */}
+      <div className="relative pt-32 pb-16 px-6 max-w-7xl mx-auto z-10">
+        <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-16">
+          <div className="border-l-8 border-[#D4AF37] pl-10 py-6 flex-1">
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#D4AF37] mb-4 font-heading">
+              {SITE_CONFIG.shortName} MMXXVI • The 35th Edition
+            </p>
+            <h1 className="text-7xl md:text-9xl font-black text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
+              SCHEDULE.
+            </h1>
+            <p className="text-lg text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
+              March 19 — 22, 2026 • BIT Mesra, Ranchi
+            </p>
+          </div>
+          {/* Folk dancers illustration */}
+          <div className="w-48 md:w-64 shrink-0 opacity-80">
+            <Image
+              src="/assets/folks.png"
+              alt="Folk Dancers"
+              width={300}
+              height={240}
+              className="w-full h-auto object-contain"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Day Selector */}
-      <div className="max-w-7xl mx-auto mb-32 flex flex-wrap justify-center gap-6">
+      <div className="max-w-7xl mx-auto mb-16 px-6 flex flex-wrap justify-start gap-4 relative z-10">
         {scheduleData.map((data, index) => (
           <button
             key={data.day}
             onClick={() => setActiveDay(index)}
             className={cn(
-              "relative px-12 py-8 bg-black border-4 transition-all duration-300 group overflow-hidden",
-              activeDay === index 
-                ? "border-[#D4AF37] z-10" 
-                : "border-white/10 text-white/20 hover:border-white/40"
+              "relative px-10 py-6 border-2 transition-all duration-300 group overflow-hidden font-heading",
+              activeDay === index
+                ? "border-[#D4AF37] bg-[#D4AF37]/10 z-10"
+                : "border-[#D4AF37]/20 text-[#FDF5E6]/30 hover:border-[#D4AF37]/50 bg-[#1A0505]"
             )}
           >
             <div className={cn(
-                "text-4xl font-black italic mb-2 transition-colors uppercase leading-none",
-                activeDay === index ? "text-[#D4AF37]" : "group-hover:text-white"
+              "text-3xl font-black mb-1 transition-colors uppercase leading-none font-heading",
+              activeDay === index ? "text-[#D4AF37]" : "group-hover:text-[#FDF5E6]"
             )}>{data.day}</div>
-            <div className="text-[10px] font-black italic uppercase tracking-[0.4em]">{data.date}</div>
-            
-            {/* Background Accent if active */}
+            <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[#FDF5E6]/50 font-heading">{data.date}</div>
+
             {activeDay === index && (
-                <div className="absolute top-0 right-0 w-8 h-8 bg-[#D4AF37] -rotate-45 translate-x-4 -translate-y-4" />
+              <div className="absolute top-0 right-0 w-6 h-6 bg-[#D4AF37]" />
             )}
           </button>
         ))}
       </div>
 
+      {/* Active Day Info */}
+      <div className="max-w-7xl mx-auto px-6 mb-8 relative z-10">
+        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#D4AF37]/50 font-heading">
+          {scheduleData[activeDay].fullDate}
+        </p>
+      </div>
+
       {/* Timeline Display */}
-      <div className="max-w-5xl mx-auto relative px-6 pb-40">
-        
+      <div className="max-w-5xl mx-auto relative px-6 pb-40 z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeDay}
@@ -91,30 +145,25 @@ export default function ScheduleClient() {
           >
             {scheduleData[activeDay].events.map((event, idx) => (
               <div key={idx} className="group relative">
-                <div className="bg-white/5 border border-white/10 p-10 md:p-16 hover:border-[#D4AF37] hover:bg-white/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12 group">
-                  <div className="space-y-6 flex-1">
+                <div className="bg-[#D4AF37]/5 border border-[#D4AF37]/15 p-10 md:p-16 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12">
+                  <div className="space-y-4 flex-1">
                     <div className="flex items-center gap-4">
-                        <div className="w-3 h-3 bg-[#D4AF37]" />
-                        <div className="text-[#D4AF37] font-black italic uppercase tracking-[0.3em] text-sm">
-                            TIME_MARKER: {event.time}
-                        </div>
+                      <div className="w-2 h-2 bg-[#D4AF37]" />
+                      <div className="text-[#D4AF37] font-black uppercase tracking-[0.3em] text-sm font-heading">
+                        {event.time}
+                      </div>
                     </div>
-                    <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white group-hover:text-[#D4AF37] transition-colors leading-none">
-                    {event.name}
+                    <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-[#FDF5E6] group-hover:text-[#D4AF37] transition-colors leading-none font-heading">
+                      {event.name}
                     </h3>
                   </div>
-                  
-                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#D4AF37] pl-6 md:pl-0 md:pr-6">
-                    <div className="text-white/40 text-sm font-black italic uppercase tracking-widest mb-1">LOCATION</div>
-                    <div className="text-white font-black italic uppercase text-lg tracking-tighter">{event.venue}</div>
-                    <div className="text-[10px] text-[#D4AF37] font-black italic uppercase tracking-[0.2em] mt-4">CLASS ID: {event.type}</div>
-                  </div>
 
-                  {/* Hover Ticker */}
-                  <div className="absolute right-0 bottom-0 overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="text-[12rem] font-black italic text-white/5 leading-none uppercase translate-x-12 translate-y-12 select-none">
-                        {scheduleData[activeDay].day}
-                      </div>
+                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#D4AF37]/40 pl-6 md:pl-0 md:pr-6">
+                    <div className="text-[#FDF5E6]/30 text-[9px] font-black uppercase tracking-widest mb-1 font-heading">VENUE</div>
+                    <div className="text-[#FDF5E6] font-black uppercase text-lg tracking-tighter font-heading">{event.venue}</div>
+                    <div className={cn("text-[9px] font-black uppercase tracking-[0.3em] mt-3 font-heading", typeColors[event.type] ?? "text-[#D4AF37]")}>
+                      {event.type}
+                    </div>
                   </div>
                 </div>
               </div>
