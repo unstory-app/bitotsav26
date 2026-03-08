@@ -11,6 +11,11 @@ export function Hero() {
     <section className="relative min-h-screen bg-[#1A0505] flex flex-col justify-center overflow-hidden pt-20 tapestry-bg">
       <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
       
+      {/* Folk dancer decoration */}
+      <div className="absolute right-0 bottom-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-48 md:w-72 opacity-20 pointer-events-none select-none">
+        <Image src="/assets/folks.png" alt="" width={400} height={320} className="w-full h-auto" />
+      </div>
+      
       {/* Background Graphic Elements */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-[#D4AF37]/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
@@ -42,23 +47,16 @@ export function Hero() {
             <div className="relative group perspective-1000">
                <motion.div 
                  whileHover={{ rotateY: 5, rotateX: -5 }}
-                 className="transition-transform duration-700 stamp-edge p-2 bg-[#D4AF37]"
+                 className="transition-transform duration-700 stamp-edge p-4 bg-[#D4AF37] flex flex-col items-center justify-center min-h-[280px] md:min-h-[360px]"
                >
-                 <Image
-                   src="/assets/gaatha.png"
-                   alt="Gaatha - Bitotsav 2026 Theme"
-                   width={600}
-                   height={750}
-                   className="w-full h-auto object-cover"
-                   priority
-                 />
+                 <h2 className="text-5xl md:text-8xl font-black text-[#1A0505] font-heading leading-none tracking-tighter">BITOTSAV</h2>
+                 <p className="text-[#1A0505]/60 font-heading text-sm md:text-2xl tracking-[0.6em] font-black mt-2">MMXXVI</p>
+                 <div className="mt-4 text-[#1A0505]/40 text-[9px] font-heading tracking-[0.4em] uppercase">The 35th Edition</div>
                </motion.div>
-               {/* Label + Logo on the Stamp */}
-               <div className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-[#1A0505] border-2 border-[#D4AF37] p-2 md:p-4 shadow-2xl z-30">
-                  <Image src="/assets/bitotsav.png" alt="Bitotsav" width={160} height={80} className="w-28 md:w-40 h-auto invert opacity-90" />
-                  <p className="text-[#FDF5E6] font-heading text-[9px] tracking-[0.6em] font-black text-center mt-1">
-                    MMXXVI
-                  </p>
+               {/* Corner label */}
+               <div className="absolute -bottom-6 -right-6 md:-bottom-8 md:-right-8 bg-[#1A0505] border-2 border-[#D4AF37] px-4 py-3 shadow-2xl z-30">
+                  <p className="text-[#D4AF37] font-heading text-[9px] tracking-[0.5em] font-black uppercase">BIT Mesra</p>
+                  <p className="text-[#FDF5E6] font-heading text-[9px] tracking-[0.3em] font-black">Ranchi, India</p>
                </div>
             </div>
           </motion.div>
