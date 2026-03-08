@@ -23,11 +23,7 @@ const studentCoordinators = [
 
 const developers: TeamMember[] = [
   { name: "Shaswat Raj", role: "Lead Developer", socials: { linkedin: "#", github: "https://github.com/sh20raj" } },
-  { name: "Manoj Kumar", role: "Technical Lead", socials: { linkedin: "#" } },
-  { name: "Venkat Saahit Kamu", role: "Core Engineer", socials: { linkedin: "#" } },
-  { name: "Mritunjay Raj", role: "Engineer", socials: { linkedin: "#" } },
-  { name: "Abhinav Kumar Choudhary", role: "Creative Lead", socials: { linkedin: "#" } },
-  { name: "Raghav Bajaj", role: "ML Lead", socials: { linkedin: "#" } },
+  { name: "Shivansh Kumar", role: "Developer", socials: { linkedin: "#" } },
 ];
 
 function CoordinatorCard({ name, role, image }: { name: string; role: string; image: string | null }) {
