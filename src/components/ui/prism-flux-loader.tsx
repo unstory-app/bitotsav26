@@ -79,10 +79,10 @@ export const PrismFluxLoader: React.FC<CubeLoaderProps> = ({
        {/* Status Text Below Cube */}
        <div className="flex flex-col items-center gap-3">
            <div className="text-2xl font-black italic text-white tracking-widest uppercase animate-pulse">
-             LOADING_BITOTSAV
+             LOADING BITOTSAV
            </div>
            <div className="text-[10px] font-black italic text-[#D4AF37]/40 uppercase tracking-[0.3em]">
-             {currentStatus}_IN_PROGRESS...
+             {currentStatus} IN PROGRESS...
            </div>
        </div>
     </div>
