@@ -68,7 +68,7 @@ export default function SponsorsContent() {
                     <Star className="w-4 h-4 fill-current" />
                     PREMIUM ACCESS TITLE
                 </div>
-                <h2 className="text-5xl md:text-8xl lg:text-10xl font-black italic text-black leading-[0.8] tracking-tighter uppercase break-words">
+                <h2 className="text-5xl md:text-8xl lg:text-10xl font-black italic text-black leading-[0.8] tracking-tighter uppercase wrap-break-word">
                     JHARKHAND<br/>TOURISM.
                 </h2>
                 <div className="flex flex-col gap-2">
@@ -77,7 +77,7 @@ export default function SponsorsContent() {
                 </div>
             </div>
 
-            <div className="w-64 h-64 md:w-[450px] md:h-[450px] border-[20px] border-black/5 flex items-center justify-center relative z-10 rotate-3 hover:rotate-0 transition-transform duration-700">
+            <div className="w-64 h-64 md:w-[450px] md:h-[450px] border-20 border-black/5 flex items-center justify-center relative z-10 rotate-3 hover:rotate-0 transition-transform duration-700">
                 <Zap className="w-32 h-32 md:w-64 md:h-64 text-black/10" />
                 <div className="absolute inset-0 flex items-center justify-center font-black italic text-black/2 text-[15vw] select-none pointer-events-none uppercase tracking-widest -rotate-45">BOSS</div>
             </div>
@@ -95,11 +95,11 @@ export default function SponsorsContent() {
                 <div className="text-[10px] font-black italic uppercase tracking-[0.5em] text-[#D4AF37]/40">EST. 2026 // ACCESS STRATEGIC</div>
             </div>
 
-            <div className="flex gap-12 animate-marquee hover:[animation-play-state:paused] py-10">
+            <div className="flex gap-12 animate-marquee hover:paused py-10">
                 {[...strategicPartners, ...strategicPartners].map((partner, i) => (
                     <div 
                         key={`${partner.name}-${i}`}
-                        className="flex-shrink-0 w-80 p-12 bg-black border-2 border-white/10 group hover:border-[#D4AF37] transition-all duration-500 relative overflow-hidden"
+                        className="shrink-0 w-80 p-12 bg-black border-2 border-white/10 group hover:border-[#D4AF37] transition-all duration-500 relative overflow-hidden"
                     >
                         <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
@@ -107,7 +107,7 @@ export default function SponsorsContent() {
                         </div>
                         <div className="text-4xl font-black italic text-white group-hover:text-[#D4AF37] transition-colors mb-2">{partner.name}</div>
                         <div className="text-[10px] font-black italic text-white/30 uppercase tracking-[0.3em]">{partner.tier}</div>
-                        <div className="mt-12 h-[1px] bg-white/10 group-hover:bg-[#D4AF37]/40 w-full transition-colors" />
+                        <div className="mt-12 h-px bg-white/10 group-hover:bg-[#D4AF37]/40 w-full transition-colors" />
                     </div>
                 ))}
             </div>

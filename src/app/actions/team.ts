@@ -144,6 +144,7 @@ export async function getUserTeams(userId: string) {
       name: teams.name,
       code: teams.code,
       leaderId: teams.leaderId,
+      points: teams.points,
       createdAt: teams.createdAt,
     })
     .from(teamMembers)

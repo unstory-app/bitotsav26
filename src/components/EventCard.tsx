@@ -46,7 +46,7 @@ export function EventCard({ event }: EventCardProps) {
           
           {/* Title - Concert Poster Style */}
           <div className="mb-8">
-            <h3 className="text-4xl md:text-5xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#D4AF37] transition-colors duration-500 break-words">
+            <h3 className="text-4xl md:text-5xl font-black italic text-white uppercase leading-[0.85] tracking-tighter group-hover:text-[#D4AF37] transition-colors duration-500 wrap-break-word">
               {event.name}
             </h3>
           </div>
