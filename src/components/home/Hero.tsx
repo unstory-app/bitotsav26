@@ -27,7 +27,7 @@ export function Hero() {
       <div className="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-6">
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 md:px-6">
         {/* Top Label */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -69,12 +69,11 @@ export function Hero() {
                   The 35th Edition
                 </div>
               </motion.div>
-              {/* Corner label */}
-              <div className="absolute -bottom-6 -right-6 md:-bottom-8 md:-right-8 bg-[#1A0505] border-2 border-[#D4AF37] px-4 py-3 shadow-2xl z-30">
-                <p className="text-[#D4AF37] font-heading text-[9px] tracking-[0.5em] font-black uppercase">
+              <div className="absolute -bottom-4 -right-4 md:-bottom-8 md:-right-8 bg-[#1A0505] border-2 border-[#D4AF37] px-3 py-2 md:px-4 md:py-3 shadow-2xl z-30">
+                <p className="text-[#D4AF37] font-heading text-[8px] md:text-[9px] tracking-[0.5em] font-black uppercase">
                   BIT Mesra
                 </p>
-                <p className="text-[#FDF5E6] font-heading text-[9px] tracking-[0.3em] font-black">
+                <p className="text-[#FDF5E6] font-heading text-[8px] md:text-[9px] tracking-[0.3em] font-black">
                   Ranchi, India
                 </p>
               </div>
@@ -90,17 +89,17 @@ export function Hero() {
           className="flex flex-col md:flex-row items-center gap-12"
         >
           <Link href={SITE_CONFIG.links.registration}>
-            <button className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black text-xl uppercase tracking-tighter hover:bg-[#FDF5E6] transition-all duration-500 group flex items-center gap-4 font-heading stamp-edge border-2 border-transparent">
+            <button className="px-8 md:px-12 py-4 md:py-6 bg-[#D4AF37] text-[#1A0505] font-black text-lg md:text-xl uppercase tracking-tighter hover:bg-[#FDF5E6] transition-all duration-500 group flex items-center gap-4 font-heading stamp-edge border-2 border-transparent">
               Claim Your Passage
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
             </button>
           </Link>
 
           <div className="text-center md:text-left">
-            <p className="text-[#D4AF37] font-black uppercase tracking-[0.2em] text-2xl font-heading">
+            <p className="text-[#D4AF37] font-black uppercase tracking-[0.2em] text-xl md:text-2xl font-heading">
               {SITE_CONFIG.dates.short}
             </p>
-            <p className="text-[#FDF5E6]/40 font-bold uppercase text-[10px] tracking-[0.5em] font-heading">
+            <p className="text-[#FDF5E6]/40 font-bold uppercase text-[8px] md:text-[10px] tracking-[0.5em] font-heading">
               {SITE_CONFIG.venue.full}
             </p>
           </div>

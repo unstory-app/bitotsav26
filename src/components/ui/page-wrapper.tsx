@@ -11,18 +11,18 @@ interface PageWrapperProps {
 
 export function PageWrapper({ children, className }: PageWrapperProps) {
   return (
-    <main className={cn("relative min-h-screen w-full overflow-hidden bg-[#05020a] text-white pt-24", className)}>
+    <main className={cn("relative min-h-screen w-full overflow-hidden bg-[#1a0505] text-white pt-24", className)}>
       {/* Premium Background Layer */}
       <div className="fixed inset-0 z-0 pointer-events-none">
           {/* Base Gradient */}
-          <div className="absolute inset-0 bg-linear-to-b from-[#05020a] via-[#1a0b2e] to-[#05020a]" />
+          <div className="absolute inset-0 bg-linear-to-b from-[#1a0505] via-[#2d0f0f] to-[#1a0505]" />
           
           {/* Radial Glows */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(138,43,226,0.15),transparent_70%)] opacity-60" />
-          <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-[radial-gradient(circle_at_bottom_right,rgba(255,215,0,0.05),transparent_70%)]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.05),transparent_70%)] opacity-60" />
+          <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-[radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.02),transparent_70%)]" />
 
           {/* Grain Overlay */}
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
       </div>
 
       {/* Content Layer */}

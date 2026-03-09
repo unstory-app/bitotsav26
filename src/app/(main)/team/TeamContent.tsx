@@ -70,12 +70,12 @@ export default function TeamContent() {
       <div className="absolute top-0 right-0 w-1/2 h-full z-0 pointer-events-none bg-linear-to-l from-[#D4AF37]/5 to-transparent" />
       
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
-        <div className="border-l-8 border-[#D4AF37] pl-10 py-6">
-          <h1 className="text-7xl md:text-9xl font-black text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-24 relative z-10">
+        <div className="border-l-4 md:border-l-8 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6">
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
             THE <span className="text-[#D4AF37]">GUILD.</span>
           </h1>
-          <p className="text-lg md:text-xl text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
+          <p className="text-sm md:text-xl text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
             The Artisans Behind Bitotsav {new Date().getFullYear()}.
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function TeamContent() {
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-16 relative z-10">
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-6xl md:text-8xl font-black text-[#FDF5E6] uppercase tracking-tighter leading-[0.85] mb-8 font-heading">
+              <h2 className="text-5xl md:text-8xl font-black text-[#FDF5E6] uppercase tracking-tighter leading-[0.85] mb-6 md:mb-8 font-heading">
                 JOIN THE <br /><span className="text-[#D4AF37]">GUILD?</span>
               </h2>
               <p className="max-w-xl text-lg font-black uppercase tracking-widest text-[#FDF5E6]/40 leading-relaxed border-l-4 border-[#D4AF37]/20 pl-8 font-heading">

@@ -73,16 +73,16 @@ export default function ScheduleClient() {
       <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
 
       {/* Header with folk dancers art */}
-      <div className="relative pt-32 pb-16 px-6 max-w-7xl mx-auto z-10">
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-16">
-          <div className="border-l-8 border-[#D4AF37] pl-10 py-6 flex-1">
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#D4AF37] mb-4 font-heading">
+      <div className="relative pt-24 md:pt-32 pb-8 md:pb-16 px-4 md:px-6 max-w-7xl mx-auto z-10">
+        <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-16">
+          <div className="border-l-4 md:border-l-8 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6 flex-1">
+            <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.5em] text-[#D4AF37] mb-2 md:mb-4 font-heading">
               {SITE_CONFIG.shortName} MMXXVI • The 35th Edition
             </p>
-            <h1 className="text-7xl md:text-9xl font-black text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
+            <h1 className="text-4xl md:text-7xl lg:text-9xl font-black text-[#FDF5E6] uppercase leading-none tracking-tighter mb-2 md:mb-4 font-heading">
               SCHEDULE.
             </h1>
-            <p className="text-lg text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
+            <p className="text-sm md:text-lg text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
               March 19 — 22, 2026 • BIT Mesra, Ranchi
             </p>
           </div>
@@ -100,20 +100,20 @@ export default function ScheduleClient() {
       </div>
 
       {/* Day Selector */}
-      <div className="max-w-7xl mx-auto mb-16 px-6 flex flex-wrap justify-start gap-4 relative z-10">
+      <div className="max-w-7xl mx-auto mb-12 px-4 md:px-6 flex flex-wrap justify-start gap-3 relative z-10">
         {scheduleData.map((data, index) => (
           <button
             key={data.day}
             onClick={() => setActiveDay(index)}
             className={cn(
-              "relative px-10 py-6 border-2 transition-all duration-300 group overflow-hidden font-heading",
+              "relative px-6 md:px-10 py-4 md:py-6 border-2 transition-all duration-300 group overflow-hidden font-heading",
               activeDay === index
                 ? "border-[#D4AF37] bg-[#D4AF37]/10 z-10"
                 : "border-[#D4AF37]/20 text-[#FDF5E6]/30 hover:border-[#D4AF37]/50 bg-[#1A0505]"
             )}
           >
             <div className={cn(
-              "text-3xl font-black mb-1 transition-colors uppercase leading-none font-heading",
+              "text-xl md:text-3xl font-black mb-1 transition-colors uppercase leading-none font-heading",
               activeDay === index ? "text-[#D4AF37]" : "group-hover:text-[#FDF5E6]"
             )}>{data.day}</div>
             <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[#FDF5E6]/50 font-heading">{data.date}</div>
@@ -145,23 +145,23 @@ export default function ScheduleClient() {
           >
             {scheduleData[activeDay].events.map((event, idx) => (
               <div key={idx} className="group relative">
-                <div className="bg-[#D4AF37]/5 border border-[#D4AF37]/15 p-10 md:p-16 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-12">
-                  <div className="space-y-4 flex-1">
+                <div className="bg-[#D4AF37]/5 border border-[#D4AF37]/15 p-6 md:p-12 lg:p-16 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-8 md:gap-12">
+                  <div className="space-y-3 md:space-y-4 flex-1">
                     <div className="flex items-center gap-4">
-                      <div className="w-2 h-2 bg-[#D4AF37]" />
-                      <div className="text-[#D4AF37] font-black uppercase tracking-[0.3em] text-sm font-heading">
+                      <div className="w-1.5 h-1.5 bg-[#D4AF37]" />
+                      <div className="text-[#D4AF37] font-black uppercase tracking-[0.3em] text-[10px] md:text-sm font-heading">
                         {event.time}
                       </div>
                     </div>
-                    <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-[#FDF5E6] group-hover:text-[#D4AF37] transition-colors leading-none font-heading">
+                    <h3 className="text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-[#FDF5E6] group-hover:text-[#D4AF37] transition-colors leading-tight font-heading">
                       {event.name}
                     </h3>
                   </div>
 
-                  <div className="text-left md:text-right border-l-4 md:border-l-0 md:border-r-4 border-[#D4AF37]/40 pl-6 md:pl-0 md:pr-6">
-                    <div className="text-[#FDF5E6]/30 text-[9px] font-black uppercase tracking-widest mb-1 font-heading">VENUE</div>
-                    <div className="text-[#FDF5E6] font-black uppercase text-lg tracking-tighter font-heading">{event.venue}</div>
-                    <div className={cn("text-[9px] font-black uppercase tracking-[0.3em] mt-3 font-heading", typeColors[event.type] ?? "text-[#D4AF37]")}>
+                  <div className="text-left md:text-right border-l-2 md:border-l-0 md:border-r-4 border-[#D4AF37]/40 pl-4 md:pl-0 md:pr-6">
+                    <div className="text-[#FDF5E6]/30 text-[8px] md:text-[9px] font-black uppercase tracking-widest mb-1 font-heading">VENUE</div>
+                    <div className="text-[#FDF5E6] font-black uppercase text-base md:text-lg tracking-tighter font-heading">{event.venue}</div>
+                    <div className={cn("text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] mt-2 md:mt-3 font-heading", typeColors[event.type] ?? "text-[#D4AF37]")}>
                       {event.type}
                     </div>
                   </div>

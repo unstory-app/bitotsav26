@@ -28,16 +28,16 @@ export default function SponsorsContent() {
             <motion.div 
                 initial={{ opacity: 0, x: -100 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="absolute -top-20 -left-20 text-[20vw] font-black italic text-white/2 select-none pointer-events-none uppercase tracking-tighter"
+                className="absolute -top-10 -left-10 text-[15vw] font-black italic text-white/2 select-none pointer-events-none uppercase tracking-tighter truncate w-full"
             >
                 ALLIANCE
             </motion.div>
             
-            <div className="relative z-10 border-l-12 border-[#D4AF37] pl-12 py-10">
-                <h1 className="text-8xl md:text-10xl font-black italic text-white uppercase leading-none tracking-tighter mb-6">
+            <div className="relative z-10 border-l-8 md:border-l-12 border-[#D4AF37] pl-6 md:pl-12 py-6 md:py-10">
+                <h1 className="text-5xl md:text-8xl lg:text-10xl font-black italic text-white uppercase leading-none tracking-tighter mb-4 md:gather-6">
                     GLOBAL <span className="text-[#D4AF37]">PARTNER ARENA.</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-white/40 font-black italic uppercase tracking-tighter max-w-2xl border-l-2 border-white/10 pl-8">
+                <p className="text-lg md:text-xl lg:text-2xl text-white/40 font-black italic uppercase tracking-tighter max-w-2xl border-l-2 border-white/10 pl-4 md:pl-8">
                     POWERING THE SAGA THROUGH STRATEGIC PARTNERSHIPS AND GLOBAL COLLABORATION.
                 </p>
             </div>
@@ -54,7 +54,7 @@ export default function SponsorsContent() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative group overflow-hidden bg-[#D4AF37] p-12 md:p-32 flex flex-col md:flex-row items-center justify-between gap-16 shadow-[0_0_100px_rgba(223,255,0,0.1)]"
+            className="relative group overflow-hidden bg-[#D4AF37] p-8 md:p-24 lg:p-32 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-16 shadow-[0_0_100px_rgba(223,255,0,0.1)]"
           >
             {/* Scanned Texture */}
             <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
@@ -68,7 +68,7 @@ export default function SponsorsContent() {
                     <Star className="w-4 h-4 fill-current" />
                     PREMIUM ACCESS TITLE
                 </div>
-                <h2 className="text-7xl md:text-10xl font-black italic text-black leading-[0.8] tracking-tighter uppercase break-words">
+                <h2 className="text-5xl md:text-8xl lg:text-10xl font-black italic text-black leading-[0.8] tracking-tighter uppercase break-words">
                     JHARKHAND<br/>TOURISM.
                 </h2>
                 <div className="flex flex-col gap-2">
@@ -141,7 +141,7 @@ export default function SponsorsContent() {
                 <div className="p-20 md:p-40 bg-white text-black text-center relative overflow-hidden flex flex-col items-center gap-12 transition-all duration-700 group-hover:bg-[#D4AF37]">
                     <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
                     
-                    <h2 className="text-7xl md:text-12xl font-black italic leading-[0.7] tracking-tighter uppercase relative z-10 group-hover:scale-105 transition-transform duration-700">
+                    <h2 className="text-5xl md:text-8xl lg:text-12xl font-black italic leading-[0.7] tracking-tighter uppercase relative z-10 group-hover:scale-105 transition-transform duration-700">
                         JOIN THE <br/>SAGA.
                     </h2>
                     
