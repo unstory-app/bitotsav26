@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/db";
 import { users, tickets } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
