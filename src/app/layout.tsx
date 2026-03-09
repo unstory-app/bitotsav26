@@ -133,8 +133,9 @@ export default function RootLayout({
               "logo": `${SITE_CONFIG.url}/favicon.png`,
               "sameAs": [
                 SITE_CONFIG.socials.instagram,
-                SITE_CONFIG.socials.twitter,
-                SITE_CONFIG.socials.facebook
+                SITE_CONFIG.socials.linkedin,
+                SITE_CONFIG.socials.facebook,
+                SITE_CONFIG.socials.youtube
               ],
               "contactPoint": {
                 "@type": "ContactPoint",

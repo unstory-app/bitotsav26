@@ -31,9 +31,10 @@ export const SITE_CONFIG = {
   },
   time: "10:00 AM IST",
   socials: {
-    instagram: "https://instagram.com/bitotsav26",
-    twitter: "https://twitter.com/bitotsav",
+    instagram: "https://www.instagram.com/bitotsav.2026/",
+    linkedin: "https://www.linkedin.com/company/bitotsavbitmesra/",
     facebook: "https://facebook.com/bitotsav",
+    youtube: "https://www.youtube.com/@bitotsav3377/",
   },
   links: {
     registration: "/login",

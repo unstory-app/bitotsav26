@@ -57,9 +57,9 @@ export function Hero() {
                 <Image
                   src="/assets/bitotsav.png"
                   alt="Bitotsav"
-                  width={400}
-                  height={200}
-                  className="w-full max-w-[280px] h-auto object-contain"
+                  width={500}
+                  height={250}
+                  className="w-full max-w-[360px] h-auto object-contain"
                   priority
                 />
                 <p className="text-[#1A0505]/60 font-heading text-sm md:text-xl tracking-[0.6em] font-black mt-4">
