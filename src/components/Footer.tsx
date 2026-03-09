@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Twitter, Instagram, Heart, ShieldCheck } from "lucide-react";
+import { Instagram, Linkedin, Facebook, Youtube, Heart, ShieldCheck } from "lucide-react";
 import { SITE_CONFIG } from "@/config/site";
 
 export function Footer() {
@@ -54,8 +54,9 @@ export function Footer() {
                         <div className="flex flex-wrap gap-4">
                             {[
                                 { Icon: Instagram, href: SITE_CONFIG.socials.instagram },
-                                { Icon: Twitter, href: SITE_CONFIG.socials.twitter },
-                                { Icon: Github, href: "https://github.com/bitotsav" },
+                                { Icon: Linkedin, href: SITE_CONFIG.socials.linkedin },
+                                { Icon: Facebook, href: SITE_CONFIG.socials.facebook },
+                                { Icon: Youtube, href: SITE_CONFIG.socials.youtube },
                                 { Icon: ShieldCheck, href: "/helpdesk" }
                             ].map(({ Icon, href }, i) => (
                                 <Link 
