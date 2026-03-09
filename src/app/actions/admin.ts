@@ -2,16 +2,16 @@
 
 import { db } from "@/db";
 import { users, tickets, teams, teamMembers, events, teamEvents } from "@/db/schema";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc, count, ilike, or, and, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 const ITEMS_PER_PAGE = 20;
 
-export async function getAdminUsers(page: number = 1) {
+export async function getAdminUsers(page: number = 1, search?: string) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    const data = await db.select({
+    let query = db.select({
       id: users.id,
       email: users.email,
       displayName: users.displayName,
@@ -25,13 +25,34 @@ export async function getAdminUsers(page: number = 1) {
       phoneNumber: users.phoneNumber,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
-    })
-      .from(users)
+    }).from(users);
+
+    if (search) {
+      query = query.where(
+        or(
+          ilike(users.displayName, `%${search}%`),
+          ilike(users.email, `%${search}%`),
+          ilike(users.rollNo, `%${search}%`)
+        )
+      ) as any;
+    }
+
+    const data = await query
       .orderBy(desc(users.createdAt))
       .limit(ITEMS_PER_PAGE)
       .offset(offset);
 
-    const [totalResult] = await db.select({ value: count() }).from(users);
+    let totalQuery = db.select({ value: count() }).from(users);
+    if (search) {
+      totalQuery = totalQuery.where(
+        or(
+          ilike(users.displayName, `%${search}%`),
+          ilike(users.email, `%${search}%`),
+          ilike(users.rollNo, `%${search}%`)
+        )
+      ) as any;
+    }
+    const [totalResult] = await totalQuery;
     
     return { 
       success: true, 
@@ -43,26 +64,50 @@ export async function getAdminUsers(page: number = 1) {
   }
 }
 
-export async function getAdminTickets(page: number = 1) {
+export async function getAdminTickets(page: number = 1, search?: string) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    const data = await db.select({
+    let query = db.select({
       id: tickets.id,
       userId: tickets.userId,
       userEmail: users.email,
       userName: users.displayName,
       ticketType: tickets.ticketType,
       status: tickets.status,
+      day0Scan: tickets.day0Scan,
+      day1Scan: tickets.day1Scan,
+      day2Scan: tickets.day2Scan,
+      day3Scan: tickets.day3Scan,
       issuedAt: tickets.issuedAt,
     })
     .from(tickets)
-    .innerJoin(users, eq(tickets.userId, users.id))
+    .innerJoin(users, eq(tickets.userId, users.id));
+
+    if (search) {
+      query = query.where(
+        or(
+          ilike(users.displayName, `%${search}%`),
+          ilike(users.email, `%${search}%`)
+        )
+      ) as any;
+    }
+
+    const data = await query
     .orderBy(desc(tickets.issuedAt))
     .limit(ITEMS_PER_PAGE)
     .offset(offset);
 
-    const [totalResult] = await db.select({ value: count() }).from(tickets);
+    let totalQuery = db.select({ value: count() }).from(tickets).innerJoin(users, eq(tickets.userId, users.id));
+    if (search) {
+      totalQuery = totalQuery.where(
+        or(
+          ilike(users.displayName, `%${search}%`),
+          ilike(users.email, `%${search}%`)
+        )
+      ) as any;
+    }
+    const [totalResult] = await totalQuery;
     
     return { 
       success: true, 
@@ -74,11 +119,11 @@ export async function getAdminTickets(page: number = 1) {
   }
 }
 
-export async function getAdminTeams(page: number = 1) {
+export async function getAdminTeams(page: number = 1, search?: string) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    const teamsList = await db.select({
+    let query = db.select({
       id: teams.id,
       name: teams.name,
       code: teams.code,
@@ -87,7 +132,19 @@ export async function getAdminTeams(page: number = 1) {
       createdAt: teams.createdAt,
     })
     .from(teams)
-    .innerJoin(users, eq(teams.leaderId, users.id))
+    .innerJoin(users, eq(teams.leaderId, users.id));
+
+    if (search) {
+      query = query.where(
+        or(
+          ilike(teams.name, `%${search}%`),
+          ilike(teams.code, `%${search}%`),
+          ilike(users.displayName, `%${search}%`)
+        )
+      ) as any;
+    }
+
+    const teamsList = await query
     .orderBy(desc(teams.createdAt))
     .limit(ITEMS_PER_PAGE)
     .offset(offset);
@@ -100,7 +157,17 @@ export async function getAdminTeams(page: number = 1) {
       return { ...team, events: e.map(ev => ev.eventName) };
     }));
 
-    const [totalResult] = await db.select({ value: count() }).from(teams);
+    let totalQuery = db.select({ value: count() }).from(teams).innerJoin(users, eq(teams.leaderId, users.id));
+    if (search) {
+      totalQuery = totalQuery.where(
+        or(
+          ilike(teams.name, `%${search}%`),
+          ilike(teams.code, `%${search}%`),
+          ilike(users.displayName, `%${search}%`)
+        )
+      ) as any;
+    }
+    const [totalResult] = await totalQuery;
     
     return { success: true, data, totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) };
   } catch (error) {
@@ -114,10 +181,36 @@ export async function updateTicketStatus(ticketId: string, status: string) {
       .set({ status })
       .where(eq(tickets.id, ticketId));
     
-    revalidatePath("/admin");
+    revalidatePath("/admin/tickets");
     return { success: true };
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+  }
+}
+
+export async function deleteTicket(ticketId: string) {
+  try {
+    await db.delete(tickets).where(eq(tickets.id, ticketId));
+    revalidatePath("/admin/tickets");
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: "Failed to delete ticket" };
+  }
+}
+
+export async function toggleTicketScan(ticketId: string, day: string, status: boolean) {
+  try {
+    const updateObj: any = {};
+    if (day === "day0") updateObj.day0Scan = status;
+    else if (day === "day1") updateObj.day1Scan = status;
+    else if (day === "day2") updateObj.day2Scan = status;
+    else if (day === "day3") updateObj.day3Scan = status;
+    
+    await db.update(tickets).set(updateObj).where(eq(tickets.id, ticketId));
+    revalidatePath("/admin/tickets");
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: "Failed to update scan status" };
   }
 }
 
@@ -136,11 +229,35 @@ export async function deleteUser(userId: string) {
   }
 }
 
-export async function getAdminEvents(page: number = 1) {
+export async function getAdminEvents(page: number = 1, search?: string) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
-    const data = await db.select().from(events).orderBy(desc(events.createdAt)).limit(ITEMS_PER_PAGE).offset(offset);
-    const [totalResult] = await db.select({ value: count() }).from(events);
+    let query = db.select().from(events);
+    
+    if (search) {
+      query = query.where(
+        or(
+          ilike(events.name, `%${search}%`),
+          ilike(events.organizer, `%${search}%`),
+          ilike(events.id, `%${search}%`)
+        )
+      ) as any;
+    }
+
+    const data = await query.orderBy(desc(events.createdAt)).limit(ITEMS_PER_PAGE).offset(offset);
+    
+    let totalQuery = db.select({ value: count() }).from(events);
+    if (search) {
+      totalQuery = totalQuery.where(
+        or(
+          ilike(events.name, `%${search}%`),
+          ilike(events.organizer, `%${search}%`),
+          ilike(events.id, `%${search}%`)
+        )
+      ) as any;
+    }
+    const [totalResult] = await totalQuery;
+    
     return { success: true, data, totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) };
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : "Failed to fetch events" };
@@ -194,11 +311,10 @@ export async function getAllDataForExport(type: "users" | "tickets" | "teams" | 
   }
 }
 
-export async function getAdminParticipants(eventId?: string, page: number = 1) {
+export async function getAdminParticipants(eventId?: string, page: number = 1, search?: string) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    // If eventId provided, filter by event
     let query = db.select({
       userId: users.id,
       userName: users.displayName,
@@ -213,30 +329,36 @@ export async function getAdminParticipants(eventId?: string, page: number = 1) {
     .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id))
     .innerJoin(events, eq(teamEvents.eventId, events.id));
 
-    if (eventId) {
+    const filters = [];
+    if (eventId) filters.push(eq(teamEvents.eventId, eventId));
+    if (search) filters.push(or(
+      ilike(users.displayName, `%${search}%`),
+      ilike(users.email, `%${search}%`),
+      ilike(teams.name, `%${search}%`)
+    ));
+
+    if (filters.length > 0) {
       // @ts-expect-error - drizzle type complexity
-      query = query.where(eq(teamEvents.eventId, eventId));
+      query = query.where(and(...filters));
     }
 
     const data = await query.limit(ITEMS_PER_PAGE).offset(offset);
     
-    let totalCount = 0;
-    if (eventId) {
-      const [totalResult] = await db.select({ value: count() })
-        .from(teamMembers)
-        .innerJoin(teams, eq(teamMembers.teamId, teams.id))
-        .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id))
-        .where(eq(teamEvents.eventId, eventId));
-      totalCount = Number(totalResult?.value || 0);
-    } else {
-      const [totalResult] = await db.select({ value: count() }).from(teamMembers);
-      totalCount = Number(totalResult?.value || 0);
-    }
+    let totalQuery = db.select({ value: count() })
+      .from(teamMembers)
+      .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+      .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id));
 
+    if (filters.length > 0) {
+      // @ts-expect-error - drizzle type complexity
+      totalQuery = totalQuery.where(and(...filters));
+    }
+    const [totalResult] = await totalQuery;
+    
     return { 
       success: true, 
       data, 
-      totalPages: Math.ceil(totalCount / ITEMS_PER_PAGE) 
+      totalPages: Math.ceil(Number(totalResult?.value || 0) / ITEMS_PER_PAGE) 
     };
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : "Failed to fetch participants" };

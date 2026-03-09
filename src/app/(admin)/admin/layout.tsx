@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Lock, ShieldCheck, AlertTriangle, Users, Ticket, Trophy, Calendar, UserPlus, LayoutDashboard } from "lucide-react";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [authorized, setAuthorized] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Check session storage for persistence within the session
   useEffect(() => {
@@ -27,6 +31,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setTimeout(() => setError(false), 2000);
     }
   };
+
+  const navItems = [
+    { label: "Overview", icon: LayoutDashboard, href: "/admin" },
+    { label: "Users", icon: Users, href: "/admin/users" },
+    { label: "Tickets", icon: Ticket, href: "/admin/tickets" },
+    { label: "Teams", icon: Trophy, href: "/admin/teams" },
+    { label: "Events", icon: Calendar, href: "/admin/events" },
+    { label: "Participants", icon: UserPlus, href: "/admin/participants" },
+  ];
 
   if (!authorized) {
     return (
@@ -74,8 +87,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#1A0505]">
-       {children}
+    <div className="min-h-screen bg-[#0A0505] flex overflow-hidden font-heading">
+      {/* Sidebar */}
+      <aside className="w-72 bg-[#140808] border-r border-[#D4AF37]/10 flex flex-col z-50">
+        <div className="p-8 border-b border-[#D4AF37]/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 bg-[#D4AF37] flex items-center justify-center font-black italic text-black text-sm">N</div>
+            <h2 className="text-xl font-black italic text-[#FDF5E6] uppercase tracking-tighter">NEXUS.</h2>
+          </div>
+          <p className="text-[8px] text-[#D4AF37]/40 font-black uppercase tracking-[0.4em]">ADMIN v2.5</p>
+        </div>
+
+        <nav className="flex-1 p-6 space-y-2">
+          {navItems.map((item) => (
+            <button
+              key={item.href}
+              onClick={() => router.push(item.href)}
+              className={cn(
+                "w-full p-4 flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all group relative",
+                pathname === item.href 
+                  ? "bg-[#D4AF37] text-black" 
+                  : "text-[#FDF5E6]/40 hover:bg-white/5 hover:text-[#FDF5E6]"
+              )}
+            >
+              <item.icon className={cn("w-4 h-4", pathname === item.href ? "text-black" : "text-[#D4AF37]/40 group-hover:text-[#D4AF37]")} />
+              {item.label}
+              {pathname === item.href && <div className="absolute left-0 w-1 h-1/2 bg-black top-1/4" />}
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-8 border-t border-[#D4AF37]/10">
+           <div className="p-4 bg-white/5 border border-white/10 space-y-2 text-center">
+              <p className="text-[8px] font-black uppercase text-[#D4AF37]/60">SERVER STATUS</p>
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <p className="text-[10px] font-black text-[#FDF5E6] uppercase">OPERATIONAL</p>
+              </div>
+           </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto bg-[#0A0505] relative">
+        {children}
+      </main>
     </div>
   );
 }
