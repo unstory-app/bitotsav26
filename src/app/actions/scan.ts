@@ -1,8 +1,6 @@
-"use server";
-
 import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { users, tickets } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 /**
  * Records a scan for a specific user and day.
@@ -28,9 +26,22 @@ export async function recordScan(userData: { email: string; day: 0 | 1 | 2 | 3; 
       return { success: false, message: "User not found in system." };
     }
 
-    // 2. Check if already scanned for that day
-    const dayKey = `day${day}Scan` as keyof typeof user;
-    if (user[dayKey]) {
+    // 2. Find their confirmed ticket
+    const ticketResult = await db.select().from(tickets).where(
+      and(
+        eq(tickets.userId, user.id),
+        eq(tickets.status, "confirmed")
+      )
+    ).limit(1);
+    const ticket = ticketResult[0];
+
+    if (!ticket) {
+      return { success: false, message: "No confirmed ticket found for this user." };
+    }
+
+    // 3. Check if already scanned for that day on this ticket
+    const dayKey = `day${day}Scan` as keyof typeof ticket;
+    if (ticket[dayKey]) {
       return { 
         success: false, 
         message: `ALREADY SCANNED FOR DAY ${day}`, 
@@ -38,16 +49,13 @@ export async function recordScan(userData: { email: string; day: 0 | 1 | 2 | 3; 
       };
     }
 
-    // 3. Record the scan
-    const updateData: Partial<typeof users.$inferInsert> = { updatedAt: new Date() };
-    if (day === 0) updateData.day0Scan = true;
-    if (day === 1) updateData.day1Scan = true;
-    if (day === 2) updateData.day2Scan = true;
-    if (day === 3) updateData.day3Scan = true;
+    // 4. Record the scan on the ticket
+    const updateData: any = {};
+    updateData[`day${day}Scan`] = true;
 
-    await db.update(users)
+    await db.update(tickets)
       .set(updateData)
-      .where(eq(users.id, user.id));
+      .where(eq(tickets.id, ticket.id));
 
     return { 
       success: true, 
@@ -65,15 +73,15 @@ export async function recordScan(userData: { email: string; day: 0 | 1 | 2 | 3; 
  */
 export async function getScanStats(passkey: string) {
   if (passkey !== "17092006") {
-    return { success: false, message: "UNAUTHORIZED", counts: [0, 0, 0] };
+    return { success: false, message: "UNAUTHORIZED", counts: [0, 0, 0, 0] };
   }
 
   try {
-    const allUsers = await db.select().from(users);
-    const day0 = allUsers.filter(u => u.day0Scan).length;
-    const day1 = allUsers.filter(u => u.day1Scan).length;
-    const day2 = allUsers.filter(u => u.day2Scan).length;
-    const day3 = allUsers.filter(u => u.day3Scan).length;
+    const allConfirmedTickets = await db.select().from(tickets).where(eq(tickets.status, "confirmed"));
+    const day0 = allConfirmedTickets.filter(t => t.day0Scan).length;
+    const day1 = allConfirmedTickets.filter(t => t.day1Scan).length;
+    const day2 = allConfirmedTickets.filter(t => t.day2Scan).length;
+    const day3 = allConfirmedTickets.filter(t => t.day3Scan).length;
 
     return { success: true, counts: [day0, day1, day2, day3] };
   } catch (error) {

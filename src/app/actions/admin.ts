@@ -176,20 +176,22 @@ export async function getAdminParticipants(eventId?: string, page: number = 1) {
 
     const data = await query.limit(ITEMS_PER_PAGE).offset(offset);
     
-    // Get total count
-    let countQuery = db.select({ value: count() }).from(teamMembers);
+    let totalCount = 0;
     if (eventId) {
-       countQuery = db.select({ value: count() })
+      const [totalResult] = await db.select({ value: count() })
         .from(teamMembers)
         .innerJoin(teams, eq(teamMembers.teamId, teams.id))
         .where(eq(teams.eventId, eventId));
+      totalCount = Number(totalResult?.value || 0);
+    } else {
+      const [totalResult] = await db.select({ value: count() }).from(teamMembers);
+      totalCount = Number(totalResult?.value || 0);
     }
-    const [totalResult] = await countQuery;
 
     return { 
       success: true, 
       data, 
-      totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) 
+      totalPages: Math.ceil(totalCount / ITEMS_PER_PAGE) 
     };
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : "Failed to fetch participants" };
