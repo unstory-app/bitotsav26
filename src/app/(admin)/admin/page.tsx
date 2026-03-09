@@ -29,11 +29,11 @@ import { Download, Plus } from "lucide-react";
 
 type Tab = "users" | "tickets" | "teams" | "events" | "participants";
 
-interface AdminUser { id: string; displayName: string; email: string; isBitMesra: boolean; rollNo?: string; collegeName?: string; password?: string; createdAt: string | Date; }
-interface AdminTicket { id: string; userName: string; userEmail: string; ticketType: string; status: string; issuedAt: string | Date; }
-interface AdminTeam { id: string; name: string; code: string; eventId: string; leaderName: string; createdAt: string | Date; }
-interface AdminEvent { id: string; name: string; organizer: string; venue: string; category: string; about: string; createdAt: string | Date; }
-interface AdminParticipant { id?: string; userId: string; userName: string; userEmail: string; teamName: string; eventName: string; joinedAt: string | Date; }
+interface AdminUser { id: string; displayName: string | null; email: string; isBitMesra: boolean; rollNo?: string | null; collegeName?: string | null; password?: string | null; createdAt: string | Date; }
+interface AdminTicket { id: string; userName: string | null; userEmail: string; ticketType: string; status: string; issuedAt: string | Date; }
+interface AdminTeam { id: string; name: string; code: string; events: string[]; leaderName: string | null; createdAt: string | Date; }
+interface AdminEvent { id: string; name: string; organizer: string | null; venue: string | null; category: string | null; about: string | null; createdAt: string | Date; }
+interface AdminParticipant { id?: string; userId: string; userName: string | null; userEmail: string; teamName: string; eventName: string; joinedAt: string | Date; }
 
 type AdminDataRow = AdminUser | AdminTicket | AdminTeam | AdminEvent | AdminParticipant;
 
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    let result: { success: boolean; data?: any[]; totalPages?: number; message?: string };
+    let result: { success: boolean; data?: AdminDataRow[]; totalPages?: number; message?: string };
 
     if (activeTab === "users") {
       result = await getAdminUsers(page);
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
   };
 
   const handleExport = async () => {
-    const rawData = await getAllDataForExport(activeTab as any);
+    const rawData = await getAllDataForExport(activeTab as Tab);
     if (!rawData || rawData.length === 0) return alert("No data to export");
     
     // Simple CSV conversion
@@ -247,6 +247,23 @@ export default function AdminDashboard() {
                         <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37] text-right">CATEGORY</th>
                       </>
                     )}
+                    {activeTab === "teams" && (
+                      <>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">TEAM CODE</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">TEAM NAME</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">LEADER</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">REGISTERED EVENTS</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37] text-right">CREATED</th>
+                      </>
+                    )}
+                    {activeTab === "participants" && (
+                      <>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">PARTICIPANT</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">TEAM</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37]">EVENT</th>
+                        <th className="p-6 text-[8px] font-black uppercase tracking-widest text-[#D4AF37] text-right">JOINED</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -329,6 +346,29 @@ export default function AdminDashboard() {
                               <span className="px-2 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[8px] font-black uppercase text-[#D4AF37]">
                                 {event.category}
                               </span>
+                            </td>
+                          </motion.tr>
+                        );
+                      }
+                      
+                      if (activeTab === "teams") {
+                        const team = item as AdminTeam;
+                        return (
+                          <motion.tr key={team.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="hover:bg-white/2 transition-colors group">
+                            <td className="p-6 font-mono text-xs font-black text-[#D4AF37]">{team.code}</td>
+                            <td className="p-6 text-xs font-black uppercase text-[#FDF5E6]">{team.name}</td>
+                            <td className="p-6 text-[10px] font-black uppercase text-[#FDF5E6]/60">{team.leaderName}</td>
+                            <td className="p-6">
+                              <div className="flex flex-wrap gap-2">
+                                {team.events?.map(ev => (
+                                  <span key={ev} className="px-2 py-1 bg-[#D4AF37]/5 border border-[#D4AF37]/20 text-[7px] font-black uppercase text-[#D4AF37]">
+                                    {ev}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="p-6 text-right text-[10px] text-[#FDF5E6]/20 font-black font-heading">
+                              {new Date(team.createdAt).toLocaleDateString()}
                             </td>
                           </motion.tr>
                         );

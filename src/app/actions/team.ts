@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { teams, teamMembers, users } from "@/db/schema";
+import { teams, teamMembers, users, teamEvents } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -26,15 +26,19 @@ async function generateTeamCode(): Promise<string> {
 
   return code;
 }
-
 export async function createTeam(name: string, eventId: string, leaderId: string) {
   try {
+    // 0. Enforce "One Person, One Team" rule
+    const existingMembership = await db.select().from(teamMembers).where(eq(teamMembers.userId, leaderId)).limit(1);
+    if (existingMembership.length > 0) {
+      return { success: false, message: "A user can only be part of one team across the event." };
+    }
+
     const code = await generateTeamCode();
     
     // 1. Create the team
     const [newTeam] = await db.insert(teams).values({
       name,
-      eventId,
       leaderId,
       code,
     }).returning();
@@ -49,13 +53,19 @@ export async function createTeam(name: string, eventId: string, leaderId: string
       userId: leaderId,
     });
 
+    // 3. Register team for the initial event
+    await db.insert(teamEvents).values({
+      teamId: newTeam.id,
+      eventId: eventId,
+    });
+
     revalidatePath("/profile");
     revalidatePath(`/events/${eventId}`);
     
     return { success: true, team: newTeam, code };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Create team error:", error);
-    return { success: false, message: error.message || "Unknown error creating team." };
+    return { success: false, message: error instanceof Error ? error.message : "Unknown error creating team." };
   }
 }
 
@@ -64,6 +74,12 @@ export async function joinTeam(code: string, userId: string) {
     // 1. Find team by code
     const [team] = await db.select().from(teams).where(eq(teams.code, code.toUpperCase())).limit(1);
     
+    // 1.5 Enforce "One Person, One Team" rule
+    const userMembership = await db.select().from(teamMembers).where(eq(teamMembers.userId, userId)).limit(1);
+    if (userMembership.length > 0) {
+      return { success: false, message: "You are already a member of a team. Leave your current team to join another." };
+    }
+
     if (!team) {
       return { success: false, message: "Invalid team code." };
     }
@@ -87,9 +103,9 @@ export async function joinTeam(code: string, userId: string) {
     revalidatePath("/profile");
     
     return { success: true, team };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Join team error:", error);
-    return { success: false, message: error.message || "Unknown error joining team." };
+    return { success: false, message: error instanceof Error ? error.message : "Unknown error joining team." };
   }
 }
 
@@ -108,7 +124,13 @@ export async function getTeamDetails(teamId: string) {
     .innerJoin(users, eq(teamMembers.userId, users.id))
     .where(eq(teamMembers.teamId, teamId));
 
-    return { ...team, members };
+    const events = await db.select({
+      eventId: teamEvents.eventId,
+    })
+    .from(teamEvents)
+    .where(eq(teamEvents.teamId, teamId));
+
+    return { ...team, members, events };
   } catch (error) {
     console.error("Get team details error:", error);
     return null;
@@ -117,18 +139,31 @@ export async function getTeamDetails(teamId: string) {
 
 export async function getUserTeams(userId: string) {
   try {
-    const userTeams = await db.select({
+    const userTeamsList = await db.select({
       id: teams.id,
       name: teams.name,
       code: teams.code,
-      eventId: teams.eventId,
       leaderId: teams.leaderId,
+      createdAt: teams.createdAt,
     })
     .from(teamMembers)
     .innerJoin(teams, eq(teamMembers.teamId, teams.id))
     .where(eq(teamMembers.userId, userId));
 
-    return userTeams;
+    const teamPromises = userTeamsList.map(async (t) => {
+      const events = await db.select({
+        eventId: teamEvents.eventId,
+      })
+      .from(teamEvents)
+      .where(eq(teamEvents.teamId, t.id));
+      
+      return {
+        ...t,
+        events: events.map(e => e.eventId)
+      };
+    });
+
+    return await Promise.all(teamPromises);
   } catch (error) {
     console.error("Get user teams error:", error);
     return [];

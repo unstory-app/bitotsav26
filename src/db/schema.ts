@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, uuid, integer } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(), // Stack Auth user ID
@@ -11,6 +11,7 @@ export const users = pgTable("users", {
   rollNo: text("roll_no"),
   idCardImageUrl: text("id_card_image_url"),
   password: text("password"), // Stored for manual verification/recovery (per request)
+  phoneNumber: text("phone_number"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -43,8 +44,15 @@ export const teams = pgTable("teams", {
   name: text("name").notNull(),
   code: text("code").notNull().unique(), // Team joining code
   leaderId: text("leader_id").references(() => users.id).notNull(),
-  eventId: text("event_id").notNull(), // Links to manual events data
+  points: integer("points").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const teamEvents = pgTable("team_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  teamId: uuid("team_id").references(() => teams.id).notNull(),
+  eventId: text("event_id").references(() => events.id).notNull(),
+  registeredAt: timestamp("registered_at").defaultNow().notNull(),
 });
 
 export const teamMembers = pgTable("team_members", {
@@ -58,6 +66,8 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
 export type NewTeam = typeof teams.$inferInsert;
+export type TeamEvent = typeof teamEvents.$inferSelect;
+export type NewTeamEvent = typeof teamEvents.$inferInsert;
 export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
 export type Event = typeof events.$inferSelect;

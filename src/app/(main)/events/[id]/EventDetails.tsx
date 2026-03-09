@@ -1,19 +1,59 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Event } from "@/types";
-import { motion } from "framer-motion";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, MapPin, Users, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import Link from "next/link";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { SITE_CONFIG } from "@/config/site";
+import { useUser } from "@stackframe/stack";
+import { getUserTeams } from "@/app/actions/team";
+import { registerTeamForEvent } from "@/app/actions/events";
+import { type Team } from "@/db/schema";
+import { cn } from "@/lib/utils";
 
 interface EventDetailsProps {
   event: Event;
 }
 
 export default function EventDetails({ event }: EventDetailsProps) {
+  const user = useUser();
+  const [userTeams, setUserTeams] = useState<(Team & { events: string[] })[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      getUserTeams(user.id).then((data) => {
+        setUserTeams(data as (Team & { events: string[] })[]);
+        setLoading(false);
+      });
+    }
+  }, [user]);
+
+  const handleRegister = async (teamId: string) => {
+    setRegistering(true);
+    setMessage(null);
+    const result = await registerTeamForEvent(teamId, event.id);
+    if (result.success) {
+      setMessage({ type: 'success', text: "Registration successful!" });
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000);
+      // Refresh teams to show updated event list
+      const data = await getUserTeams(user!.id);
+      setUserTeams(data as (Team & { events: string[] })[]);
+    } else {
+      setMessage({ type: 'error', text: result.message || "Registration failed" });
+    }
+    setRegistering(false);
+  };
+
+  const isRegistered = userTeams.some(t => t.events.includes(event.id));
+  const myTeam = userTeams[0]; // Since one person one team rule
 
   return (
     <PageWrapper>
@@ -73,9 +113,51 @@ export default function EventDetails({ event }: EventDetailsProps) {
             </div>
 
             <div className="pt-12">
-               <Link href="/tickets" className="inline-block px-12 py-6 bg-[#D4AF37] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all">
-                    Authorize Entry
-               </Link>
+               <AnimatePresence>
+                 {message && (
+                   <motion.div
+                     initial={{ opacity: 0, y: 10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, y: -10 }}
+                     className={cn(
+                       "mb-6 p-4 flex items-center gap-3 font-black italic uppercase tracking-tighter",
+                       message.type === 'success' ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-red-500/10 text-red-500 border border-red-500/20"
+                     )}
+                   >
+                     {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+                     {message.text}
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+
+               {!user ? (
+                 <Link href="/login" className="inline-block px-12 py-6 bg-[#D4AF37] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all">
+                      Login to Register
+                 </Link>
+               ) : loading ? (
+                 <div className="inline-flex items-center gap-3 px-12 py-6 bg-[#D4AF37]/20 text-[#D4AF37] font-black italic text-xl uppercase tracking-widest">
+                   <Loader2 className="w-6 h-6 animate-spin" />
+                   Synchronizing...
+                 </div>
+               ) : isRegistered ? (
+                 <div className="inline-flex items-center gap-3 px-12 py-6 bg-green-500/20 text-green-500 border-2 border-green-500/50 font-black italic text-xl uppercase tracking-widest cursor-default">
+                   <CheckCircle2 className="w-6 h-6" />
+                   Already Registered
+                 </div>
+               ) : myTeam ? (
+                 <button 
+                   onClick={() => handleRegister(myTeam.id)}
+                   disabled={registering}
+                   className="inline-flex items-center gap-3 px-12 py-6 bg-[#D4AF37] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                 >
+                   {registering ? <Loader2 className="w-6 h-6 animate-spin" /> : <Users className="w-6 h-6" />}
+                   Register Team: {myTeam.name}
+                 </button>
+               ) : (
+                 <Link href="/profile" className="inline-block px-12 py-6 bg-[#D4AF37] text-black font-black italic text-xl uppercase tracking-widest hover:scale-105 transition-all">
+                      Create Team to Join
+                 </Link>
+               )}
             </div>
           </div>
 

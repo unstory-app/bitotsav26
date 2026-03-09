@@ -1,133 +1,349 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Check, Ticket, Star, Crown, Zap } from "lucide-react";
-import { SectionHeader } from "@/components/SectionHeader";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Check, 
+  Ticket, 
+  ShieldCheck, 
+  Zap, 
+  User as UserIcon, 
+  School, 
+  Key, 
+  ChevronRight, 
+  ChevronLeft,
+  Loader2,
+  Lock
+} from "lucide-react";
+import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { cn } from "@/lib/utils";
+import { getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actions/user";
 
-const ticketTiers = [
-  {
-     name: "DAY PASS",
-    price: "TBD",
-    description: "Single day authorization for the experience.",
-    icon: Ticket,
-    features: ["Access: 1 Selected Day", "Pro Nite: General Standing", "Stall Access: Included"],
-    recommended: false,
-  },
-  {
-    name: "FEST PASS PRO",
-    price: "TBD",
-    description: "Full system access for all 4 days.",
-    icon: Star,
-    features: ["Access: All 4 Days", "Pro Nite: Priority Standing", "Priority Entry", "Official Merch Kit"],
-    recommended: true,
-  },
-  {
-    name: "ELITE ACCESS",
-    price: "TBD",
-    description: "The ultimate concert override.",
-    icon: Crown,
-    features: ["Access: VIP Zone", "Artist Meet & Greet", "Exclusive Lounge", "Premium Merch Kit", "Backstage Experience"],
-    recommended: false,
-  },
+const steps = [
+  { id: "identity", title: "IDENTITY MINTING", icon: UserIcon, subtitle: "STEP 01 // PERSONAL SIGIL" },
+  { id: "lineage", title: "PROOF OF LINEAGE", icon: School, subtitle: "STEP 02 // ACADEMIC BONDS" },
+  { id: "sigil", title: "DIGITAL SIGIL", icon: Ticket, subtitle: "STEP 03 // VISUAL MARK" },
+  { id: "security", title: "SECURITY OVERRIDE", icon: Key, subtitle: "STEP 04 // RECOVERY SEAL" },
+  { id: "finalize", title: "FINAL SEALING", icon: ShieldCheck, subtitle: "STEP 05 // PASS GENERATION" },
 ];
 
 export default function TicketsClient() {
+  const user = useUser();
+  const [activeStep, setActiveStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [hasUserTicket, setHasUserTicket] = useState(false);
+  const [form, setForm] = useState({
+    displayName: "",
+    rollNo: "",
+    idCardImageUrl: "",
+    password: "",
+  });
+
+  const isBitMesra = user?.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
+
+  useEffect(() => {
+    async function checkStatus() {
+      if (user) {
+        const ticketExists = await hasTicket(user.id);
+        const dbUser = await getUser(user.id);
+        setHasUserTicket(ticketExists);
+        if (dbUser) {
+          setForm({
+            displayName: dbUser.displayName || user.displayName || "",
+            rollNo: dbUser.rollNo || "",
+            idCardImageUrl: dbUser.idCardImageUrl || user.profileImageUrl || "",
+            password: dbUser.password || "",
+          });
+        }
+      }
+      setChecking(false);
+    }
+    checkStatus();
+  }, [user]);
+
+  const handleNext = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
+  const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
+
+  const handleFinalize = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const updateResult = await updateUserDetails(user.id, form);
+      if (updateResult.success) {
+        const ticketResult = await createTicket(user.id);
+        if (ticketResult.success) {
+          window.location.href = "/profile";
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#1A0505] flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-[#D4AF37] animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-8 max-w-2xl px-6">
+           <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">
+             ACCESS <span className="text-[#D4AF37]">DENIED.</span>
+           </h1>
+           <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-widest font-heading">
+             LOG IN TO REVEAL YOUR AUTHORIZATION TIER.
+           </p>
+           <button 
+             onClick={() => window.location.href = "/handler/sign-in"}
+             className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 transition-all font-heading"
+           >
+             VERIFY IDENTITY
+           </button>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (hasUserTicket) {
+    return (
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-8 max-w-2xl px-6">
+           <div className="flex justify-center mb-8">
+             <div className="p-8 bg-green-500/10 border-2 border-green-500 text-green-500 rounded-full">
+               <Check className="w-16 h-16" />
+             </div>
+           </div>
+           <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">
+             AUTHORIZED.
+           </h1>
+           <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-widest font-heading">
+             YOUR DIGITAL HERITAGE PASS IS READY AT HQ.
+           </p>
+           <button 
+             onClick={() => window.location.href = "/profile"}
+             className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 transition-all font-heading"
+           >
+             VIEW HUB
+           </button>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // If not messra, show tiers (placeholder / upcoming)
+  if (!isBitMesra) {
+    return (
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 mb-24">
+           <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none mb-4 font-heading">
+             THE <span className="text-[#D4AF37]">PASS.</span>
+           </h1>
+           <p className="text-xl text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
+             EXTERNAL AUTHORIZATION // COMING SOON
+           </p>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 opacity-50 pointer-events-none grayscale">
+            {[1, 2, 3].map((i) => (
+               <div key={i} className="bg-white/5 border border-white/10 p-12 h-96 flex flex-col justify-end">
+                  <div className="w-12 h-1 h-white/20 mb-6" />
+                  <div className="w-1/2 h-8 bg-white/20 mb-4" />
+                  <div className="w-3/4 h-20 bg-white/10" />
+               </div>
+            ))}
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  const StepIcon = steps[activeStep].icon;
+
   return (
-    <PageWrapper className="pt-32 pb-20">
+    <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-15" />
       
-      <div className="max-w-7xl mx-auto px-6 mb-32">
-        <SectionHeader 
-            title="THE PASS." 
-            subtitle="Secure your authorization level for the biggest saga of 2026."
-            align="left"
-        />
-      </div>
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
+        <div className="mb-20">
+          <div className="flex items-center gap-4 mb-8">
+            <Zap className="w-6 h-6 text-[#D4AF37] animate-pulse" />
+            <span className="text-sm font-black uppercase tracking-[0.4em] text-[#D4AF37]">IDENTIFIED: BIT MESRA STUDENT</span>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter font-heading">
+            MINT YOUR <br/> <span className="text-[#D4AF37]">ARTISAN PASS.</span>
+          </h1>
+        </div>
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-        {ticketTiers.map((tier, index) => (
-          <motion.div
-            key={tier.name}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className={cn(
-              "relative p-12 flex flex-col transition-all duration-500 group",
-              tier.recommended 
-                ? "bg-[#D4AF37] text-black shadow-[0_0_80px_rgba(223,255,0,0.1)]" 
-                : "bg-white/5 text-white border border-white/10 hover:border-[#D4AF37] hover:bg-white/10"
-            )}
-          >
-            {tier.recommended && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black text-[#D4AF37] text-[10px] font-black italic uppercase tracking-[0.3em]">
-                MOST POPULAR
-              </div>
-            )}
+        <div className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 relative overflow-hidden">
+          {/* Progress Bar */}
+          <div className="h-1 bg-white/10 flex">
+            {steps.map((_, i) => (
+              <div 
+                key={i} 
+                className={cn(
+                  "flex-1 h-full transition-all duration-700",
+                  i <= activeStep ? "bg-[#D4AF37]" : "bg-transparent"
+                )} 
+              />
+            ))}
+          </div>
 
-            <div className="mb-10">
-                <tier.icon className={cn("w-12 h-12 mb-8", tier.recommended ? "text-black" : "text-[#D4AF37]")} />
-                <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-4">{tier.name}</h3>
-                <p className={cn("text-xs font-black italic uppercase tracking-widest", tier.recommended ? "text-black/40" : "text-white/40")}>
-                    {tier.description}
-                </p>
-            </div>
-
-            <div className={cn("mb-12 pb-12 border-b", tier.recommended ? "border-black/10" : "border-white/10")}>
-                <span className={cn("font-black italic tracking-tighter", tier.price === "TBD" ? "text-4xl" : "text-6xl")}>{tier.price}</span>
-                <span className={cn("text-[10px] font-black italic uppercase ml-2", tier.recommended ? "text-black/40" : "text-white/40")}>/ AUTHORIZATION</span>
-            </div>
-
-            <ul className="space-y-6 mb-12 flex-1">
-                {tier.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-4">
-                        <Check className={cn("w-4 h-4", tier.recommended ? "text-black" : "text-[#D4AF37]")} />
-                        <span className={cn("text-[10px] font-black italic uppercase tracking-widest", tier.recommended ? "text-black/60" : "text-white/60")}>
-                            {feature}
-                        </span>
-                    </li>
-                ))}
-            </ul>
-
-            <button className={cn(
-                "w-full py-6 text-lg font-black italic uppercase tracking-widest transition-all",
-                tier.recommended 
-                    ? "bg-black text-[#D4AF37] hover:scale-105" 
-                    : "bg-[#D4AF37] text-black hover:scale-105"
-            )}>
-                Authorize Now
-            </button>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Student Discount Override */}
-      <div className="max-w-7xl mx-auto px-6 mt-32">
-        <div className="bg-white text-black p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group">
-            <div className="space-y-6 relative z-10 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-[#D4AF37] px-3 py-1 text-[10px] font-black italic uppercase tracking-widest">
-                    <Zap className="w-3 h-3 fill-current" />
-                    EXCLUSIVE OVERRIDE
+          <div className="p-8 md:p-16">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+                className="space-y-12"
+              >
+                <div className="flex items-center gap-6">
+                  <div className="p-5 bg-[#D4AF37] text-[#1A0505]">
+                    <StepIcon className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <h2 className="text-4xl font-black uppercase text-[#FDF5E6] font-heading">{steps[activeStep].title}</h2>
+                    <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">{steps[activeStep].subtitle}</p>
+                  </div>
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black italic leading-none tracking-tighter uppercase">
-                    BIT MESRA <br/>DISCOUNT.
-                </h2>
-                <p className="max-w-lg text-lg font-black italic uppercase tracking-tighter opacity-60">
-                    Students of BIT Mesra receive 50% flat discount on all passes. Decrypt your code now.
-                </p>
-            </div>
-            
-            <button className="px-12 py-6 bg-black text-white text-xl font-black italic uppercase tracking-tighter hover:bg-[#D4AF37] hover:text-black transition-all relative z-10">
-                Verify Identity
-            </button>
 
-            <div className="absolute inset-0 flex items-center justify-center text-[15vw] font-black italic text-black/2 select-none pointer-events-none uppercase tracking-tighter leading-none">
-                BITIAN
-            </div>
+                <div className="min-h-[200px]">
+                  {activeStep === 0 && (
+                     <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">ENTER FULL LEGAL NAME</label>
+                        <input 
+                          type="text"
+                          value={form.displayName}
+                          onChange={(e) => setForm({...form, displayName: e.target.value})}
+                          placeholder="AS PER UNIVERSITY RECORDS"
+                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
+                        />
+                     </div>
+                  )}
+
+                  {activeStep === 1 && (
+                     <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">UNIVERSITY ROLL NUMBER</label>
+                        <input 
+                          type="text"
+                          value={form.rollNo}
+                          onChange={(e) => setForm({...form, rollNo: e.target.value.toUpperCase()})}
+                          placeholder="E.G. BTECH/10000/22"
+                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
+                        />
+                     </div>
+                  )}
+
+                  {activeStep === 2 && (
+                     <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">PROFILE / ID IMAGE URL</label>
+                        <input 
+                          type="text"
+                          value={form.idCardImageUrl}
+                          onChange={(e) => setForm({...form, idCardImageUrl: e.target.value})}
+                          placeholder="PASTE DIRECT IMAGE LINK"
+                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
+                        />
+                        <p className="text-[#FDF5E6]/30 text-[10px] uppercase font-black font-heading mt-2">This image will be etched onto your digital Artisan Pass.</p>
+                     </div>
+                  )}
+
+                  {activeStep === 3 && (
+                     <div className="space-y-6">
+                        <div className="p-8 bg-red-600/5 border-l-4 border-red-600 flex items-start gap-6">
+                           <Lock className="w-8 h-8 text-red-600 shrink-0" />
+                           <p className="text-red-600/60 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
+                             <span className="text-red-600">CRITICAL:</span> WE REQUIRE A RECOVERY PASSWORD TO ENSURE YOU CAN RECLAIM YOUR PASS IF YOU LOSE ACCESS TO YOUR DEVICE DURING THE FESTIVAL. THIS IS NOT FOR LOGIN, BUT FOR ON-SITE VERIFICATION.
+                           </p>
+                        </div>
+                        <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">RECOVERY SEAL (PASSWORD)</label>
+                           <input 
+                             type="password"
+                             value={form.password}
+                             onChange={(e) => setForm({...form, password: e.target.value})}
+                             placeholder="••••••••"
+                             className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
+                           />
+                        </div>
+                     </div>
+                  )}
+
+                  {activeStep === 4 && (
+                     <div className="space-y-8">
+                        <div className="p-8 bg-white/5 border-2 border-white/10 relative">
+                           <div className="absolute top-4 right-4 text-[#D4AF37]">
+                              <ShieldCheck className="w-12 h-12 opacity-20" />
+                           </div>
+                           <h4 className="text-[#D4AF37] text-xs font-black uppercase tracking-[0.3em] mb-6">SUMMARY OF LINEAGE</h4>
+                           <div className="space-y-4">
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">NAME</span>
+                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.displayName}</span>
+                              </div>
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">ROLL NO</span>
+                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.rollNo}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">STATUS</span>
+                                 <span className="text-green-500 font-black uppercase font-heading">READY FOR SEALING</span>
+                              </div>
+                           </div>
+                        </div>
+                        <p className="text-[#FDF5E6]/30 text-[10px] uppercase tracking-widest leading-relaxed text-center font-heading">
+                           By proceeding, you witness that all provided data is true. Falsification of heritage leads to immediate revocation of all festival privileges.
+                        </p>
+                     </div>
+                  )}
+                </div>
+
+                <div className="flex gap-6 mt-12">
+                   {activeStep > 0 && (
+                      <button 
+                        onClick={handleBack}
+                        disabled={loading}
+                        className="flex-1 py-8 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all font-heading flex items-center justify-center gap-4"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                        PREVIOUS
+                      </button>
+                   )}
+                   <button 
+                     onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
+                     disabled={loading}
+                     className="flex-[2] py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all font-heading flex items-center justify-center gap-4 group"
+                   >
+                     {loading ? (
+                       <Loader2 className="w-6 h-6 animate-spin" />
+                     ) : (
+                       <>
+                         {activeStep === steps.length - 1 ? "FINALIZE & MINT PASS" : "PROCEED TO NEXT"}
+                         {activeStep < steps.length - 1 && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
+                       </>
+                     )}
+                   </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <div className="mt-12 text-center">
+           <p className="text-[#FDF5E6]/20 text-[10px] font-black uppercase tracking-widest font-heading">
+             SECURED BY BITOTSAV HERITAGE PROTOCOL MMXXVI
+           </p>
         </div>
       </div>
-
     </PageWrapper>
   );
 }

@@ -3,19 +3,20 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Star, 
-  CheckCircle,
   Printer,
   ShieldCheck,
+  Ticket,
+  Users,
+  Star,
+  CheckCircle,
   AlertTriangle
 } from "lucide-react";
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { syncUser, getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actions/user";
+import { syncUser, getUser, hasTicket } from "@/app/actions/user";
 import { getUserTeams, createTeam, joinTeam } from "@/app/actions/team";
 import { cn } from "@/lib/utils";
 import { User, Team } from "@/db/schema";
-import { Upload, Key, School, User as UserIcon, Users, Plus, Link as LinkIcon, ExternalLink } from "lucide-react";
 import { events } from "@/lib/data/events";
 
 export default function ProfileContent() {
@@ -25,22 +26,12 @@ export default function ProfileContent() {
   const [synced, setSynced] = useState(false);
   const [dbUser, setDbUser] = useState<User | null>(null);
   const [hasUserTicket, setHasUserTicket] = useState(false);
-  const [regStep, setRegStep] = useState(0);
-  const [userTeams, setUserTeams] = useState<any[]>([]);
+  const [userTeams, setUserTeams] = useState<(Team & { events: string[] })[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [teamForm, setTeamForm] = useState({ name: "", eventId: "" });
   const [joinCodeInput, setJoinCodeInput] = useState("");
   const [statusMessage, setStatusMessage] = useState({ text: "", type: "info" });
-
-  // Registration Form State
-  const [regForm, setRegForm] = useState({
-    displayName: "",
-    collegeName: "",
-    rollNo: "",
-    password: "",
-    idCardImageUrl: "",
-  });
 
   const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
 
@@ -69,20 +60,9 @@ export default function ProfileContent() {
         const ticketExists = await hasTicket(user.id);
         setHasUserTicket(ticketExists);
 
-        // Pre-fill form
-        if (existingDbUser) {
-          setRegForm({
-            displayName: existingDbUser.displayName || user.displayName || "",
-            collegeName: existingDbUser.collegeName || "",
-            rollNo: existingDbUser.rollNo || "",
-            password: existingDbUser.password || "",
-            idCardImageUrl: existingDbUser.idCardImageUrl || user.profileImageUrl || "",
-          });
-        }
-        
         // Fetch user teams
         const teamsData = await getUserTeams(user.id);
-        setUserTeams(teamsData);
+        setUserTeams(teamsData as (Team & { events: string[] })[]);
 
         setSynced(true);
       };
@@ -127,27 +107,15 @@ export default function ProfileContent() {
     setLoading(false);
   };
 
-  const handleFinishRegistration = async () => {
-    setLoading(true);
-    const updateResult = await updateUserDetails(user.id, {
-      ...regForm,
-      idCardImageUrl: regForm.idCardImageUrl || user.profileImageUrl || "",
-    });
-
-    if (updateResult.success) {
-      const ticketResult = await createTicket(user.id);
-      if (ticketResult.success) {
-        setHasUserTicket(true);
-        // Refresh local DB user data
-        const updated = await getUser(user.id);
-        setDbUser(updated);
-      } else {
-        setSyncError("Ticket generation failed: " + ticketResult.message);
-      }
+  const handleCheckEligibility = () => {
+    if (isBitMesra) {
+      window.location.href = "/tickets";
     } else {
-      setSyncError("Registration update failed: " + updateResult.message);
+      setStatusMessage({ 
+        text: "Direct ticket generation is currently restricted to BIT Mesra students. External participants can join teams and participate in events.", 
+        type: "info" 
+      });
     }
-    setLoading(false);
   };
 
   const qrData = hasUserTicket ? encodeURIComponent(JSON.stringify({ 
@@ -203,175 +171,50 @@ export default function ProfileContent() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 items-start">
         
         {!hasUserTicket ? (
-          /* Registration Wizard */
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden"
+            className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12"
           >
             <div className="absolute top-0 right-0 p-8 opacity-5">
                <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
             </div>
 
-            <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-12">
-                {[0, 1, 2, 3].map((step) => (
-                  <div key={step} className={cn(
-                    "h-1 flex-1 transition-all duration-500",
-                    regStep >= step ? "bg-[#D4AF37]" : "bg-white/10"
-                  )} />
-                ))}
+            <div className="relative z-10 text-center md:text-left space-y-8">
+              <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+                <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
+                  <Ticket className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">DIGITAL HERITAGE PASS</h2>
+                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">STATUS: UNAUTHORIZED</p>
+                </div>
               </div>
 
-              {regStep === 0 && (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
-                      <UserIcon className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">IDENTITY MINTING</h2>
-                      <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">STEP 01 // PERSONAL SIGIL</p>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">FULL LEGAL NAME</label>
-                      <input 
-                        type="text"
-                        value={regForm.displayName}
-                        onChange={(e) => setRegForm({...regForm, displayName: e.target.value})}
-                        className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-6 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] transition-all outline-hidden font-heading"
-                        placeholder="ENTER YOUR NAME"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">PROFILE / ID IMAGE URL</label>
-                      <input 
-                        type="text"
-                        value={regForm.idCardImageUrl}
-                        onChange={(e) => setRegForm({...regForm, idCardImageUrl: e.target.value})}
-                        className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-6 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] transition-all outline-hidden font-heading"
-                        placeholder="PASTE IMAGE URL OR USE DEFAULT"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {regStep === 1 && (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
-                      <School className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">GUILD AFFILIATION</h2>
-                      <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">STEP 02 // ACADEMIC LINEAGE</p>
-                    </div>
-                  </div>
-                  
-                  {isBitMesra ? (
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">BIT MESRA ROLL NO</label>
-                       <input 
-                        type="text"
-                        value={regForm.rollNo}
-                        onChange={(e) => setRegForm({...regForm, rollNo: e.target.value})}
-                        className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-6 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] transition-all outline-hidden font-heading"
-                        placeholder="BTECH/10000/22"
-                      />
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">COLLEGE / INSTITUTION NAME</label>
-                       <input 
-                        type="text"
-                        value={regForm.collegeName}
-                        onChange={(e) => setRegForm({...regForm, collegeName: e.target.value})}
-                        className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-6 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] transition-all outline-hidden font-heading"
-                        placeholder="ENTER YOUR COLLEGE NAME"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {regStep === 2 && (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
-                      <Key className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">HERITAGE SEAL</h2>
-                      <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">STEP 03 // SECURITY OVERRIDE</p>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    <div className="p-6 bg-[#D4AF37]/5 border-l-4 border-[#D4AF37]">
-                      <p className="text-[#FDF5E6]/40 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
-                        <span className="text-[#D4AF37]">GENUINE REASON:</span> WE REQUIRE THIS PASSWORD TO ENSURE YOU CAN RECOVER YOUR DIGITAL HERITAGE PASS SECURELY IN CASE OF SESSION LOSS OR DEVICE MIGRATION AT THE VENUE.
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">RECOVERY PASSWORD</label>
-                      <input 
-                        type="password"
-                        value={regForm.password}
-                        onChange={(e) => setRegForm({...regForm, password: e.target.value})}
-                        className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-6 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] transition-all outline-hidden font-heading"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {regStep === 3 && (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 mb-8">
-                    <div className="p-4 bg-green-500 text-[#1A0505]">
-                      <CheckCircle className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">VALIDATION READY</h2>
-                      <p className="text-green-500/60 text-xs font-black uppercase tracking-widest font-heading">STEP 04 // FINAL SEALING</p>
-                    </div>
-                  </div>
-                  <div className="p-8 bg-white/5 border-2 border-white/10 space-y-4">
-                    <p className="text-[#FDF5E6]/60 text-sm font-black uppercase tracking-widest font-heading underline">REVIEW YOUR LINEAGE:</p>
-                    <ul className="space-y-2 text-[#FDF5E6] font-black uppercase tracking-tighter text-lg font-heading">
-                      <li>NAME: {regForm.displayName}</li>
-                      <li>ORIGIN: {isBitMesra ? `BIT MESRA (${regForm.rollNo})` : regForm.collegeName}</li>
-                      <li className="text-green-500">SECURITY: ACTIVATED</li>
-                    </ul>
-                  </div>
-                  <p className="text-[#FDF5E6]/30 text-[10px] uppercase tracking-widest leading-relaxed font-heading">
-                    By clicking finalize, you witness that the above data is authentic. Falsified lineage may result in forfeiture of your Artisan Pass.
+              {isBitMesra ? (
+                <div className="space-y-6">
+                  <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
+                    Detecting <span className="text-[#D4AF37]">@BITMESRA.AC.IN</span> affiliation. You are eligible to generate your complimentary digital access pass.
                   </p>
+                  <button 
+                    onClick={handleCheckEligibility}
+                    className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-[1.05] transition-all font-heading"
+                  >
+                    GENERATE PASS NOW
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
+                    Welcome, <span className="text-[#D4AF37]">ARTISAN</span>. You can join teams and participate in events. Full festival access passes for external participants will be released soon.
+                  </p>
+                  <div className="p-6 bg-white/5 border-l-4 border-[#D4AF37]">
+                    <p className="text-[#FDF5E6]/40 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
+                      Register your team below to start your Bitotsav journey.
+                    </p>
+                  </div>
                 </div>
               )}
-
-              <div className="mt-16 flex gap-6">
-                {regStep > 0 && (
-                  <button 
-                    onClick={() => setRegStep(regStep - 1)}
-                    className="flex-1 py-6 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-widest hover:bg-white/10 transition-all font-heading"
-                  >
-                    PREVIOUS
-                  </button>
-                )}
-                <button 
-                  onClick={() => {
-                    if (regStep < 3) setRegStep(regStep + 1);
-                    else handleFinishRegistration();
-                  }}
-                  className="flex-[2] py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all font-heading"
-                >
-                  {regStep < 3 ? "CONTINUE" : "FINALIZE & GENERATE PASS"}
-                </button>
-              </div>
             </div>
           </motion.div>
         ) : (
@@ -515,8 +358,7 @@ export default function ProfileContent() {
       </div>
 
       {/* Teams Section */}
-      {hasUserTicket && (
-        <div className="max-w-7xl mx-auto px-4 md:px-6 mb-32 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-32 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
             <div>
               <div className="flex items-center gap-3 mb-4">
@@ -553,7 +395,6 @@ export default function ProfileContent() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {userTeams.map((team) => {
-                const event = events.find(e => e.id === team.eventId);
                 return (
                   <motion.div 
                     key={team.id}
@@ -580,9 +421,18 @@ export default function ProfileContent() {
                       </div>
                       <div className="pt-4 border-t border-white/5">
                         <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-2 font-heading">PARTICIPATING IN</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black italic text-[#FDF5E6] uppercase font-heading">{event?.name || team.eventId}</span>
-                          <ExternalLink className="w-4 h-4 text-[#D4AF37]" />
+                        <div className="flex flex-wrap gap-2">
+                          {team.events?.map(evId => {
+                             const ev = events.find(e => e.id === evId);
+                             return (
+                               <span key={evId} className="px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-[9px] font-black uppercase tracking-tighter border border-[#D4AF37]/20">
+                                 {ev?.name || evId}
+                               </span>
+                             );
+                          })}
+                          {(!team.events || team.events.length === 0) && (
+                            <span className="text-xs font-black italic text-[#FDF5E6]/30 uppercase font-heading">NO EVENTS REG</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -592,7 +442,6 @@ export default function ProfileContent() {
             </div>
           )}
         </div>
-      )}
 
       {/* Create Team Modal */}
       {showCreateModal && (

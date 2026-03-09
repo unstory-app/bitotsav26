@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { users, tickets, teams, teamMembers, events } from "@/db/schema";
+import { users, tickets, teams, teamMembers, events, teamEvents } from "@/db/schema";
 import { eq, desc, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -64,11 +64,10 @@ export async function getAdminTeams(page: number = 1) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    const data = await db.select({
+    const teamsList = await db.select({
       id: teams.id,
       name: teams.name,
       code: teams.code,
-      eventId: teams.eventId,
       leaderName: users.displayName,
       createdAt: teams.createdAt,
     })
@@ -77,6 +76,14 @@ export async function getAdminTeams(page: number = 1) {
     .orderBy(desc(teams.createdAt))
     .limit(ITEMS_PER_PAGE)
     .offset(offset);
+
+    const data = await Promise.all(teamsList.map(async (team) => {
+      const e = await db.select({ eventName: events.name })
+        .from(teamEvents)
+        .innerJoin(events, eq(teamEvents.eventId, events.id))
+        .where(eq(teamEvents.teamId, team.id));
+      return { ...team, events: e.map(ev => ev.eventName) };
+    }));
 
     const [totalResult] = await db.select({ value: count() }).from(teams);
     
@@ -129,7 +136,16 @@ export async function getAllDataForExport(type: "users" | "tickets" | "teams" | 
   try {
     if (type === "users") return await db.select().from(users);
     if (type === "tickets") return await db.select().from(tickets);
-    if (type === "teams") return await db.select().from(teams);
+    if (type === "teams") {
+      const teamsList = await db.select().from(teams);
+      return await Promise.all(teamsList.map(async (t) => {
+        const e = await db.select({ eventName: events.name })
+          .from(teamEvents)
+          .innerJoin(events, eq(teamEvents.eventId, events.id))
+          .where(eq(teamEvents.teamId, t.id));
+        return { ...t, events: e.map(ev => ev.eventName).join("; ") };
+      }));
+    }
     if (type === "events") return await db.select().from(events);
     if (type === "participants") {
       return await db.select({
@@ -142,7 +158,8 @@ export async function getAllDataForExport(type: "users" | "tickets" | "teams" | 
       .from(teamMembers)
       .innerJoin(users, eq(teamMembers.userId, users.id))
       .innerJoin(teams, eq(teamMembers.teamId, teams.id))
-      .innerJoin(events, eq(teams.eventId, events.id));
+      .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id))
+      .innerJoin(events, eq(teamEvents.eventId, events.id));
     }
     return [];
   } catch (error) {
@@ -167,11 +184,12 @@ export async function getAdminParticipants(eventId?: string, page: number = 1) {
     .from(teamMembers)
     .innerJoin(users, eq(teamMembers.userId, users.id))
     .innerJoin(teams, eq(teamMembers.teamId, teams.id))
-    .innerJoin(events, eq(teams.eventId, events.id));
+    .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id))
+    .innerJoin(events, eq(teamEvents.eventId, events.id));
 
     if (eventId) {
       // @ts-expect-error - drizzle type complexity
-      query = query.where(eq(teams.eventId, eventId));
+      query = query.where(eq(teamEvents.eventId, eventId));
     }
 
     const data = await query.limit(ITEMS_PER_PAGE).offset(offset);
@@ -181,7 +199,8 @@ export async function getAdminParticipants(eventId?: string, page: number = 1) {
       const [totalResult] = await db.select({ value: count() })
         .from(teamMembers)
         .innerJoin(teams, eq(teamMembers.teamId, teams.id))
-        .where(eq(teams.eventId, eventId));
+        .innerJoin(teamEvents, eq(teamEvents.teamId, teams.id))
+        .where(eq(teamEvents.eventId, eventId));
       totalCount = Number(totalResult?.value || 0);
     } else {
       const [totalResult] = await db.select({ value: count() }).from(teamMembers);
