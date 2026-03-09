@@ -119,50 +119,96 @@ export default function TicketsClient() {
 
   if (hasUserTicket) {
     return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-8 max-w-2xl px-6">
-           <div className="flex justify-center mb-8">
-             <div className="p-8 bg-green-500/10 border-2 border-green-500 text-green-500 rounded-full">
-               <Check className="w-16 h-16" />
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center relative overflow-hidden tapestry-bg">
+        <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-12 max-w-4xl px-6 relative z-10"
+        >
+           <div className="flex justify-center mb-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[#D4AF37]/20 blur-3xl rounded-full group-hover:bg-[#D4AF37]/40 transition-all" />
+                <div className="p-10 bg-[#1A0505] border-2 border-[#D4AF37] text-[#D4AF37] relative z-10">
+                  <ShieldCheck className="w-20 h-20" />
+                </div>
+              </div>
+           </div>
+           
+           <div className="space-y-4">
+              <h1 className="text-7xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading leading-none">
+                HERITAGE <span className="text-[#D4AF37]">SEALED.</span>
+              </h1>
+              <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-[0.4em] font-heading">
+                YOUR LINEAGE HAS BEEN VERIFIED // THE 35TH EDITION
+              </p>
+           </div>
+
+           <div className="p-1 bg-[#D4AF37]/20 inline-block">
+             <div className="px-8 py-4 bg-[#1A0505] border border-[#D4AF37]/40">
+                <p className="text-[#D4AF37] text-xs font-black uppercase tracking-widest font-heading">ARTISAN PASS #35-{user.id.slice(-6).toUpperCase()}</p>
              </div>
            </div>
-           <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">
-             AUTHORIZED.
-           </h1>
-           <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-widest font-heading">
-             YOUR DIGITAL HERITAGE PASS IS READY AT HQ.
-           </p>
-           <button 
-             onClick={() => window.location.href = "/profile"}
-             className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 transition-all font-heading"
-           >
-             VIEW HUB
-           </button>
-        </div>
+
+           <div className="pt-8">
+             <button 
+               onClick={() => window.location.href = "/profile"}
+               className="px-16 py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.3em] text-sm hover:scale-105 active:scale-95 transition-all font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)]"
+             >
+               REVEAL PASS AT HUB
+             </button>
+           </div>
+        </motion.div>
       </PageWrapper>
     );
   }
 
   if (!isBitMesra) {
     return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
-        <div className="max-w-7xl mx-auto px-6 mb-24">
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
+        <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
+        
+        <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
            <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none mb-4 font-heading">
-             THE <span className="text-[#D4AF37]">PASS.</span>
+             THE <span className="text-[#D4AF37]">STORY.</span>
            </h1>
            <p className="text-xl text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
-             EXTERNAL AUTHORIZATION // COMING SOON
+             EXTERNAL PARTICIPATION // HERITAGE AWAITS
            </p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 opacity-50 pointer-events-none grayscale">
-            {[1, 2, 3].map((i) => (
-               <div key={i} className="bg-white/5 border border-white/10 p-12 h-96 flex flex-col justify-end">
-                  <div className="w-12 h-1 h-white/20 mb-6" />
-                  <div className="w-1/2 h-8 bg-white/20 mb-4" />
-                  <div className="w-3/4 h-20 bg-white/10" />
-               </div>
-            ))}
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div className="space-y-10">
+                    <p className="text-2xl md:text-4xl text-[#FDF5E6]/60 font-black italic uppercase leading-tight font-heading">
+                      The Gaatha is not built on <span className="text-[#D4AF37]">Isolation</span>, but on <span className="text-[#D4AF37]">Unity</span>. 
+                    </p>
+                    <div className="p-10 border-l-4 border-[#D4AF37] bg-white/5 space-y-6">
+                        <p className="text-[#FDF5E6]/80 text-sm md:text-lg leading-relaxed font-heading uppercase font-black tracking-wider">
+                           While direct ticket minting is currently reserved for the architects of the host ground, every squadron is welcome to the battlefield.
+                        </p>
+                        <div className="pt-4">
+                           <button 
+                             onClick={() => window.location.href = "/events"}
+                             className="px-10 py-5 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all font-heading"
+                           >
+                             JOIN THE SQUADRON HUB
+                           </button>
+                        </div>
+                    </div>
+                </div>
+                <div className="relative aspect-square opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all duration-1000">
+                    <div className="absolute inset-0 border-2 border-[#D4AF37]/20 group-hover:border-[#D4AF37] transition-all" />
+                    <div className="absolute -top-4 -left-4 w-20 h-20 border-t-4 border-l-4 border-[#D4AF37]" />
+                    <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-4 border-r-4 border-[#D4AF37]" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src="https://images.unsplash.com/photo-1514525253361-bee200e5728a?auto=format&fit=crop&q=80" 
+                      alt="Heritage Heritage" 
+                      className="w-full h-full object-cover p-4"
+                    />
+                </div>
+            </div>
         </div>
       </PageWrapper>
     );

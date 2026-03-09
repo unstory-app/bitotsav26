@@ -190,3 +190,44 @@ export async function getLeaderboard(limit = 50) {
     return { success: false, message: "Failed to fetch leaderboard." };
   }
 }
+
+export async function leaveTeam(teamId: string, userId: string) {
+  try {
+    // Check if user is the leader
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (team?.leaderId === userId) {
+      return { success: false, message: "Leaders cannot leave. Use 'Dismiss Team' to delete the team." };
+    }
+
+    await db.delete(teamMembers).where(
+      and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId))
+    );
+
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Leave team error:", error);
+    return { success: false, message: "Failed to leave team." };
+  }
+}
+
+export async function dismissTeam(teamId: string, leaderId: string) {
+  try {
+    // Verify leadership
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (!team || team.leaderId !== leaderId) {
+      return { success: false, message: "Unauthorized. Only the leader can dismiss the team." };
+    }
+
+    // Delete related records first
+    await db.delete(teamEvents).where(eq(teamEvents.teamId, teamId));
+    await db.delete(teamMembers).where(eq(teamMembers.teamId, teamId));
+    await db.delete(teams).where(eq(teams.id, teamId));
+
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    console.error("Dismiss team error:", error);
+    return { success: false, message: "Failed to dismiss team." };
+  }
+}

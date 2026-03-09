@@ -14,13 +14,16 @@ import {
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { syncUser, getUser, hasTicket } from "@/app/actions/user";
-import { getUserTeams, createTeam, joinTeam } from "@/app/actions/team";
+import { getUserTeams, createTeam, joinTeam, leaveTeam, dismissTeam, getTeamDetails } from "@/app/actions/team";
 import { cn } from "@/lib/utils";
 import { User, Team } from "@/db/schema";
 import { events } from "@/lib/data/events";
+import { LogOut, Eye, EyeOff, Trash2, UserMinus, Info } from "lucide-react";
+import { useStackApp } from "@stackframe/stack";
 
 export default function ProfileContent() {
   const user = useUser({ or: "redirect" });
+  const stack = useStackApp();
   const [loading, setLoading] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [synced, setSynced] = useState(false);
@@ -29,6 +32,11 @@ export default function ProfileContent() {
   const [userTeams, setUserTeams] = useState<(Team & { events: string[] })[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [selectedTeamDetails, setSelectedTeamDetails] = useState<{ 
+    id: string, 
+    members: { id: string, displayName: string | null, email: string, profileImageUrl: string | null }[] 
+  } | null>(null);
   const [teamForm, setTeamForm] = useState({ name: "", eventId: "" });
   const [joinCodeInput, setJoinCodeInput] = useState("");
   const [statusMessage, setStatusMessage] = useState({ text: "", type: "info" });
@@ -107,6 +115,47 @@ export default function ProfileContent() {
     setLoading(false);
   };
 
+  const handleLeaveTeam = async (teamId: string) => {
+    if (!confirm("Are you sure you want to leave this squadron?")) return;
+    setLoading(true);
+    const result = await leaveTeam(teamId, user.id);
+    if (result.success) {
+      setStatusMessage({ text: "You have left the squadron.", type: "success" });
+      const updated = await getUserTeams(user.id);
+      setUserTeams(updated);
+    } else {
+      setStatusMessage({ text: result.message || "Failed to leave team.", type: "error" });
+    }
+    setLoading(false);
+  };
+
+  const handleDismissTeam = async (teamId: string) => {
+    if (!confirm("CRITICAL: This will PERMANENTLY DELETE the squadron and all event registrations. Proceed?")) return;
+    setLoading(true);
+    const result = await dismissTeam(teamId, user.id);
+    if (result.success) {
+      setStatusMessage({ text: "Squadron has been dismissed.", type: "success" });
+      const updated = await getUserTeams(user.id);
+      setUserTeams(updated);
+    } else {
+      setStatusMessage({ text: result.message || "Failed to dismiss team.", type: "error" });
+    }
+    setLoading(false);
+  };
+
+  const handleShowIntel = async (teamId: string) => {
+    if (selectedTeamDetails?.id === teamId) {
+      setSelectedTeamDetails(null);
+      return;
+    }
+    setLoading(true);
+    const details = await getTeamDetails(teamId);
+    if (details) {
+      setSelectedTeamDetails({ id: teamId, members: details.members });
+    }
+    setLoading(false);
+  };
+
   const handleCheckEligibility = () => {
     if (isBitMesra) {
       window.location.href = "/tickets";
@@ -158,13 +207,23 @@ export default function ProfileContent() {
 
       {/* Header Section */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-24 relative z-10 print:hidden">
-          <div className="border-l-8 md:border-l-12 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6">
-              <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
-                  ARTISAN <span className="text-[#D4AF37]">PASS.</span>
-              </h1>
-              <p className="text-sm md:text-xl text-[#FDF5E6]/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em] font-heading">
-                  LEGACY ENTRANCE // THE 35TH EDITION
-              </p>
+          <div className="border-l-8 md:border-l-12 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+              <div>
+                <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
+                    ARTISAN <span className="text-[#D4AF37]">PASS.</span>
+                </h1>
+                <p className="text-sm md:text-xl text-[#FDF5E6]/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em] font-heading">
+                    LEGACY ENTRANCE // THE 35TH EDITION
+                </p>
+              </div>
+
+              <button 
+                onClick={() => stack.signOut()}
+                className="px-8 py-4 bg-red-600/10 border-2 border-red-600 text-red-600 font-black italic uppercase tracking-widest text-xs hover:bg-red-600 hover:text-white transition-all flex items-center gap-3 font-heading"
+              >
+                <LogOut className="w-4 h-4" />
+                LEGACY DISCONNECT
+              </button>
           </div>
       </div>
 
@@ -303,33 +362,47 @@ export default function ProfileContent() {
 
             {/* QR Section & Actions */}
             <div className="w-full lg:w-2/5 space-y-12 shrink-0">
-              <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={cn(
-                    "p-2 relative shadow-[20px_20px_0px_rgba(223,255,0,0.1)] group transition-all duration-700 bg-white hover:shadow-[20px_20px_0px_#D4AF37]"
-                )}
-                >
-                    <div className="absolute inset-x-0 -top-6 flex justify-center">
-                        <div className={cn(
-                            "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px] font-heading bg-[#1A0505] text-[#D4AF37] border-[#D4AF37]"
-                        )}>
-                          HERITAGE VALIDATION
-                        </div>
-                    </div>
-                    
-                    <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                            src={qrUrl}
-                            alt="QR Pass" 
-                            className="w-full h-auto grayscale group-hover:grayscale-0 transition-opacity"
-                        />
-                        <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                            <CheckCircle className="w-24 h-24 text-black" />
-                        </div>
-                    </>
-              </motion.div>
+              <div className="grid grid-cols-1 gap-4 print:hidden">
+                    <button 
+                      onClick={() => setShowPass(!showPass)}
+                      className={cn(
+                          "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98] font-heading bg-[#D4AF37] text-[#1A0505] hover:scale-105" 
+                      )}
+                    >
+                        {showPass ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                        {showPass ? "HIDE HERITAGE SIGIL" : "REVEAL HERITAGE SIGIL"}
+                    </button>
+              </div>
+
+              {showPass && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={cn(
+                      "p-2 relative shadow-[20px_20px_0px_rgba(223,255,0,0.1)] group transition-all duration-700 bg-white hover:shadow-[20px_20px_0px_#D4AF37]"
+                  )}
+                  >
+                      <div className="absolute inset-x-0 -top-6 flex justify-center">
+                          <div className={cn(
+                              "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px] font-heading bg-[#1A0505] text-[#D4AF37] border-[#D4AF37]"
+                          )}>
+                            HERITAGE VALIDATION
+                          </div>
+                      </div>
+                      
+                      <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                              src={qrUrl}
+                              alt="QR Pass" 
+                              className="w-full h-auto grayscale group-hover:grayscale-0 transition-opacity"
+                          />
+                          <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              <CheckCircle className="w-24 h-24 text-black" />
+                          </div>
+                      </>
+                </motion.div>
+              )}
 
               <div className="grid grid-cols-1 gap-4 print:hidden">
                     <button 
@@ -367,20 +440,22 @@ export default function ProfileContent() {
               </div>
               <h2 className="text-5xl md:text-7xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">YOUR <span className="text-[#D4AF37]">TEAMS.</span></h2>
             </div>
-            <div className="flex gap-4 w-full md:w-auto">
-              <button 
-                onClick={() => setShowJoinModal(true)}
-                className="flex-1 md:flex-none px-8 py-4 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all font-heading"
-              >
-                JOIN TEAM
-              </button>
-              <button 
-                onClick={() => setShowCreateModal(true)}
-                className="flex-1 md:flex-none px-8 py-4 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all font-heading"
-              >
-                CREATE TEAM
-              </button>
-            </div>
+            {userTeams.length === 0 && (
+              <div className="flex gap-4 w-full md:w-auto">
+                <button 
+                  onClick={() => setShowJoinModal(true)}
+                  className="flex-1 md:flex-none px-8 py-4 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all font-heading"
+                >
+                  JOIN TEAM
+                </button>
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex-1 md:flex-none px-8 py-4 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all font-heading"
+                >
+                  CREATE TEAM
+                </button>
+              </div>
+            )}
           </div>
 
           {userTeams.length === 0 ? (
@@ -419,7 +494,7 @@ export default function ProfileContent() {
                           <p className="text-lg font-black italic text-[#FDF5E6] font-heading">{team.leaderId === user.id ? "LEADER" : "MEMBER"}</p>
                         </div>
                       </div>
-                      <div className="pt-4 border-t border-white/5">
+                      <div className="pt-4 border-t border-white/5 space-y-4">
                         <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-2 font-heading">PARTICIPATING IN</p>
                         <div className="flex flex-wrap gap-2">
                           {team.events?.map(evId => {
@@ -434,6 +509,49 @@ export default function ProfileContent() {
                             <span className="text-xs font-black italic text-[#FDF5E6]/30 uppercase font-heading">NO EVENTS REG</span>
                           )}
                         </div>
+
+                        <div className="grid grid-cols-2 gap-2 pt-4">
+                          <button 
+                            onClick={() => handleShowIntel(team.id)}
+                            className="px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-[#FDF5E6] hover:bg-white/10 transition-all flex items-center justify-center gap-2 font-heading"
+                          >
+                            <Info className="w-3 h-3 text-[#D4AF37]" />
+                            INTEL
+                          </button>
+                          {team.leaderId === user.id ? (
+                            <button 
+                              onClick={() => handleDismissTeam(team.id)}
+                              className="px-4 py-2 bg-red-600/10 border border-red-600/20 text-[9px] font-black uppercase tracking-widest text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 font-heading"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              DISMISS
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => handleLeaveTeam(team.id)}
+                              className="px-4 py-2 bg-red-600/10 border border-red-600/20 text-[9px] font-black uppercase tracking-widest text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 font-heading"
+                            >
+                              <UserMinus className="w-3 h-3" />
+                              LEAVE
+                            </button>
+                          )}
+                        </div>
+
+                        {selectedTeamDetails?.id === team.id && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="p-4 bg-white/5 border border-white/10 space-y-3"
+                          >
+                            <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">SQUADRON ROSTER</p>
+                            {selectedTeamDetails.members.map(m => (
+                              <div key={m.id} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
+                                <span className="text-[10px] font-black uppercase text-[#FDF5E6] font-heading">{m.displayName || "Anonymous"}</span>
+                                <span className="text-[8px] font-black uppercase text-[#FDF5E6]/20 font-heading">{m.id === team.leaderId ? "COMMANDER" : "OPERATIVE"}</span>
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
                       </div>
                     </div>
                   </motion.div>
