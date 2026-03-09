@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { 
+import {
   ShieldCheck,
   Ticket,
   Users,
@@ -12,7 +12,8 @@ import {
   UserMinus,
   Info,
   Trophy,
-  Zap
+  Zap,
+  MessageCircle
 } from "lucide-react";
 import { useUser, useStackApp } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
@@ -22,6 +23,7 @@ import { getUserTeams, createTeam, joinTeam, leaveTeam, dismissTeam, getTeamDeta
 import { cn } from "@/lib/utils";
 import { Team } from "@/db/schema";
 import { events } from "@/lib/data/events";
+import { SITE_CONFIG } from "@/config/site";
 
 export default function ProfileContent() {
   const user = useUser({ or: "redirect" });
@@ -338,8 +340,7 @@ export default function ProfileContent() {
           </motion.div>
         )}
       </div>
-
-      {/* Teams Section */}
+  {/* Teams Section */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-32 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
             <div>
@@ -472,6 +473,95 @@ export default function ProfileContent() {
             </div>
           )}
         </div>
+      {/* WhatsApp Community Section */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <MessageCircle className="w-6 h-6 text-[#D4AF37]" />
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-[#D4AF37]/60 font-heading">STAY CONNECTED</span>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">WHATSAPP <span className="text-[#D4AF37]">HUB.</span></h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Community Link Card */}
+          <motion.a
+            href={SITE_CONFIG.whatsapp.community}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+              <MessageCircle className="w-32 h-32 text-[#D4AF37]" />
+            </div>
+
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-[#25D366] text-white rounded-full">
+                  <MessageCircle className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black uppercase text-[#FDF5E6] font-heading">COMMUNITY CHANNEL</h3>
+                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">OFFICIAL UPDATES</p>
+                </div>
+              </div>
+
+              <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter font-heading">
+                Join the official Bitotsav community for <span className="text-[#D4AF37]">REAL-TIME UPDATES</span>, announcements, and festival news.
+              </p>
+
+              <div className="flex items-center gap-2 text-[#25D366] font-black uppercase tracking-widest text-sm font-heading">
+                <span>JOIN NOW</span>
+                <MessageCircle className="w-4 h-4" />
+              </div>
+            </div>
+          </motion.a>
+
+          {/* Helpdesk Link Card */}
+          <motion.a
+            href={SITE_CONFIG.whatsapp.helpdesk}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+              <ShieldCheck className="w-32 h-32 text-[#D4AF37]" />
+            </div>
+
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-[#128C7E] text-white rounded-full">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black uppercase text-[#FDF5E6] font-heading">VIRTUAL HELPDESK</h3>
+                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">SUPPORT & ASSISTANCE</p>
+                </div>
+              </div>
+
+              <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter font-heading">
+                Get instant <span className="text-[#D4AF37]">SUPPORT & GUIDANCE</span> from our team. Ask questions, resolve queries.
+              </p>
+
+              <div className="flex items-center gap-2 text-[#128C7E] font-black uppercase tracking-widest text-sm font-heading">
+                <span>GET HELP</span>
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+            </div>
+          </motion.a>
+        </div>
+      </div>
+
+    
 
       {/* Create Team Modal */}
       {showCreateModal && (

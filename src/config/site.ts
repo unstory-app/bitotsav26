@@ -35,6 +35,11 @@ export const SITE_CONFIG = {
     linkedin: "https://www.linkedin.com/company/bitotsavbitmesra/",
     facebook: "https://facebook.com/bitotsav",
     youtube: "https://www.youtube.com/@bitotsav3377/",
+    whatsapp: "https://chat.whatsapp.com/C8ICNlasuguC9g0EQ3HDy3",
+  },
+  whatsapp: {
+    community: "https://chat.whatsapp.com/C8ICNlasuguC9g0EQ3HDy3",
+    helpdesk: "https://chat.whatsapp.com/HKypzDR4x7N766Gn9PTDUx?mode=gi_t",
   },
   links: {
     registration: "/login",

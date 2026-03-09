@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Linkedin, Facebook, Youtube, Heart, ShieldCheck } from "lucide-react";
+import { Instagram, Linkedin, Facebook, Youtube, Heart, ShieldCheck, MessageCircle } from "lucide-react";
 import { SITE_CONFIG } from "@/config/site";
 
 export function Footer() {
@@ -57,11 +57,12 @@ export function Footer() {
                                 { Icon: Linkedin, href: SITE_CONFIG.socials.linkedin },
                                 { Icon: Facebook, href: SITE_CONFIG.socials.facebook },
                                 { Icon: Youtube, href: SITE_CONFIG.socials.youtube },
+                                { Icon: MessageCircle, href: SITE_CONFIG.whatsapp.community },
                                 { Icon: ShieldCheck, href: "/helpdesk" }
                             ].map(({ Icon, href }, i) => (
-                                <Link 
-                                    key={i} 
-                                    href={href} 
+                                <Link
+                                    key={i}
+                                    href={href}
                                     className="w-14 h-14 bg-[#FDF5E6]/5 border border-[#D4AF37]/10 flex items-center justify-center hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent transition-all"
                                 >
                                     <Icon className="w-6 h-6" />
