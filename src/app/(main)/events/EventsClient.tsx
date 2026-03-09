@@ -3,19 +3,23 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EventCard } from "@/components/EventCard";
-import { events } from "@/lib/data/events";
+import { type Event as DBEvent } from "@/db/schema";
 import { cn } from "@/lib/utils";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { SITE_CONFIG } from "@/config/site";
 
 const categories = ["All", "Flagship", "Formal", "Informal"];
 
-export default function EventsClient() {
+interface EventsClientProps {
+  events: DBEvent[];
+}
+
+export default function EventsClient({ events }: EventsClientProps) {
   const [filter, setFilter] = useState("All");
 
   const filteredEvents = filter === "All" 
     ? events 
-    : events.filter(event => event.category === filter);
+    : events.filter(event => (event.category as string) === filter);
 
   return (
     <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">

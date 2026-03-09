@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Users, ArrowRight } from "lucide-react";
-import { Event } from "@/types";
+import { type Event as DBEvent } from "@/db/schema";
 import Link from "next/link";
 
 interface EventCardProps {
-  event: Event;
+  event: DBEvent;
 }
 
 export function EventCard({ event }: EventCardProps) {
@@ -35,7 +35,7 @@ export function EventCard({ event }: EventCardProps) {
           <div className="flex justify-between items-start mb-12">
             <div className="flex flex-col">
               <span className="text-[#D4AF37] text-[10px] font-black italic uppercase tracking-[0.4em] mb-1">
-                {"// "}{event.category.toUpperCase()}
+                {"// "}{(event.category || "General").toUpperCase()}
               </span>
               <div className="h-1 w-12 bg-[#D4AF37] group-hover:w-24 transition-all duration-500" />
             </div>
@@ -53,7 +53,7 @@ export function EventCard({ event }: EventCardProps) {
           
           {/* Description Snippet */}
           <p className="text-white/40 text-[10px] font-black italic uppercase tracking-widest mb-10 leading-relaxed border-l-2 border-[#D4AF37]/30 pl-4 group-hover:border-[#D4AF37] transition-colors">
-            JOIN US AT {event.venue.toUpperCase()} FOR AN UNFORGETTABLE EXPERIENCE.
+            JOIN US AT {(event.venue || "TBD").toUpperCase()} FOR AN UNFORGETTABLE EXPERIENCE.
           </p>
           
           {/* Footer Info / Ticker-Tape Look */}
@@ -61,11 +61,11 @@ export function EventCard({ event }: EventCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Users className="w-4 h-4 text-[#D4AF37]" />
-                <span className="text-[10px] font-black italic uppercase text-white/80 tracking-[0.2em]">{event.organizer}</span>
+                <span className="text-[10px] font-black italic uppercase text-white/80 tracking-[0.2em]">{event.organizer || "Events Team"}</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-[#D4AF37]" />
-                <span className="text-[10px] font-black italic uppercase text-white/80 tracking-[0.2em]">{event.venue}</span>
+                <span className="text-[10px] font-black italic uppercase text-white/80 tracking-[0.2em]">{event.venue || "TBD"}</span>
               </div>
             </div>
 

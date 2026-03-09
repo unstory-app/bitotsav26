@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function EventsPage() {
-  return <EventsClient />;
+import { getEvents } from "@/app/actions/events";
+import { type Event as DBEvent } from "@/db/schema";
+
+export default async function EventsPage() {
+  const eventsData = await getEvents();
+  return <EventsClient events={eventsData as DBEvent[]} />;
 }

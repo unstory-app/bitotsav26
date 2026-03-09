@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { users, tickets, teams, teamMembers } from "@/db/schema";
-import { eq, desc, count, sql } from "drizzle-orm";
+import { users, tickets, teams, teamMembers, events } from "@/db/schema";
+import { eq, desc, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 const ITEMS_PER_PAGE = 20;
@@ -24,8 +24,8 @@ export async function getAdminUsers(page: number = 1) {
       data, 
       totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) 
     };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
   }
 }
 
@@ -55,8 +55,8 @@ export async function getAdminTickets(page: number = 1) {
       data, 
       totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) 
     };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
   }
 }
 
@@ -80,13 +80,9 @@ export async function getAdminTeams(page: number = 1) {
 
     const [totalResult] = await db.select({ value: count() }).from(teams);
     
-    return { 
-      success: true, 
-      data, 
-      totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) 
-    };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+    return { success: true, data, totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
   }
 }
 
@@ -94,12 +90,12 @@ export async function updateTicketStatus(ticketId: string, status: string) {
   try {
     await db.update(tickets)
       .set({ status })
-      .where(eq(tickets.id, ticketId as any));
+      .where(eq(tickets.id, ticketId));
     
     revalidatePath("/admin");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
   }
 }
 
@@ -113,7 +109,89 @@ export async function deleteUser(userId: string) {
     
     revalidatePath("/admin");
     return { success: true };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete user" };
+  }
+}
+
+export async function getAdminEvents(page: number = 1) {
+  try {
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+    const data = await db.select().from(events).orderBy(desc(events.createdAt)).limit(ITEMS_PER_PAGE).offset(offset);
+    const [totalResult] = await db.select({ value: count() }).from(events);
+    return { success: true, data, totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "Failed to fetch events" };
+  }
+}
+
+export async function getAllDataForExport(type: "users" | "tickets" | "teams" | "events" | "participants") {
+  try {
+    if (type === "users") return await db.select().from(users);
+    if (type === "tickets") return await db.select().from(tickets);
+    if (type === "teams") return await db.select().from(teams);
+    if (type === "events") return await db.select().from(events);
+    if (type === "participants") {
+      return await db.select({
+        userName: users.displayName,
+        userEmail: users.email,
+        teamName: teams.name,
+        eventName: events.name,
+        joinedAt: teamMembers.joinedAt
+      })
+      .from(teamMembers)
+      .innerJoin(users, eq(teamMembers.userId, users.id))
+      .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+      .innerJoin(events, eq(teams.eventId, events.id));
+    }
+    return [];
+  } catch (error) {
+    console.error(`Export failed for ${type}:`, error);
+    return [];
+  }
+}
+
+export async function getAdminParticipants(eventId?: string, page: number = 1) {
+  try {
+    const offset = (page - 1) * ITEMS_PER_PAGE;
+    
+    // If eventId provided, filter by event
+    let query = db.select({
+      userId: users.id,
+      userName: users.displayName,
+      userEmail: users.email,
+      teamName: teams.name,
+      eventName: events.name,
+      joinedAt: teamMembers.joinedAt
+    })
+    .from(teamMembers)
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+    .innerJoin(events, eq(teams.eventId, events.id));
+
+    if (eventId) {
+      // @ts-expect-error - drizzle type complexity
+      query = query.where(eq(teams.eventId, eventId));
+    }
+
+    const data = await query.limit(ITEMS_PER_PAGE).offset(offset);
+    
+    // Get total count
+    let countQuery = db.select({ value: count() }).from(teamMembers);
+    if (eventId) {
+       countQuery = db.select({ value: count() })
+        .from(teamMembers)
+        .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+        .where(eq(teams.eventId, eventId));
+    }
+    const [totalResult] = await countQuery;
+
+    return { 
+      success: true, 
+      data, 
+      totalPages: Math.ceil(Number(totalResult.value) / ITEMS_PER_PAGE) 
+    };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "Failed to fetch participants" };
   }
 }
