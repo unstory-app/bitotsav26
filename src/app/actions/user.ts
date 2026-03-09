@@ -77,6 +77,7 @@ export async function updateUserDetails(userId: string, details: {
   rollNo?: string;
   idCardImageUrl?: string;
   password?: string;
+  phoneNumber?: string;
 }) {
   try {
     const stackUser = await stackServerApp.getUser();

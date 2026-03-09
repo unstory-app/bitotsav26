@@ -13,7 +13,8 @@ import {
   ChevronRight, 
   ChevronLeft,
   Loader2,
-  Lock
+  Lock,
+  Phone
 } from "lucide-react";
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
@@ -22,10 +23,11 @@ import { getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actio
 
 const steps = [
   { id: "identity", title: "IDENTITY MINTING", icon: UserIcon, subtitle: "STEP 01 // PERSONAL SIGIL" },
-  { id: "lineage", title: "PROOF OF LINEAGE", icon: School, subtitle: "STEP 02 // ACADEMIC BONDS" },
-  { id: "sigil", title: "DIGITAL SIGIL", icon: Ticket, subtitle: "STEP 03 // VISUAL MARK" },
-  { id: "security", title: "SECURITY OVERRIDE", icon: Key, subtitle: "STEP 04 // RECOVERY SEAL" },
-  { id: "finalize", title: "FINAL SEALING", icon: ShieldCheck, subtitle: "STEP 05 // PASS GENERATION" },
+  { id: "contact", title: "CONTACT SIGIL", icon: Phone, subtitle: "STEP 02 // COMMUNICATION WAVE" },
+  { id: "lineage", title: "PROOF OF LINEAGE", icon: School, subtitle: "STEP 03 // ACADEMIC BONDS" },
+  { id: "sigil", title: "DIGITAL SIGIL", icon: Ticket, subtitle: "STEP 04 // VISUAL MARK" },
+  { id: "security", title: "SECURITY OVERRIDE", icon: Key, subtitle: "STEP 05 // RECOVERY SEAL" },
+  { id: "finalize", title: "FINAL SEALING", icon: ShieldCheck, subtitle: "STEP 06 // PASS GENERATION" },
 ];
 
 export default function TicketsClient() {
@@ -36,6 +38,7 @@ export default function TicketsClient() {
   const [hasUserTicket, setHasUserTicket] = useState(false);
   const [form, setForm] = useState({
     displayName: "",
+    phoneNumber: "",
     rollNo: "",
     idCardImageUrl: "",
     password: "",
@@ -52,6 +55,7 @@ export default function TicketsClient() {
         if (dbUser) {
           setForm({
             displayName: dbUser.displayName || user.displayName || "",
+            phoneNumber: dbUser.phoneNumber || "",
             rollNo: dbUser.rollNo || "",
             idCardImageUrl: dbUser.idCardImageUrl || user.profileImageUrl || "",
             password: dbUser.password || "",
@@ -139,7 +143,6 @@ export default function TicketsClient() {
     );
   }
 
-  // If not messra, show tiers (placeholder / upcoming)
   if (!isBitMesra) {
     return (
       <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
@@ -183,7 +186,6 @@ export default function TicketsClient() {
         </div>
 
         <div className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 relative overflow-hidden">
-          {/* Progress Bar */}
           <div className="h-1 bg-white/10 flex">
             {steps.map((_, i) => (
               <div 
@@ -232,6 +234,19 @@ export default function TicketsClient() {
 
                   {activeStep === 1 && (
                      <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">CONTACT NUMBER</label>
+                        <input 
+                          type="tel"
+                          value={form.phoneNumber}
+                          onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
+                          placeholder="+91 XXXXX XXXXX"
+                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
+                        />
+                     </div>
+                  )}
+
+                  {activeStep === 2 && (
+                     <div className="space-y-4">
                         <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">UNIVERSITY ROLL NUMBER</label>
                         <input 
                           type="text"
@@ -243,7 +258,7 @@ export default function TicketsClient() {
                      </div>
                   )}
 
-                  {activeStep === 2 && (
+                  {activeStep === 3 && (
                      <div className="space-y-4">
                         <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">PROFILE / ID IMAGE URL</label>
                         <input 
@@ -257,7 +272,7 @@ export default function TicketsClient() {
                      </div>
                   )}
 
-                  {activeStep === 3 && (
+                  {activeStep === 4 && (
                      <div className="space-y-6">
                         <div className="p-8 bg-red-600/5 border-l-4 border-red-600 flex items-start gap-6">
                            <Lock className="w-8 h-8 text-red-600 shrink-0" />
@@ -278,7 +293,7 @@ export default function TicketsClient() {
                      </div>
                   )}
 
-                  {activeStep === 4 && (
+                  {activeStep === 5 && (
                      <div className="space-y-8">
                         <div className="p-8 bg-white/5 border-2 border-white/10 relative">
                            <div className="absolute top-4 right-4 text-[#D4AF37]">
@@ -289,6 +304,10 @@ export default function TicketsClient() {
                               <div className="flex justify-between border-b border-white/5 pb-2">
                                  <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">NAME</span>
                                  <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.displayName}</span>
+                              </div>
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">PHONE</span>
+                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.phoneNumber}</span>
                               </div>
                               <div className="flex justify-between border-b border-white/5 pb-2">
                                  <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">ROLL NO</span>
@@ -321,7 +340,7 @@ export default function TicketsClient() {
                    <button 
                      onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
                      disabled={loading}
-                     className="flex-[2] py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all font-heading flex items-center justify-center gap-4 group"
+                     className="flex-2 py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all font-heading flex items-center justify-center gap-4 group"
                    >
                      {loading ? (
                        <Loader2 className="w-6 h-6 animate-spin" />

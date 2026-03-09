@@ -11,7 +11,21 @@ export async function getAdminUsers(page: number = 1) {
   try {
     const offset = (page - 1) * ITEMS_PER_PAGE;
     
-    const data = await db.select()
+    const data = await db.select({
+      id: users.id,
+      email: users.email,
+      displayName: users.displayName,
+      profileImageUrl: users.profileImageUrl,
+      qrData: users.qrData,
+      isBitMesra: users.isBitMesra,
+      collegeName: users.collegeName,
+      rollNo: users.rollNo,
+      idCardImageUrl: users.idCardImageUrl,
+      password: users.password,
+      phoneNumber: users.phoneNumber,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    })
       .from(users)
       .orderBy(desc(users.createdAt))
       .limit(ITEMS_PER_PAGE)
@@ -69,6 +83,7 @@ export async function getAdminTeams(page: number = 1) {
       name: teams.name,
       code: teams.code,
       leaderName: users.displayName,
+      points: teams.points,
       createdAt: teams.createdAt,
     })
     .from(teams)
@@ -134,7 +149,18 @@ export async function getAdminEvents(page: number = 1) {
 
 export async function getAllDataForExport(type: "users" | "tickets" | "teams" | "events" | "participants") {
   try {
-    if (type === "users") return await db.select().from(users);
+    if (type === "users") {
+      return await db.select({
+        id: users.id,
+        email: users.email,
+        displayName: users.displayName,
+        phoneNumber: users.phoneNumber,
+        isBitMesra: users.isBitMesra,
+        collegeName: users.collegeName,
+        rollNo: users.rollNo,
+        createdAt: users.createdAt,
+      }).from(users);
+    }
     if (type === "tickets") return await db.select().from(tickets);
     if (type === "teams") {
       const teamsList = await db.select().from(teams);
@@ -214,5 +240,16 @@ export async function getAdminParticipants(eventId?: string, page: number = 1) {
     };
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : "Failed to fetch participants" };
+  }
+}
+
+export async function updateTeamPoints(teamId: string, points: number) {
+  try {
+    await db.update(teams).set({ points }).where(eq(teams.id, teamId));
+    revalidatePath("/admin");
+    revalidatePath("/leaderboard");
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "Failed to update points" };
   }
 }

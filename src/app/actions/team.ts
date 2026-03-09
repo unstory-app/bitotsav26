@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { teams, teamMembers, users, teamEvents } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 // Helper to generate a unique team code
@@ -167,5 +167,25 @@ export async function getUserTeams(userId: string) {
   } catch (error) {
     console.error("Get user teams error:", error);
     return [];
+  }
+}
+
+export async function getLeaderboard(limit = 50) {
+  try {
+    const leaderboardData = await db.select({
+      id: teams.id,
+      name: teams.name,
+      points: teams.points,
+      leaderName: users.displayName,
+    })
+    .from(teams)
+    .innerJoin(users, eq(teams.leaderId, users.id))
+    .orderBy(desc(teams.points))
+    .limit(limit);
+
+    return { success: true, data: leaderboardData };
+  } catch (error) {
+    console.error("Get leaderboard error:", error);
+    return { success: false, message: "Failed to fetch leaderboard." };
   }
 }

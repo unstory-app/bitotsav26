@@ -12,7 +12,6 @@ import {
   CheckCircle,
   AlertTriangle
 } from "lucide-react";
-import { PageWrapper } from "@/components/ui/page-wrapper";
 import { 
   getAdminUsers, 
   getAdminTickets, 
@@ -21,7 +20,8 @@ import {
   getAdminParticipants,
   updateTicketStatus,
   deleteUser,
-  getAllDataForExport
+  getAllDataForExport,
+  updateTeamPoints
 } from "@/app/actions/admin";
 import { createEvent as createEventAction } from "@/app/actions/events";
 import { cn } from "@/lib/utils";
@@ -29,9 +29,9 @@ import { Download, Plus } from "lucide-react";
 
 type Tab = "users" | "tickets" | "teams" | "events" | "participants";
 
-interface AdminUser { id: string; displayName: string | null; email: string; isBitMesra: boolean; rollNo?: string | null; collegeName?: string | null; password?: string | null; createdAt: string | Date; }
+interface AdminUser { id: string; displayName: string | null; email: string; isBitMesra: boolean; rollNo?: string | null; collegeName?: string | null; password?: string | null; phoneNumber?: string | null; createdAt: string | Date; }
 interface AdminTicket { id: string; userName: string | null; userEmail: string; ticketType: string; status: string; issuedAt: string | Date; }
-interface AdminTeam { id: string; name: string; code: string; events: string[]; leaderName: string | null; createdAt: string | Date; }
+interface AdminTeam { id: string; name: string; code: string; events: string[]; leaderName: string | null; points: number; createdAt: string | Date; }
 interface AdminEvent { id: string; name: string; organizer: string | null; venue: string | null; category: string | null; about: string | null; createdAt: string | Date; }
 interface AdminParticipant { id?: string; userId: string; userName: string | null; userEmail: string; teamName: string; eventName: string; joinedAt: string | Date; }
 
@@ -94,17 +94,13 @@ export default function AdminDashboard() {
   const handleExport = async () => {
     const rawData = await getAllDataForExport(activeTab as Tab);
     if (!rawData || rawData.length === 0) return alert("No data to export");
-    
-    // Simple CSV conversion
     const headers = Object.keys(rawData[0]).join(",");
     const rows = rawData.map(row => 
       Object.values(row).map(val => `"${val?.toString().replace(/"/g, '""')}"`).join(",")
     ).join("\n");
-    
-    const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows;
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = "data:text/csv;charset=utf-8," + btoa(unescape(encodeURIComponent(headers + "\n" + rows)));
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", csvContent);
     link.setAttribute("download", `bitotsav_${activeTab}_${new Date().toISOString()}.csv`);
     document.body.appendChild(link);
     link.click();
@@ -122,85 +118,100 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdatePoints = async (teamId: string, currentPoints: number, delta: number) => {
+    const newPoints = Math.max(0, currentPoints + delta);
+    const res = await updateTeamPoints(teamId, newPoints);
+    if (res.success) fetchData();
+  };
+
   return (
-    <PageWrapper className="min-h-screen bg-[#1A0505] pt-32 pb-20 overflow-hidden">
-      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-5" />
-      
-      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
-          <div className="border-l-8 border-[#D4AF37] pl-8 py-4">
-            <h1 className="text-5xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-2 font-heading">
-              DATA <span className="text-[#D4AF37]">NEXUS.</span>
-            </h1>
-            <p className="text-xs text-[#D4AF37]/40 font-black uppercase tracking-[0.4em] font-heading">CORE ADMINISTRATIVE INTERFACE // BITOTSAV &apos;26</p>
+    <div className="min-h-screen bg-[#0A0505] flex overflow-hidden font-heading">
+      {/* Sidebar */}
+      <aside className="w-72 bg-[#140808] border-r border-[#D4AF37]/10 flex flex-col z-50">
+        <div className="p-8 border-b border-[#D4AF37]/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 bg-[#D4AF37] flex items-center justify-center font-black italic text-black text-sm">N</div>
+            <h2 className="text-xl font-black italic text-[#FDF5E6] uppercase tracking-tighter">NEXUS.</h2>
           </div>
-          
-          <div className="flex gap-4">
-             <div className="p-4 bg-white/5 border border-white/10 text-center">
-                <p className="text-[8px] font-black uppercase text-[#D4AF37]">SYSTEM STATUS</p>
-                <p className="text-xs font-black text-green-500 uppercase">OPERATIONAL</p>
-             </div>
-             <div className="p-4 bg-white/5 border border-white/10 text-center">
-                <p className="text-[8px] font-black uppercase text-[#D4AF37]">REGISTRATIONS</p>
-                <p className="text-xs font-black text-[#FDF5E6] uppercase">LIVE</p>
-             </div>
-          </div>
+          <p className="text-[8px] text-[#D4AF37]/40 font-black uppercase tracking-[0.4em]">ADMIN v2.0</p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 border-b-2 border-white/5">
-          <div className="flex gap-4 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
-            {(["users", "tickets", "teams", "events", "participants"] as Tab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setPage(1); }}
-                className={cn(
-                  "pb-6 px-4 text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap font-heading",
-                  activeTab === tab ? "text-[#D4AF37]" : "text-[#FDF5E6]/30 hover:text-[#FDF5E6]/60"
-                )}
-              >
-                {tab}
-                {activeTab === tab && (
-                  <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#D4AF37]" />
-                )}
-              </button>
-            ))}
-          </div>
-          
-          <div className="flex gap-4 pb-6 md:pb-0">
-            {activeTab === "events" && (
-              <button 
-                onClick={() => setIsAddEventOpen(true)}
-                className="px-6 py-3 bg-[#D4AF37] text-[#1A0505] text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all font-heading"
-              >
-                <Plus className="w-4 h-4" /> ADD EVENT
-              </button>
-            )}
-            <button 
-              onClick={handleExport}
-              className="px-6 py-3 bg-white/5 border border-white/10 text-[#FDF5E6] text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/10 transition-all font-heading"
+        <nav className="flex-1 p-6 space-y-2">
+          {(["users", "tickets", "teams", "events", "participants"] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); setPage(1); }}
+              className={cn(
+                "w-full p-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] transition-all group relative",
+                activeTab === tab 
+                  ? "bg-[#D4AF37] text-black" 
+                  : "text-[#FDF5E6]/40 hover:bg-white/5 hover:text-[#FDF5E6]"
+              )}
             >
-              <Download className="w-4 h-4" /> EXPORT CSV
+              {tab}
+              {activeTab === tab && <div className="absolute left-0 w-1 h-1/2 bg-black top-1/4" />}
             </button>
-          </div>
-        </div>
+          ))}
+        </nav>
 
-        {/* Filters/Search Placeholder */}
-        <div className="flex flex-col md:flex-row gap-6 mb-12">
-           <div className="flex-1 relative">
-             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#D4AF37]/40" />
-             <input 
-              type="text" 
-              placeholder={`SEARCH IN ${activeTab.toUpperCase()}...`}
-              className="w-full bg-white/5 border-2 border-[#D4AF37]/10 p-4 pl-12 text-xs font-black uppercase tracking-widest text-[#FDF5E6] outline-hidden focus:border-[#D4AF37]/30 font-heading"
-             />
+        <div className="p-8 border-t border-[#D4AF37]/10">
+           <div className="p-4 bg-white/5 border border-white/10 space-y-2 text-center">
+              <p className="text-[8px] font-black uppercase text-[#D4AF37]/60">SERVER STATUS</p>
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <p className="text-[10px] font-black text-[#FDF5E6] uppercase">OPERATIONAL</p>
+              </div>
            </div>
-           <button className="px-6 py-4 bg-white/5 border-2 border-white/10 flex items-center gap-3 text-xs font-black uppercase text-[#FDF5E6]/40 hover:bg-white/10 transition-all font-heading">
-             <Filter className="w-4 h-4" />
-             FILTER
-           </button>
         </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto bg-[#0A0505] relative pt-12">
+        <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-5" />
+        
+        <div className="max-w-6xl mx-auto px-8 pb-20 relative z-10">
+          {/* Top Bar */}
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h1 className="text-6xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-1 select-none">
+                {activeTab} <span className="text-[#D4AF37]">DATA.</span>
+              </h1>
+              <p className="text-[10px] text-[#D4AF37]/40 font-black uppercase tracking-[0.3em]">MANAGE PLATFORM INTEGRITY // BITOTSAV &apos;26</p>
+            </div>
+            
+            <div className="flex gap-4">
+              {activeTab === "events" && (
+                <button 
+                  onClick={() => setIsAddEventOpen(true)}
+                  className="px-6 py-4 bg-[#D4AF37] text-black text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all"
+                >
+                  <Plus className="w-4 h-4" /> ADD EVENT
+                </button>
+              )}
+              <button 
+                onClick={handleExport}
+                className="px-6 py-4 bg-white/5 border border-white/10 text-[#FDF5E6] text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/10 transition-all font-heading"
+              >
+                <Download className="w-4 h-4" /> EXPORT CSV
+              </button>
+            </div>
+          </div>
+
+          {/* Search/Filter Bar */}
+          <div className="flex gap-6 mb-12">
+             <div className="flex-1 relative group">
+               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-[#D4AF37]/40 group-focus-within:text-[#D4AF37] transition-colors" />
+               <input 
+                type="text" 
+                placeholder={`FILTER ${activeTab.toUpperCase()} BY IDENTITY...`}
+                className="w-full bg-white/5 border border-white/10 p-5 pl-14 text-xs font-black uppercase tracking-widest text-[#FDF5E6] outline-hidden focus:border-[#D4AF37]/50 transition-all"
+               />
+             </div>
+             <button className="px-8 py-4 bg-white/5 border border-white/10 flex items-center gap-3 text-xs font-black uppercase text-[#FDF5E6]/40 hover:text-[#D4AF37] transition-all">
+               <Filter className="w-4 h-4" />
+               ADVANCED
+             </button>
+          </div>
 
         {/* Data Table */}
         <div className="bg-white/2 border-2 border-white/5 relative overflow-hidden">
@@ -278,6 +289,7 @@ export default function AdminDashboard() {
                               <div className="flex flex-col">
                                 <span className="text-xs font-black uppercase text-[#FDF5E6]">{user.displayName || "GUEST"}</span>
                                 <span className="text-[8px] text-[#D4AF37]/60 font-black uppercase">{user.email}</span>
+                                <span className="text-[8px] text-[#FDF5E6]/40 font-black uppercase mt-1">{user.phoneNumber || "NO PHONE"}</span>
                               </div>
                             </td>
                             <td className="p-6">
@@ -356,7 +368,16 @@ export default function AdminDashboard() {
                         return (
                           <motion.tr key={team.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="hover:bg-white/2 transition-colors group">
                             <td className="p-6 font-mono text-xs font-black text-[#D4AF37]">{team.code}</td>
-                            <td className="p-6 text-xs font-black uppercase text-[#FDF5E6]">{team.name}</td>
+                            <td className="p-6">
+                               <div className="flex flex-col">
+                                 <span className="text-xs font-black uppercase text-[#FDF5E6]">{team.name}</span>
+                                 <div className="flex items-center gap-2 mt-2">
+                                    <button onClick={() => handleUpdatePoints(team.id, team.points, -10)} className="w-6 h-6 border border-white/10 text-[10px] flex items-center justify-center hover:bg-white/10">-</button>
+                                    <span className="px-3 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-[10px] font-black">{team.points} PTS</span>
+                                    <button onClick={() => handleUpdatePoints(team.id, team.points, 10)} className="w-6 h-6 border border-white/10 text-[10px] flex items-center justify-center hover:bg-white/10">+</button>
+                                 </div>
+                               </div>
+                            </td>
                             <td className="p-6 text-[10px] font-black uppercase text-[#FDF5E6]/60">{team.leaderName}</td>
                             <td className="p-6">
                               <div className="flex flex-wrap gap-2">
@@ -423,6 +444,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      </main>
 
       {/* Add Event Modal */}
       <AnimatePresence>
@@ -481,6 +503,6 @@ export default function AdminDashboard() {
           </div>
         )}
       </AnimatePresence>
-    </PageWrapper>
+    </div>
   );
 }
