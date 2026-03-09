@@ -20,7 +20,7 @@ export const tickets = pgTable("tickets", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id").references(() => users.id).notNull(),
   ticketType: text("ticket_type").notNull(), // e.g., "Regular", "VIP"
-  status: text("status").notNull().default("pending"), // pending, confirmed, cancelled
+  status: text("status").notNull().default("confirmed"), // pending, confirmed, cancelled
   day0Scan: boolean("day0_scan").notNull().default(false),
   day1Scan: boolean("day1_scan").notNull().default(false),
   day2Scan: boolean("day2_scan").notNull().default(false),

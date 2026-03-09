@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Check, 
-  Ticket, 
   ShieldCheck, 
-  Zap, 
+  Ticket, 
   User as UserIcon, 
   School, 
   Key, 
@@ -14,10 +12,20 @@ import {
   ChevronLeft,
   Loader2,
   Lock,
-  Phone
+  Phone,
+  Eye,
+  EyeOff,
+  Printer,
+  Sparkles,
+  Award,
+  Fingerprint,
+  QrCode,
+  CheckCircle
 } from "lucide-react";
+import NextImage from "next/image";
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actions/user";
 
@@ -43,6 +51,9 @@ export default function TicketsClient() {
     idCardImageUrl: "",
     password: "",
   });
+  const [dbUser, setDbUser] = useState<any>(null);
+  const [showPass, setShowPass] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   const isBitMesra = user?.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
 
@@ -50,15 +61,16 @@ export default function TicketsClient() {
     async function checkStatus() {
       if (user) {
         const ticketExists = await hasTicket(user.id);
-        const dbUser = await getUser(user.id);
+        const existingDbUser = await getUser(user.id);
         setHasUserTicket(ticketExists);
-        if (dbUser) {
+        if (existingDbUser) {
+          setDbUser(existingDbUser);
           setForm({
-            displayName: dbUser.displayName || user.displayName || "",
-            phoneNumber: dbUser.phoneNumber || "",
-            rollNo: dbUser.rollNo || "",
-            idCardImageUrl: dbUser.idCardImageUrl || user.profileImageUrl || "",
-            password: dbUser.password || "",
+            displayName: existingDbUser.displayName || user.displayName || "",
+            phoneNumber: existingDbUser.phoneNumber || "",
+            rollNo: existingDbUser.rollNo || "",
+            idCardImageUrl: existingDbUser.idCardImageUrl || user.profileImageUrl || "",
+            password: existingDbUser.password || "",
           });
         }
       }
@@ -66,6 +78,28 @@ export default function TicketsClient() {
     }
     checkStatus();
   }, [user]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const card = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - card.left;
+    const y = e.clientY - card.top;
+    const centerX = card.width / 2;
+    const centerY = card.height / 2;
+    const rotateX = (y - centerY) / 20;
+    const rotateY = (centerX - x) / 20;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+
+  const qrData = hasUserTicket ? encodeURIComponent(JSON.stringify({ 
+    id: btoa(user?.primaryEmail || user?.id || ""), 
+    name: dbUser?.displayName || user?.displayName || "Guest", 
+    type: "HERITAGE_ARTISAN_PASS", 
+    valid: true 
+  })) : "";
+
+  const qrUrl = hasUserTicket ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${qrData}&bgcolor=FDF5E6&color=1A0505&format=svg` : "";
 
   const handleNext = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
@@ -78,7 +112,7 @@ export default function TicketsClient() {
       if (updateResult.success) {
         const ticketResult = await createTicket(user.id);
         if (ticketResult.success) {
-          window.location.href = "/profile";
+          window.location.reload();
         }
       }
     } catch (error) {
@@ -90,25 +124,43 @@ export default function TicketsClient() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#1A0505] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-[#D4AF37] animate-spin" />
-      </div>
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center">
+            <Skeleton className="w-full max-w-[500px] aspect-[1/1.6] rounded-[2rem] mb-12" />
+            <div className="w-full max-w-[450px] space-y-8">
+              <Skeleton className="h-12 w-3/4 rounded-lg" />
+              <Skeleton className="h-24 w-full rounded-xl" />
+              <Skeleton className="h-[400px] w-full rounded-[2.5rem]" />
+            </div>
+        </div>
+      </PageWrapper>
     );
   }
 
   if (!user) {
     return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-8 max-w-2xl px-6">
-           <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">
-             ACCESS <span className="text-[#D4AF37]">DENIED.</span>
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 opacity-10 tapestry-pattern" />
+        <div className="relative z-10 text-center space-y-12 max-w-2xl px-6">
+           <motion.div
+             initial={{ scale: 0.8, opacity: 0 }}
+             animate={{ scale: 1, opacity: 1 }}
+             transition={{ duration: 0.8 }}
+             className="inline-block p-1 bg-linear-to-b from-[#D4AF37] to-transparent"
+           >
+             <div className="bg-[#1A0505] p-8">
+               <Lock className="w-12 h-12 text-[#D4AF37]" />
+             </div>
+           </motion.div>
+           <h1 className="text-7xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none font-heading">
+             HERITAGE <br/> <span className="text-[#D4AF37]">LOCKED.</span>
            </h1>
-           <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-widest font-heading">
-             LOG IN TO REVEAL YOUR AUTHORIZATION TIER.
+           <p className="text-[#FDF5E6]/40 text-sm md:text-lg font-black uppercase tracking-[0.5em] font-heading">
+             REVEAL YOUR LINEAGE TO ACCESS THE SANCTUARY
            </p>
            <button 
              onClick={() => window.location.href = "/handler/sign-in"}
-             className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 transition-all font-heading"
+             className="w-full py-6 bg-linear-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B] text-[#1A0505] font-black uppercase tracking-[0.3em] text-xs hover:tracking-[0.5em] transition-all font-heading shadow-[0_0_50px_rgba(212,175,55,0.3)]"
            >
              VERIFY IDENTITY
            </button>
@@ -119,294 +171,416 @@ export default function TicketsClient() {
 
   if (hasUserTicket) {
     return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen flex items-center justify-center relative overflow-hidden tapestry-bg">
-        <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center space-y-12 max-w-4xl px-6 relative z-10"
-        >
-           <div className="flex justify-center mb-4">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-[#D4AF37]/20 blur-3xl rounded-full group-hover:bg-[#D4AF37]/40 transition-all" />
-                <div className="p-10 bg-[#1A0505] border-2 border-[#D4AF37] text-[#D4AF37] relative z-10">
-                  <ShieldCheck className="w-20 h-20" />
-                </div>
-              </div>
-           </div>
-           
-           <div className="space-y-4">
-              <h1 className="text-7xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading leading-none">
-                HERITAGE <span className="text-[#D4AF37]">SEALED.</span>
-              </h1>
-              <p className="text-[#FDF5E6]/40 text-xl font-black uppercase tracking-[0.4em] font-heading">
-                YOUR LINEAGE HAS BEEN VERIFIED // THE 35TH EDITION
-              </p>
-           </div>
-
-           <div className="p-1 bg-[#D4AF37]/20 inline-block">
-             <div className="px-8 py-4 bg-[#1A0505] border border-[#D4AF37]/40">
-                <p className="text-[#D4AF37] text-xs font-black uppercase tracking-widest font-heading">ARTISAN PASS #35-{user.id.slice(-6).toUpperCase()}</p>
-             </div>
-           </div>
-
-           <div className="pt-8">
-             <button 
-               onClick={() => window.location.href = "/profile"}
-               className="px-16 py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.3em] text-sm hover:scale-105 active:scale-95 transition-all font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)]"
-             >
-               REVEAL PASS AT HUB
-             </button>
-           </div>
-        </motion.div>
-      </PageWrapper>
-    );
-  }
-
-  if (!isBitMesra) {
-    return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
+      <PageWrapper className="pt-24 md:pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
         <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
         
-        <div className="max-w-7xl mx-auto px-6 mb-24 relative z-10">
-           <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none mb-4 font-heading">
-             THE <span className="text-[#D4AF37]">STORY.</span>
-           </h1>
-           <p className="text-xl text-[#FDF5E6]/40 font-black uppercase tracking-[0.3em] font-heading">
-             EXTERNAL PARTICIPATION // HERITAGE AWAITS
-           </p>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                <div className="space-y-10">
-                    <p className="text-2xl md:text-4xl text-[#FDF5E6]/60 font-black italic uppercase leading-tight font-heading">
-                      The Gaatha is not built on <span className="text-[#D4AF37]">Isolation</span>, but on <span className="text-[#D4AF37]">Unity</span>. 
-                    </p>
-                    <div className="p-10 border-l-4 border-[#D4AF37] bg-white/5 space-y-6">
-                        <p className="text-[#FDF5E6]/80 text-sm md:text-lg leading-relaxed font-heading uppercase font-black tracking-wider">
-                           While direct ticket minting is currently reserved for the architects of the host ground, every squadron is welcome to the battlefield.
-                        </p>
-                        <div className="pt-4">
-                           <button 
-                             onClick={() => window.location.href = "/events"}
-                             className="px-10 py-5 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all font-heading"
-                           >
-                             JOIN THE SQUADRON HUB
-                           </button>
-                        </div>
-                    </div>
-                </div>
-                <div className="relative aspect-square opacity-40 grayscale group hover:opacity-100 hover:grayscale-0 transition-all duration-1000">
-                    <div className="absolute inset-0 border-2 border-[#D4AF37]/20 group-hover:border-[#D4AF37] transition-all" />
-                    <div className="absolute -top-4 -left-4 w-20 h-20 border-t-4 border-l-4 border-[#D4AF37]" />
-                    <div className="absolute -bottom-4 -right-4 w-20 h-20 border-b-4 border-r-4 border-[#D4AF37]" />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src="https://images.unsplash.com/photo-1514525253361-bee200e5728a?auto=format&fit=crop&q=80" 
-                      alt="Heritage Heritage" 
-                      className="w-full h-full object-cover p-4"
-                    />
-                </div>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10 flex flex-col items-center">
+          {/* Header Protocol */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full flex justify-between items-center mb-12 md:mb-20 print:hidden"
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-12 h-12 rounded-full border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] relative overflow-hidden group">
+                <div className="absolute inset-0 bg-[#D4AF37] opacity-0 group-hover:opacity-10 transition-opacity" />
+                <Award className="w-5 h-5" />
+              </div>
+              <div className="hidden md:block">
+                <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] opacity-40 font-heading">PROTOCOL ACTIVE</p>
+                <p className="text-xs font-black uppercase text-[#FDF5E6] tracking-tighter font-heading">HERITAGE_MINT_35</p>
+              </div>
             </div>
+
+            <button 
+                onClick={() => window.location.href = "/profile"}
+                className="px-6 py-3 border-2 border-[#D4AF37]/20 text-[#D4AF37]/60 text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all font-heading"
+            >
+                <ChevronLeft className="w-3 h-3" />
+                RETURN TO HUB
+            </button>
+          </motion.div>
+
+          {/* Pass Container */}
+          <div className="w-full flex flex-col xl:flex-row gap-12 items-center xl:items-start justify-center">
+            {/* The Cinematic Artifact */}
+            <motion.div
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                perspective: 1000,
+              }}
+              className="relative w-full max-w-[500px] aspect-[1/1.6] group print:max-w-none print:aspect-auto"
+            >
+              <motion.div
+                animate={{
+                  rotateX: tilt.x,
+                  rotateY: tilt.y,
+                }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                className="relative w-full h-full bg-[#FDF5E6] rounded-[2rem] overflow-hidden border-8 border-[#1A0505] shadow-[0_50px_100px_rgba(0,0,0,0.5)] transition-shadow hover:shadow-[#D4AF37]/10 stamp-edge"
+              >
+                {/* Background Textures */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none tapestry-pattern contrast-[2] mix-blend-multiply" />
+                <div className="absolute inset-0 bg-linear-to-b from-[#D4AF37]/5 to-transparent pointer-events-none" />
+
+                {/* Left Side Trim */}
+                <div className="absolute top-0 left-0 h-full w-12 bg-[#1A0505] flex flex-col items-center justify-between py-12">
+                   <div className="text-[8px] font-black uppercase tracking-[0.5em] text-[#D4AF37] opacity-40 rotate-180 [writing-mode:vertical-lr] font-heading">
+                      BITOTSAV MMXXVI
+                   </div>
+                   <div className="w-4 h-4 rounded-full border border-[#D4AF37]/20" />
+                   <div className="text-[8px] font-black uppercase tracking-[0.5em] text-[#D4AF37] opacity-40 rotate-180 [writing-mode:vertical-lr] font-heading">
+                      ARTIFACT NO. {user.id.slice(-8).toUpperCase()}
+                   </div>
+                </div>
+
+                {/* Main Content Area */}
+                <div className="ml-12 h-full flex flex-col p-10 md:p-14">
+                  {/* Top Bar */}
+                  <div className="flex justify-between items-start mb-12">
+                     <div className="space-y-1">
+                        <div className="px-3 py-1 bg-[#1A0505] text-[#D4AF37] text-[7px] font-black uppercase tracking-[0.3em] rounded-full inline-block font-heading">
+                           AUTHENTIC PASS
+                        </div>
+                        <h3 className="text-3xl font-black italic text-[#1A0505] tracking-tighter leading-none font-heading">
+                          HERITAGE <br/> <span className="text-[#D4AF37]">ARTISAN.</span>
+                        </h3>
+                     </div>
+                     <div className="w-16 h-16 bg-[#1A0505] rounded-2xl flex items-center justify-center transform rotate-12 -mr-4 mt-2">
+                        <ShieldCheck className="w-8 h-8 text-[#D4AF37]" />
+                     </div>
+                  </div>
+
+                  {/* Member Section */}
+                  <div className="relative flex-1">
+                    <div className="aspect-square relative mb-8">
+                       <div className="absolute inset-0 border-4 border-[#1A0505]/10 rounded-3xl" />
+                       <div className="absolute -top-4 -right-4 w-12 h-12 bg-[#D4AF37] rounded-full flex items-center justify-center border-4 border-[#FDF5E6] z-20">
+                          <CheckCircle className="w-6 h-6 text-[#1A0505]" />
+                       </div>
+                       <div className="w-full h-full rounded-3xl overflow-hidden bg-white/50 backdrop-blur-xs relative group-hover:scale-105 transition-transform duration-700">
+                          {dbUser?.idCardImageUrl || user?.profileImageUrl ? (
+                                <NextImage 
+                                  src={dbUser?.idCardImageUrl || user?.profileImageUrl || ""} 
+                                  alt="Member" 
+                                  fill
+                                  className="object-cover grayscale-20 group-hover:grayscale-0 transition-all duration-700" 
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-8xl font-black italic text-[#1A0505]/10 font-heading">
+                                    {(dbUser?.displayName || user?.displayName || user?.primaryEmail || "?")[0]?.toUpperCase()}
+                                </div>
+                            )}
+                       </div>
+                    </div>
+
+                    <div className="space-y-4">
+                       <div className="space-y-1">
+                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1A0505]/40 font-heading">ARTISAN NAME</p>
+                         <h2 className="text-4xl md:text-5xl font-black italic text-[#1A0505] uppercase tracking-tighter leading-none font-heading underline decoration-[#D4AF37] decoration-4 underline-offset-4">
+                           {dbUser?.displayName || user?.displayName || "GUEST"}
+                         </h2>
+                       </div>
+
+                       <div className="grid grid-cols-2 gap-8 pt-8 border-t border-[#1A0505]/5">
+                          <div className="space-y-1">
+                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#1A0505]/30 font-heading">ORIGIN AFFILIATION</p>
+                            <p className="text-xs font-black uppercase text-[#1A0505] tracking-tighter font-heading">{isBitMesra ? "BIT MESRA" : dbUser?.collegeName || "CRAFTSMAN"}</p>
+                          </div>
+                          <div className="space-y-1 pl-4 border-l border-[#1A0505]/5">
+                            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#1A0505]/30 font-heading">VALIDITY</p>
+                            <p className="text-xs font-black uppercase text-[#D4AF37] tracking-tighter font-heading">MMXXVI CONFIRMED</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Pass Footer */}
+                  <div className="mt-auto flex justify-between items-end border-t-2 border-[#1A0505] pt-6">
+                     <div className="space-y-1">
+                        <p className="text-[7px] font-black uppercase tracking-[0.4em] text-[#1A0505]/40 font-heading">BITOTSAV 2026</p>
+                        <p className="text-[10px] font-black uppercase text-[#1A0505] font-heading">GAATHA GATEWAY</p>
+                     </div>
+                     <div className="text-right">
+                        <Fingerprint className="w-8 h-8 text-[#1A0505]/10 ml-auto mb-1" />
+                        <p className="text-[6px] font-black uppercase tracking-widest text-[#1A0505]/20 font-heading">{user.id}</p>
+                     </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Interaction Sanctuary */}
+            <div className="w-full max-w-[450px] space-y-8 flex flex-col justify-center print:hidden">
+              <div className="space-y-4 text-center md:text-left">
+                <h4 className="text-[#D4AF37] text-xs font-black uppercase tracking-[0.4em] font-heading">REVEAL PROTOCOL</h4>
+                <p className="text-[#FDF5E6]/40 text-sm font-black uppercase tracking-widest leading-relaxed font-heading">
+                  Present your digital sigil to the gate wardens for lineage verification and entry confirmation.
+                </p>
+              </div>
+
+              {/* Enhanced QR Section */}
+              <div className="relative">
+                <AnimatePresence>
+                  {!showPass && (
+                    <motion.button
+                      initial={{ opacity: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      onClick={() => setShowPass(true)}
+                      className="w-full aspect-square bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 flex flex-col items-center justify-center gap-6 group hover:bg-[#D4AF37]/10 transition-all rounded-[2.5rem]"
+                    >
+                      <div className="w-24 h-24 rounded-full bg-[#D4AF37] flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
+                        <Eye className="w-10 h-10 text-[#1A0505]" />
+                      </div>
+                      <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] font-heading animate-pulse">REVEAL DIGITAL SIGIL</p>
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {showPass && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="relative"
+                    >
+                      <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] relative group overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                           <QrCode className="w-32 h-32 text-black" />
+                        </div>
+                        <div className="relative w-full aspect-square">
+                          <NextImage 
+                            src={qrUrl} 
+                            alt="Validation Sigil" 
+                            fill
+                            className="grayscale hover:grayscale-0 transition-all duration-700 object-contain"
+                          />
+                        </div>
+                        <button 
+                          onClick={() => setShowPass(false)}
+                          className="absolute -top-12 inset-x-0 mx-auto w-32 py-2 bg-[#1A0505] border border-[#D4AF37] text-[#D4AF37] text-[8px] font-black uppercase tracking-widest font-heading rounded-full"
+                        >
+                          CLOSE SIGIL
+                        </button>
+                      </div>
+                      <div className="mt-8 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-4">
+                         <Sparkles className="w-5 h-5 text-green-500" />
+                         <p className="text-green-500 text-[10px] font-black uppercase tracking-widest font-heading">REAL-TIME VALIDATION READY</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Utility Grid */}
+              <div className="grid grid-cols-1 gap-4">
+                <button 
+                  onClick={() => window.print()}
+                  className="w-full py-6 flex items-center justify-center gap-4 bg-white/5 border border-white/10 text-[#FDF5E6]/60 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent transition-all font-heading"
+                >
+                  <Printer className="w-4 h-4" />
+                  INITIATE PHYSICAL LOG
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </PageWrapper>
     );
   }
 
+  // Minting Flow View (Keep the logic, wrap in a premium intake UI)
   const StepIcon = steps[activeStep].icon;
-
   return (
-    <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
-      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-15" />
+    <PageWrapper className="pt-24 md:pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
+      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
       
-      <div className="max-w-5xl mx-auto px-6 relative z-10">
-        <div className="mb-20">
-          <div className="flex items-center gap-4 mb-8">
-            <Zap className="w-6 h-6 text-[#D4AF37] animate-pulse" />
-            <span className="text-sm font-black uppercase tracking-[0.4em] text-[#D4AF37]">IDENTIFIED: BIT MESRA STUDENT</span>
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter font-heading">
-            MINT YOUR <br/> <span className="text-[#D4AF37]">ARTISAN PASS.</span>
-          </h1>
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
+        <div className="mb-20 text-center md:text-left">
+           <motion.div 
+             initial={{ x: -20, opacity: 0 }}
+             animate={{ x: 0, opacity: 1 }}
+             className="inline-flex items-center gap-3 px-4 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full mb-8"
+           >
+              <Fingerprint className="w-4 h-4 text-[#D4AF37]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">BIT MESRA INTAKE PROTOCOL</span>
+           </motion.div>
+           <h1 className="text-6xl md:text-8xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none font-heading">
+             MINT YOUR <br/> <span className="text-[#D4AF37]">HERITAGE.</span>
+           </h1>
         </div>
 
-        <div className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 relative overflow-hidden">
-          <div className="h-1 bg-white/10 flex">
-            {steps.map((_, i) => (
-              <div 
-                key={i} 
-                className={cn(
-                  "flex-1 h-full transition-all duration-700",
-                  i <= activeStep ? "bg-[#D4AF37]" : "bg-transparent"
-                )} 
-              />
-            ))}
-          </div>
+        <div className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 rounded-[2.5rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
+           {/* Progress Tracker */}
+           <div className="h-1.5 bg-white/5 flex gap-1">
+             {steps.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={cn(
+                    "flex-1 h-full transition-all duration-1000",
+                    i <= activeStep ? "bg-[#D4AF37] shadow-[0_0_15px_#D4AF37]" : "bg-white/5"
+                  )} 
+                />
+             ))}
+           </div>
 
-          <div className="p-8 md:p-16">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4 }}
-                className="space-y-12"
-              >
-                <div className="flex items-center gap-6">
-                  <div className="p-5 bg-[#D4AF37] text-[#1A0505]">
-                    <StepIcon className="w-10 h-10" />
+           <div className="p-8 md:p-20">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  className="space-y-16"
+                >
+                  <div className="flex flex-col md:flex-row items-center gap-10">
+                     <div className="w-24 h-24 bg-[#D4AF37] flex items-center justify-center rounded-3xl transform rotate-12 shadow-[10px_10px_0px_rgba(212,175,55,0.2)]">
+                        <StepIcon className="w-10 h-10 text-[#1A0505]" />
+                     </div>
+                     <div className="text-center md:text-left">
+                        <h2 className="text-4xl md:text-5xl font-black uppercase text-[#FDF5E6] font-heading leading-tight">{steps[activeStep].title}</h2>
+                        <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-[0.4em] font-heading mt-2">{steps[activeStep].subtitle}</p>
+                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-4xl font-black uppercase text-[#FDF5E6] font-heading">{steps[activeStep].title}</h2>
-                    <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">{steps[activeStep].subtitle}</p>
+
+                  <div className="min-h-[200px]">
+                    {activeStep === 0 && (
+                       <div className="space-y-6">
+                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">ENTER YOUR LEGAL IDENTITY TO BE ETCHED INTO THE ARCHIVES.</p>
+                          <input 
+                            type="text"
+                            value={form.displayName}
+                            onChange={(e) => setForm({...form, displayName: e.target.value})}
+                            placeholder="NAME AS PER RECORDS"
+                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                          />
+                       </div>
+                    )}
+
+                    {activeStep === 1 && (
+                       <div className="space-y-6">
+                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">FOR EMERGENCY TRANSMISSIONS AND VERIFICATION.</p>
+                          <input 
+                            type="tel"
+                            value={form.phoneNumber}
+                            onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
+                            placeholder="+91 XXXXX XXXXX"
+                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                          />
+                       </div>
+                    )}
+
+                    {activeStep === 2 && (
+                       <div className="space-y-6">
+                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">YOUR ACADEMIC SIGNIFIER AT THE INSTITUTE.</p>
+                          <input 
+                            type="text"
+                            value={form.rollNo}
+                            onChange={(e) => setForm({...form, rollNo: e.target.value.toUpperCase()})}
+                            placeholder="BTECH/1XXXX/2X"
+                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                          />
+                       </div>
+                    )}
+
+                    {activeStep === 3 && (
+                       <div className="space-y-6">
+                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">PASTE THE DIRECT URL OF YOUR IDENTIFICATION IMAGE.</p>
+                          <input 
+                            type="text"
+                            value={form.idCardImageUrl}
+                            onChange={(e) => setForm({...form, idCardImageUrl: e.target.value})}
+                            placeholder="HTTPS://IMAGE.URL"
+                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-2xl md:text-4xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                          />
+                       </div>
+                    )}
+
+                    {activeStep === 4 && (
+                       <div className="space-y-12">
+                          <div className="p-8 bg-red-600/10 border-2 border-red-600/20 rounded-3xl flex items-start gap-8">
+                             <Lock className="w-10 h-10 text-red-600 shrink-0 mt-1" />
+                             <div>
+                               <p className="text-red-600 font-black uppercase text-sm font-heading mb-2 tracking-tighter">CRITICAL: RECOVERY SEAL REQUIRED</p>
+                               <p className="text-red-600/60 text-[10px] font-black uppercase leading-relaxed tracking-wider font-heading">
+                                 WE REQUIRE A SECONDARY SEAL TO VERIFY YOUR LINEAGE MANUALLY AT THE GATES IF DEVICES FAIL. DO NOT FORGET THIS SEAL.
+                               </p>
+                             </div>
+                          </div>
+                          <input 
+                            type="password"
+                            value={form.password}
+                            onChange={(e) => setForm({...form, password: e.target.value})}
+                            placeholder="••••••••"
+                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                          />
+                       </div>
+                    )}
+
+                    {activeStep === 5 && (
+                       <div className="space-y-8">
+                          <div className="p-10 bg-white/5 border border-white/10 rounded-3xl relative group overflow-hidden">
+                             <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <ShieldCheck className="w-40 h-40 text-[#D4AF37]" />
+                             </div>
+                             <h4 className="text-[#D4AF37] text-xs font-black uppercase tracking-[0.5em] mb-12 font-heading">SUMMARIZING LINEAGE</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                                <div className="space-y-4">
+                                   <div className="space-y-1">
+                                      <p className="text-[#FDF5E6]/20 text-[8px] font-black uppercase font-heading tracking-widest">IDENTITY</p>
+                                      <p className="text-[#FDF5E6] text-xl font-black uppercase font-heading tracking-tighter underline decoration-[#D4AF37]/40 underline-offset-4">{form.displayName}</p>
+                                   </div>
+                                   <div className="space-y-1">
+                                      <p className="text-[#FDF5E6]/20 text-[8px] font-black uppercase font-heading tracking-widest">SIGNIFIER (ROLL)</p>
+                                      <p className="text-[#FDF5E6] text-xl font-black uppercase font-heading tracking-tighter underline decoration-[#D4AF37]/40 underline-offset-4">{form.rollNo}</p>
+                                   </div>
+                                </div>
+                                <div className="space-y-4">
+                                   <div className="space-y-1">
+                                      <p className="text-[#FDF5E6]/20 text-[8px] font-black uppercase font-heading tracking-widest">COMMUNICATION</p>
+                                      <p className="text-[#FDF5E6] text-xl font-black uppercase font-heading tracking-tighter underline decoration-[#D4AF37]/40 underline-offset-4">{form.phoneNumber}</p>
+                                   </div>
+                                   <div className="flex items-center gap-3 text-green-500">
+                                      <Sparkles className="w-5 h-5" />
+                                      <p className="text-[10px] font-black uppercase font-heading tracking-widest">LINEAGE CONFIRMED</p>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="min-h-[200px]">
-                  {activeStep === 0 && (
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">ENTER FULL LEGAL NAME</label>
-                        <input 
-                          type="text"
-                          value={form.displayName}
-                          onChange={(e) => setForm({...form, displayName: e.target.value})}
-                          placeholder="AS PER UNIVERSITY RECORDS"
-                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
-                        />
-                     </div>
-                  )}
-
-                  {activeStep === 1 && (
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">CONTACT NUMBER</label>
-                        <input 
-                          type="tel"
-                          value={form.phoneNumber}
-                          onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
-                          placeholder="+91 XXXXX XXXXX"
-                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
-                        />
-                     </div>
-                  )}
-
-                  {activeStep === 2 && (
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">UNIVERSITY ROLL NUMBER</label>
-                        <input 
-                          type="text"
-                          value={form.rollNo}
-                          onChange={(e) => setForm({...form, rollNo: e.target.value.toUpperCase()})}
-                          placeholder="E.G. BTECH/10000/22"
-                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
-                        />
-                     </div>
-                  )}
-
-                  {activeStep === 3 && (
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">PROFILE / ID IMAGE URL</label>
-                        <input 
-                          type="text"
-                          value={form.idCardImageUrl}
-                          onChange={(e) => setForm({...form, idCardImageUrl: e.target.value})}
-                          placeholder="PASTE DIRECT IMAGE LINK"
-                          className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
-                        />
-                        <p className="text-[#FDF5E6]/30 text-[10px] uppercase font-black font-heading mt-2">This image will be etched onto your digital Artisan Pass.</p>
-                     </div>
-                  )}
-
-                  {activeStep === 4 && (
-                     <div className="space-y-6">
-                        <div className="p-8 bg-red-600/5 border-l-4 border-red-600 flex items-start gap-6">
-                           <Lock className="w-8 h-8 text-red-600 shrink-0" />
-                           <p className="text-red-600/60 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
-                             <span className="text-red-600">CRITICAL:</span> WE REQUIRE A RECOVERY PASSWORD TO ENSURE YOU CAN RECLAIM YOUR PASS IF YOU LOSE ACCESS TO YOUR DEVICE DURING THE FESTIVAL. THIS IS NOT FOR LOGIN, BUT FOR ON-SITE VERIFICATION.
-                           </p>
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">RECOVERY SEAL (PASSWORD)</label>
-                           <input 
-                             type="password"
-                             value={form.password}
-                             onChange={(e) => setForm({...form, password: e.target.value})}
-                             placeholder="••••••••"
-                             className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-8 text-[#FDF5E6] font-black uppercase tracking-tighter text-3xl focus:border-[#D4AF37] outline-hidden font-heading transition-all"
-                           />
-                        </div>
-                     </div>
-                  )}
-
-                  {activeStep === 5 && (
-                     <div className="space-y-8">
-                        <div className="p-8 bg-white/5 border-2 border-white/10 relative">
-                           <div className="absolute top-4 right-4 text-[#D4AF37]">
-                              <ShieldCheck className="w-12 h-12 opacity-20" />
-                           </div>
-                           <h4 className="text-[#D4AF37] text-xs font-black uppercase tracking-[0.3em] mb-6">SUMMARY OF LINEAGE</h4>
-                           <div className="space-y-4">
-                              <div className="flex justify-between border-b border-white/5 pb-2">
-                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">NAME</span>
-                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.displayName}</span>
-                              </div>
-                              <div className="flex justify-between border-b border-white/5 pb-2">
-                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">PHONE</span>
-                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.phoneNumber}</span>
-                              </div>
-                              <div className="flex justify-between border-b border-white/5 pb-2">
-                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">ROLL NO</span>
-                                 <span className="text-[#FDF5E6] font-black uppercase font-heading">{form.rollNo}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                 <span className="text-[#FDF5E6]/40 text-[10px] font-black uppercase font-heading">STATUS</span>
-                                 <span className="text-green-500 font-black uppercase font-heading">READY FOR SEALING</span>
-                              </div>
-                           </div>
-                        </div>
-                        <p className="text-[#FDF5E6]/30 text-[10px] uppercase tracking-widest leading-relaxed text-center font-heading">
-                           By proceeding, you witness that all provided data is true. Falsification of heritage leads to immediate revocation of all festival privileges.
-                        </p>
-                     </div>
-                  )}
-                </div>
-
-                <div className="flex gap-6 mt-12">
-                   {activeStep > 0 && (
-                      <button 
-                        onClick={handleBack}
-                        disabled={loading}
-                        className="flex-1 py-8 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all font-heading flex items-center justify-center gap-4"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                        PREVIOUS
-                      </button>
-                   )}
-                   <button 
-                     onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
-                     disabled={loading}
-                     className="flex-2 py-8 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all font-heading flex items-center justify-center gap-4 group"
-                   >
-                     {loading ? (
-                       <Loader2 className="w-6 h-6 animate-spin" />
-                     ) : (
-                       <>
-                         {activeStep === steps.length - 1 ? "FINALIZE & MINT PASS" : "PROCEED TO NEXT"}
-                         {activeStep < steps.length - 1 && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
-                       </>
+                  <div className="flex flex-col md:flex-row gap-6">
+                     {activeStep > 0 && (
+                        <button 
+                          onClick={handleBack}
+                          disabled={loading}
+                          className="flex-1 py-10 border-2 border-white/10 text-white/40 font-black uppercase tracking-[0.5em] text-[10px] hover:border-white/40 hover:text-white transition-all font-heading"
+                        >
+                          PROTOCOL PREVIOUS
+                        </button>
                      )}
-                   </button>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                     <button 
+                       onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
+                       disabled={loading}
+                       className="flex-3 py-10 bg-linear-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B] text-[#1A0505] font-black uppercase tracking-[0.4em] text-xs hover:tracking-[0.6em] transition-all font-heading relative group overflow-hidden"
+                     >
+                       <div className="absolute inset-0 bg-white opacity-0 group-active:opacity-20 transition-opacity" />
+                       {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 
+                          (activeStep === steps.length - 1 ? "FINALIZE & MINT PASS" : "EXECUTE NEXT STEP")}
+                     </button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+           </div>
         </div>
 
-        <div className="mt-12 text-center">
-           <p className="text-[#FDF5E6]/20 text-[10px] font-black uppercase tracking-widest font-heading">
-             SECURED BY BITOTSAV HERITAGE PROTOCOL MMXXVI
-           </p>
+        <div className="mt-20 text-center opacity-30">
+           <NextImage src="/logo.png" alt="Bitotsav" width={40} height={40} className="mx-auto grayscale mb-4" />
+           <p className="text-[8px] font-black uppercase tracking-[0.8em] text-[#FDF5E6] font-heading">BITOTSAV MMXXVI // HERITAGE PROTOCOL</p>
         </div>
       </div>
     </PageWrapper>

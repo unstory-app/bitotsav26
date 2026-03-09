@@ -3,23 +3,25 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Printer,
   ShieldCheck,
   Ticket,
   Users,
-  Star,
-  CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  Trash2,
+  UserMinus,
+  Info,
+  Trophy,
+  Zap
 } from "lucide-react";
-import { useUser } from "@stackframe/stack";
+import { useUser, useStackApp } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { syncUser, getUser, hasTicket } from "@/app/actions/user";
+import { Skeleton } from "@/components/ui/skeleton";
+import { syncUser, hasTicket } from "@/app/actions/user";
 import { getUserTeams, createTeam, joinTeam, leaveTeam, dismissTeam, getTeamDetails } from "@/app/actions/team";
 import { cn } from "@/lib/utils";
-import { User, Team } from "@/db/schema";
+import { Team } from "@/db/schema";
 import { events } from "@/lib/data/events";
-import { LogOut, Eye, EyeOff, Trash2, UserMinus, Info } from "lucide-react";
-import { useStackApp } from "@stackframe/stack";
 
 export default function ProfileContent() {
   const user = useUser({ or: "redirect" });
@@ -27,12 +29,10 @@ export default function ProfileContent() {
   const [loading, setLoading] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [synced, setSynced] = useState(false);
-  const [dbUser, setDbUser] = useState<User | null>(null);
   const [hasUserTicket, setHasUserTicket] = useState(false);
   const [userTeams, setUserTeams] = useState<(Team & { events: string[] })[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const [showPass, setShowPass] = useState(false);
   const [selectedTeamDetails, setSelectedTeamDetails] = useState<{ 
     id: string, 
     members: { id: string, displayName: string | null, email: string, profileImageUrl: string | null }[] 
@@ -59,10 +59,6 @@ export default function ProfileContent() {
         if (!syncResult.success) {
           setSyncError(syncResult.message);
         }
-
-        // Fetch DB data
-        const existingDbUser = await getUser(user.id);
-        setDbUser(existingDbUser);
 
         // Check for ticket
         const ticketExists = await hasTicket(user.id);
@@ -167,20 +163,31 @@ export default function ProfileContent() {
     }
   };
 
-  const qrData = hasUserTicket ? encodeURIComponent(JSON.stringify({ 
-    id: btoa(user.primaryEmail || user.id), 
-    name: dbUser?.displayName || user.displayName || "Guest", 
-    type: "HERITAGE_ARTISAN_PASS", 
-    valid: true 
-  })) : "";
-
-  const qrUrl = hasUserTicket ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}&bgcolor=FDF5E6&color=1A0505&format=svg` : "";
-
-  if (loading || !user) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-[#1A0505] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
-      </div>
+      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16 pb-16 border-b border-white/5">
+            <div className="flex items-center gap-6">
+              <Skeleton className="w-24 h-24 rounded-full" />
+              <div className="space-y-3">
+                <Skeleton className="w-48 h-8" />
+                <Skeleton className="w-32 h-4" />
+              </div>
+            </div>
+            <Skeleton className="w-40 h-12" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <Skeleton className="lg:col-span-2 h-[400px] rounded-3xl" />
+            <div className="space-y-6">
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </PageWrapper>
     );
   }
 
@@ -229,7 +236,51 @@ export default function ProfileContent() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 items-start">
         
-        {!hasUserTicket ? (
+        {hasUserTicket ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12 stamp-edge"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+               <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
+            </div>
+
+            <div className="relative z-10 text-center md:text-left space-y-8">
+              <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+                <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">HERITAGE PASS ACTIVE</h2>
+                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">IDENTITY // VERIFIED</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
+                  Your <span className="text-[#D4AF37]">DIGITAL SIGIL</span> is minted and ready. Present it at the festival gates for seamless authorization.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button 
+                    onClick={() => window.location.href = "/tickets"}
+                    className="flex-1 px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-[1.05] transition-all font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3"
+                  >
+                    <Ticket className="w-5 h-5" />
+                    VIEW DIGITAL PASS
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = "/events"}
+                    className="flex-1 px-12 py-6 bg-white/5 border-2 border-[#D4AF37]/20 text-[#D4AF37] font-black uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all font-heading flex items-center justify-center gap-3"
+                  >
+                    <Zap className="w-5 h-5" />
+                    JOIN EVENTS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -265,8 +316,17 @@ export default function ProfileContent() {
               ) : (
                 <div className="space-y-6">
                   <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
-                    Welcome, <span className="text-[#D4AF37]">ARTISAN</span>. You can join teams and participate in events. Full festival access passes for external participants will be released soon.
+                    Welcome, <span className="text-[#D4AF37]">ARTISAN</span>. You can join teams and participate in events. Full festival access passes for external participants may be released soon.*
                   </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button 
+                      onClick={() => window.location.href = "/events"}
+                      className="px-12 py-6 bg-white/5 border-2 border-[#D4AF37]/20 text-[#D4AF37] font-black uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all font-heading flex items-center justify-center gap-3"
+                    >
+                      <Zap className="w-5 h-5" />
+                      JOIN EVENTS WITH TEAMS
+                    </button>
+                  </div>
                   <div className="p-6 bg-white/5 border-l-4 border-[#D4AF37]">
                     <p className="text-[#FDF5E6]/40 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
                       Register your team below to start your Bitotsav journey.
@@ -276,157 +336,6 @@ export default function ProfileContent() {
               )}
             </div>
           </motion.div>
-        ) : (
-          /* The Pass Container - 3D Tilt Effect */
-          <>
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full lg:w-3/5 bg-[#1A0505] border-4 border-[#D4AF37]/20 relative overflow-hidden group shadow-[0_50px_100px_-20px_#D4AF37/10] transition-all duration-700 hover:border-[#D4AF37]/40 stamp-edge"
-            >
-                {/* Scanned Texture */}
-                <div className="absolute inset-0 opacity-[0.05] pointer-events-none tapestry-pattern mix-blend-overlay" />
-                
-                {/* Decoration Bar */}
-                <div className="h-10 bg-[#D4AF37] flex items-center justify-center border-b-2 border-black/20">
-                    <span className="text-[10px] font-black italic text-[#1A0505] uppercase tracking-[0.4em] font-heading">
-                        BITOTSAV MMXXVI • HERITAGE REVEALED
-                    </span>
-                </div>
-
-                <div className="p-6 md:p-20 relative">
-                    {/* Vertical Meta Label */}
-                    <div className="absolute top-0 right-0 h-full w-12 border-l border-[#D4AF37]/10 flex items-center justify-center pointer-events-none">
-                        <span className="text-[10px] font-black italic uppercase tracking-[0.8em] text-[#D4AF37]/10 rotate-180 [writing-mode:vertical-lr] group-hover:text-[#D4AF37]/20 transition-colors font-heading">
-                            ARTISAN GUILD // MEMBER
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row gap-12 items-center md:items-start mb-20 relative z-10">
-                        {/* Portrait Frame */}
-                        <div className="relative">
-                            <div className="w-48 h-48 md:w-64 md:h-64 bg-white/5 heritage-border p-2 overflow-hidden transition-all duration-700 group-hover:scale-[1.02]">
-                              {dbUser?.idCardImageUrl || user.profileImageUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={dbUser?.idCardImageUrl || user.profileImageUrl || ""} alt="Member" className="w-full h-full object-cover transition-all duration-700" />
-                                ) : (
-                                    <div className="w-full h-full bg-secondary flex items-center justify-center text-7xl font-black italic text-[#D4AF37] font-heading">
-                                        {(dbUser?.displayName || user.displayName || user.primaryEmail || "?")[0]?.toUpperCase()}
-                                    </div>
-                                )}
-                            </div>
-                            {/* Status Blinker */}
-                            <div className="absolute -top-4 -left-4 px-4 py-2 bg-[#D4AF37] text-[#1A0505] font-black italic text-[8px] uppercase tracking-widest flex items-center gap-2 font-heading">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#1A0505] animate-pulse" />
-                                CONFIRMED
-                            </div>
-                        </div>
-
-                        <div className="flex-1 text-center md:text-left space-y-6">
-                            <div className="inline-flex items-center gap-3 bg-[#D4AF37]/5 border border-[#D4AF37]/20 px-4 py-1 text-[10px] font-black italic uppercase tracking-widest text-[#D4AF37] font-heading">
-                              <Star className="w-3 h-3 fill-current" />
-                              GAATHA GUEST #001
-                            </div>
-                            <h2 className="text-4xl md:text-8xl font-black italic text-[#FDF5E6] uppercase leading-[0.85] tracking-tighter group-hover:text-[#D4AF37] transition-colors font-heading">
-                                {dbUser?.displayName || user.displayName || "GUEST ARTISAN"}
-                            </h2>
-                            <div className="flex flex-col gap-1 border-l-4 border-[#D4AF37] pl-4 md:pl-6 py-2">
-                              <span className="text-[8px] md:text-[10px] font-black italic text-[#FDF5E6]/30 uppercase tracking-[0.3em] font-heading">ORIGIN // {isBitMesra ? "BIT MESRA" : dbUser?.collegeName}</span>
-                              <span className="text-xl font-black italic text-[#FDF5E6] uppercase tracking-tighter break-all">
-                                    {dbUser?.rollNo || user.primaryEmail}
-                              </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Footer Badges */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 pt-10 md:pt-12 border-t border-white/5 relative z-10">
-                        <div className="space-y-1 md:space-y-2">
-                            <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">ISSUE DATE</div>
-                            <div className="text-xs md:text-sm font-black italic text-[#FDF5E6] uppercase">MAR 19 2026</div>
-                        </div>
-                        <div className="space-y-1 md:space-y-2">
-                            <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">INVITATION</div>
-                            <div className="text-xs md:text-sm font-black italic text-[#D4AF37] uppercase">EXPERIENCE PASS</div>
-                        </div>
-                        <div className="space-y-1 md:space-y-2 col-span-2 md:col-span-1 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-8">
-                            <div className="text-[7px] md:text-[8px] font-black italic text-[#FDF5E6]/20 uppercase tracking-[0.4em] font-heading">SIGIL CODE</div>
-                            <div className="text-xs md:text-sm font-black italic text-[#FDF5E6] uppercase opacity-40 leading-none truncate">{user.id.slice(0, 12).toUpperCase()}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Background Decor */}
-                <div className="absolute -bottom-10 -left-10 text-[20vw] font-black italic text-[#FDF5E6]/2 select-none pointer-events-none uppercase font-heading">HERITAGE</div>
-            </motion.div>
-
-            {/* QR Section & Actions */}
-            <div className="w-full lg:w-2/5 space-y-12 shrink-0">
-              <div className="grid grid-cols-1 gap-4 print:hidden">
-                    <button 
-                      onClick={() => setShowPass(!showPass)}
-                      className={cn(
-                          "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98] font-heading bg-[#D4AF37] text-[#1A0505] hover:scale-105" 
-                      )}
-                    >
-                        {showPass ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
-                        {showPass ? "HIDE HERITAGE SIGIL" : "REVEAL HERITAGE SIGIL"}
-                    </button>
-              </div>
-
-              {showPass && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className={cn(
-                      "p-2 relative shadow-[20px_20px_0px_rgba(223,255,0,0.1)] group transition-all duration-700 bg-white hover:shadow-[20px_20px_0px_#D4AF37]"
-                  )}
-                  >
-                      <div className="absolute inset-x-0 -top-6 flex justify-center">
-                          <div className={cn(
-                              "px-6 py-2 border-2 font-black italic uppercase tracking-widest text-[10px] font-heading bg-[#1A0505] text-[#D4AF37] border-[#D4AF37]"
-                          )}>
-                            HERITAGE VALIDATION
-                          </div>
-                      </div>
-                      
-                      <>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
-                              src={qrUrl}
-                              alt="QR Pass" 
-                              className="w-full h-auto grayscale group-hover:grayscale-0 transition-opacity"
-                          />
-                          <div className="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                              <CheckCircle className="w-24 h-24 text-black" />
-                          </div>
-                      </>
-                </motion.div>
-              )}
-
-              <div className="grid grid-cols-1 gap-4 print:hidden">
-                    <button 
-                      onClick={() => window.print()}
-                      className={cn(
-                          "w-full py-8 text-lg font-black italic uppercase tracking-widest flex items-center justify-center gap-6 transition-all active:scale-[0.98] font-heading bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 text-[#FDF5E6] hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent" 
-                      )}
-                    >
-                        <Printer className="w-6 h-6" />
-                        GET PHYSICAL INVITE
-                    </button>
-              </div>
-
-              <div className="p-6 md:p-10 border-2 border-[#D4AF37]/10 space-y-4 md:space-y-6 bg-[#D4AF37]/5">
-                    <div className="flex items-center gap-4 text-[#D4AF37]">
-                        <ShieldCheck className="w-5 h-5 font-heading" />
-                        <span className="text-[10px] font-black italic uppercase tracking-[0.2em] font-heading">HERITAGE ETIQUETTE</span>
-                    </div>
-                    <p className="text-[#FDF5E6]/30 text-[10px] md:text-xs font-black italic uppercase leading-relaxed tracking-wider font-heading">
-                        This digital sigil is your entrance to the Gaatha. Present it with pride. Unauthorized transfer will result in exclusion from the 35th Edition events.
-                    </p>
-              </div>
-            </div>
-          </>
         )}
       </div>
 
@@ -489,9 +398,12 @@ export default function ProfileContent() {
                           <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-1 font-heading">TEAM CODE</p>
                           <p className="text-lg font-black italic text-[#D4AF37] font-heading">{team.code}</p>
                         </div>
-                        <div className="p-3 bg-white/5 border border-white/10">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-1 font-heading">ROLE</p>
-                          <p className="text-lg font-black italic text-[#FDF5E6] font-heading">{team.leaderId === user.id ? "LEADER" : "MEMBER"}</p>
+                        <div className="p-3 bg-white/5 border border-white/10 flex flex-col items-center justify-center">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 font-heading">BITPOINTS</p>
+                          <div className="flex items-center gap-2">
+                             <Trophy className="w-3 h-3 text-[#D4AF37]" />
+                             <p className="text-xl font-black italic text-[#FDF5E6] font-heading">{team.points || 0}</p>
+                          </div>
                         </div>
                       </div>
                       <div className="pt-4 border-t border-white/5 space-y-4">
