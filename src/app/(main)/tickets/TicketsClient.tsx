@@ -22,6 +22,7 @@ import {
   CheckCircle,
   Upload,
   ImagePlus,
+  Download,
   MessageCircle,
   ScanLine
 } from "lucide-react";
@@ -60,11 +61,13 @@ export default function TicketsClient() {
   const [showPass, setShowPass] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [unlockingPass, setUnlockingPass] = useState(false);
   const [unlockPassword, setUnlockPassword] = useState("");
   const [unlockError, setUnlockError] = useState("");
   const [isPassUnlocked, setIsPassUnlocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const passExportRef = useRef<HTMLDivElement>(null);
 
   type FormField = keyof typeof form;
 
@@ -299,6 +302,50 @@ export default function TicketsClient() {
     setUnlockPassword("");
     setUnlockError("");
     setStatusMessage({ text: "PASS LOCKED AGAIN.", type: "success" });
+  };
+
+  const handleExportPdf = async () => {
+    if (!isPassUnlocked) {
+      setUnlockError("UNLOCK THE PASS WITH YOUR RECOVERY SEAL BEFORE EXPORTING THE PDF.");
+      setStatusMessage({ text: "PASS IS LOCKED. ENTER YOUR RECOVERY SEAL FIRST.", type: "error" });
+      return;
+    }
+
+    if (!passExportRef.current) {
+      return;
+    }
+
+    setExportingPdf(true);
+    setStatusMessage({ text: "PREPARING YOUR PASS PDF...", type: "success" });
+
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
+      const canvas = await html2canvas(passExportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#f5ecd6",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`bitotsav-pass-${user?.id?.slice(-8) ?? "ticket"}.pdf`);
+      setStatusMessage({ text: "PASS PDF DOWNLOADED.", type: "success" });
+    } catch (error) {
+      console.error(error);
+      setStatusMessage({ text: "FAILED TO EXPORT PASS PDF.", type: "error" });
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   const handleImageUpload = async (file: File) => {
@@ -734,7 +781,26 @@ export default function TicketsClient() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exportingPdf}
+                  className={cn(
+                    "rounded-[1.5rem] border px-5 py-5 text-left transition-all font-heading",
+                    exportingPdf
+                      ? "border-white/10 bg-white/5 text-[#FDF5E6]/30 cursor-not-allowed"
+                      : "border-white/10 bg-white/5 text-[#FDF5E6]/70 hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/10 hover:text-[#FDF5E6]"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    <span className="text-[9px] font-black uppercase tracking-[0.35em]">EXPORT PASS PDF</span>
+                  </div>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em] opacity-60">
+                    {isPassUnlocked ? "Download your pass with the current QR for offline access." : "Unlock the pass first to enable PDF export."}
+                  </p>
+                </button>
+
                 <Link
                   href={SITE_CONFIG.whatsapp.community}
                   target="_blank"
@@ -751,6 +817,107 @@ export default function TicketsClient() {
                     NEWS DELIVERY IS THROUGH THIS GROUP ONLY.
                   </p>
                 </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="pointer-events-none fixed -left-[9999px] top-0 opacity-0">
+            <div ref={passExportRef} className="w-[1200px] overflow-hidden rounded-[40px] border-[10px] border-[#1A0505] bg-[#f5ecd6] p-10 text-[#1A0505]">
+              <div className="grid grid-cols-[1.15fr_0.85fr] gap-8">
+                <div className="overflow-hidden rounded-[32px] border border-[#1A0505]/15 bg-[#FDF5E6] p-8">
+                  <div className="flex items-start justify-between border-b border-[#1A0505]/10 pb-6">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[#1A0505]/45 font-heading">Bitotsav 2026 Verified Pass</p>
+                      <h3 className="mt-3 text-5xl font-black italic uppercase tracking-tighter font-heading">
+                        Heritage <span className="text-[#B8860B]">Artisan</span>
+                      </h3>
+                    </div>
+                    <div className="rounded-3xl bg-[#1A0505] p-4">
+                      <ShieldCheck className="h-10 w-10 text-[#D4AF37]" />
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-[220px_1fr] gap-8">
+                    <div className="relative aspect-square overflow-hidden rounded-[28px] border-4 border-[#1A0505]/10 bg-white/60">
+                      {dbUser?.idCardImageUrl || user?.profileImageUrl ? (
+                        <NextImage
+                          src={dbUser?.idCardImageUrl || user?.profileImageUrl || ""}
+                          alt="Member"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-7xl font-black italic text-[#1A0505]/10 font-heading">
+                          {(dbUser?.displayName || user?.displayName || user?.primaryEmail || "?")[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Artisan Name</p>
+                        <p className="mt-3 text-5xl font-black italic uppercase tracking-tighter font-heading">
+                          {dbUser?.displayName || user?.displayName || "Guest"}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="rounded-[24px] border border-[#1A0505]/10 bg-[#1A0505]/[0.03] p-5">
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Affiliation</p>
+                          <p className="mt-2 text-xl font-black uppercase tracking-[0.2em] font-heading">{isBitMesra ? "BIT MESRA" : dbUser?.collegeName || "CRAFTSMAN"}</p>
+                        </div>
+                        <div className="rounded-[24px] border border-[#1A0505]/10 bg-[#1A0505]/[0.03] p-5">
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Roll Number</p>
+                          <p className="mt-2 text-xl font-black uppercase tracking-[0.2em] font-heading">{dbUser?.rollNo || "N/A"}</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-[24px] border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-5">
+                        <p className="text-[9px] font-black uppercase tracking-[0.35em] text-[#1A0505]/45 font-heading">Entry Instructions</p>
+                        <p className="mt-3 text-sm font-black uppercase tracking-[0.2em] text-[#1A0505]/75 font-heading">
+                          Present this QR at the gate for validation and keep the PDF available offline.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[32px] border border-[#1A0505]/15 bg-[#1A0505] p-8 text-[#FDF5E6]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[#D4AF37]/60 font-heading">Scan Protocol</p>
+                  <h4 className="mt-3 text-4xl font-black italic uppercase tracking-tighter font-heading">
+                    Festival Entry QR
+                  </h4>
+                  <div className="mt-8 rounded-[28px] bg-[#FDF5E6] p-5">
+                    <div className="mx-auto h-[220px] w-[220px] overflow-hidden rounded-[24px] bg-[#FDF5E6]">
+                      {qrImageUrl ? (
+                        <NextImage
+                          src={qrImageUrl}
+                          alt="Festival entry QR export"
+                          width={220}
+                          height={220}
+                          sizes="220px"
+                          className="h-full w-full object-contain"
+                          unoptimized
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid gap-4">
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">Pass Holder</p>
+                      <p className="mt-2 text-lg font-black uppercase tracking-[0.2em] text-[#FDF5E6] font-heading">{dbUser?.displayName || user?.displayName || "Guest"}</p>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">Artifact ID</p>
+                      <p className="mt-2 text-lg font-black uppercase tracking-[0.2em] text-[#FDF5E6] font-heading">{user.id.slice(-8).toUpperCase()}</p>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">WhatsApp Community</p>
+                      <p className="mt-2 text-sm font-black tracking-[0.08em] text-[#FDF5E6]/80 font-heading">{SITE_CONFIG.whatsapp.community}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -811,6 +978,12 @@ export default function TicketsClient() {
                         <h2 className="text-4xl md:text-5xl font-black uppercase text-[#FDF5E6] font-heading leading-tight">{steps[activeStep].title}</h2>
                         <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-[0.4em] font-heading mt-2">{steps[activeStep].subtitle}</p>
                      </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-red-600/25 bg-red-600/10 px-6 py-5">
+                    <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.35em] font-heading">
+                     NOTICE: FAKE NAME, WRONG PHONE NUMBER, FALSE DATA, OR AN INVALID OR MISLEADING PROFILE IMAGE MAY LEAD TO ACCOUNT DELETION OR TICKET CANCELLATION.
+                    </p>
                   </div>
 
                   <div className="min-h-[200px]">
@@ -1054,6 +1227,11 @@ export default function TicketsClient() {
                                    </div>
                                 </div>
                              </div>
+                          </div>
+                          <div className="rounded-3xl border border-red-600/25 bg-red-600/10 px-6 py-5">
+                            <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.3em] font-heading">
+                              SUBMIT ONLY REAL DETAILS. IF YOUR NAME, PHONE NUMBER, ROLL NUMBER, OR IDENTIFICATION IMAGE IS FOUND TO BE FAKE, MISLEADING, OR MISMATCHED, YOUR ACCOUNT MAY BE DELETED AND YOUR TICKET MAY BE CANCELLED.
+                            </p>
                           </div>
                           {!isFormValid && (
                             <div className="p-6 bg-red-600/10 border border-red-600/20 rounded-2xl">

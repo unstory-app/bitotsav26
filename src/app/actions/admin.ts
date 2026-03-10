@@ -375,3 +375,125 @@ export async function updateTeamPoints(teamId: string, points: number) {
     return { success: false, message: error instanceof Error ? error.message : "Failed to update points" };
   }
 }
+
+export async function getAdminTeamEventMatrix(search?: string) {
+  try {
+    const teamRows = await db.select({
+      teamId: teams.id,
+      teamName: teams.name,
+      teamCode: teams.code,
+      teamPoints: teams.points,
+      teamCreatedAt: teams.createdAt,
+      leaderId: users.id,
+      leaderName: users.displayName,
+      leaderEmail: users.email,
+      leaderPhoneNumber: users.phoneNumber,
+      leaderRollNo: users.rollNo,
+    })
+    .from(teams)
+    .innerJoin(users, eq(teams.leaderId, users.id))
+    .orderBy(desc(teams.points), teams.name);
+
+    const ranks = new Map(teamRows.map((team, index) => [team.teamId, index + 1]));
+
+    const matrix = await Promise.all(
+      teamRows.map(async (team) => {
+        const [memberRows, eventRows] = await Promise.all([
+          db.select({
+            userId: users.id,
+            displayName: users.displayName,
+            email: users.email,
+            phoneNumber: users.phoneNumber,
+            rollNo: users.rollNo,
+            collegeName: users.collegeName,
+            isBitMesra: users.isBitMesra,
+            profileImageUrl: users.profileImageUrl,
+            idCardImageUrl: users.idCardImageUrl,
+            joinedAt: teamMembers.joinedAt,
+          })
+          .from(teamMembers)
+          .innerJoin(users, eq(teamMembers.userId, users.id))
+          .where(eq(teamMembers.teamId, team.teamId)),
+          db.select({
+            eventId: events.id,
+            eventName: events.name,
+            organizer: events.organizer,
+            venue: events.venue,
+            category: events.category,
+            registeredAt: teamEvents.registeredAt,
+          })
+          .from(teamEvents)
+          .innerJoin(events, eq(teamEvents.eventId, events.id))
+          .where(eq(teamEvents.teamId, team.teamId)),
+        ]);
+
+        const memberDigest = memberRows
+          .map((member, index) => {
+            const role = member.userId === team.leaderId ? "Leader" : `Member ${index + 1}`;
+            return [
+              role,
+              member.displayName || "Unknown",
+              member.email,
+              member.phoneNumber || "No phone",
+              member.rollNo || member.collegeName || "No academic data",
+              member.isBitMesra ? "BIT Mesra" : "External",
+            ].join(" | ");
+          })
+          .join(" ; ");
+
+        return eventRows.map((event) => ({
+          teamId: team.teamId,
+          teamName: team.teamName,
+          teamCode: team.teamCode,
+          teamPoints: team.teamPoints,
+          teamRank: ranks.get(team.teamId) ?? null,
+          memberCount: memberRows.length,
+          teamCreatedAt: team.teamCreatedAt,
+          leaderId: team.leaderId,
+          leaderName: team.leaderName,
+          leaderEmail: team.leaderEmail,
+          leaderPhoneNumber: team.leaderPhoneNumber,
+          leaderRollNo: team.leaderRollNo,
+          eventId: event.eventId,
+          eventName: event.eventName,
+          organizer: event.organizer,
+          venue: event.venue,
+          category: event.category,
+          registeredAt: event.registeredAt,
+          members: memberRows,
+          memberDigest,
+        }));
+      })
+    );
+
+    const data = matrix.flat();
+
+    if (!search?.trim()) {
+      return { success: true, data };
+    }
+
+    const normalizedSearch = search.trim().toLowerCase();
+    const filtered = data.filter((row) => {
+      const haystack = [
+        row.teamName,
+        row.teamCode,
+        row.leaderName,
+        row.leaderEmail,
+        row.eventName,
+        row.organizer,
+        row.venue,
+        row.category,
+        row.memberDigest,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(normalizedSearch);
+    });
+
+    return { success: true, data: filtered };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : "Failed to fetch team event matrix" };
+  }
+}

@@ -19,10 +19,10 @@ export const SITE_CONFIG = {
     "College Festival India",
   ],
   dates: {
-    short: "Mar 19 — 23, 2026",
-    long: "March 19th to 23rd, 2026",
+    short: "Mar 19 — 22, 2026",
+    long: "March 19th to 22nd, 2026",
     start: "2026-03-19",
-    end: "2026-03-23",
+    end: "2026-03-22",
   },
   venue: {
     name: "BIT Mesra",
