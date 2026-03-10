@@ -5,21 +5,24 @@ import NextImage from "next/image";
 import {
   AlertTriangle,
   ArrowRight,
+  Crown,
   Loader2,
   LogOut,
   MessageCircle,
   Phone,
   Plus,
   ShieldCheck,
+  Sparkles,
   Ticket,
   Trophy,
+  UserMinus,
   Users,
 } from "lucide-react";
 import { useStackApp, useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUser, hasTicket, syncUser, updateUserPhoneNumber } from "@/app/actions/user";
-import { createTeam, dismissTeam, getTeamDetails, getUserTeams, joinTeam, leaveTeam } from "@/app/actions/team";
+import { addTeamEvent, createTeam, dismissTeam, getTeamDetails, getUserTeams, joinTeam, kickTeamMember, leaveTeam } from "@/app/actions/team";
 import { cn } from "@/lib/utils";
 import { Team } from "@/db/schema";
 import { events } from "@/lib/data/events";
@@ -73,6 +76,16 @@ function mapServerMessage(message?: string) {
       return "Add a valid phone number before creating a team.";
     case "INVALID_PHONE_NUMBER":
       return "Enter a valid 10-digit phone number.";
+    case "TEAM_FULL":
+      return "This team already has 8 members.";
+    case "EVENT_ALREADY_ADDED":
+      return "This team is already participating in that event.";
+    case "ONLY_TEAM_LEADER_CAN_ADD_EVENTS":
+      return "Only the team leader can add more events.";
+    case "ONLY_TEAM_LEADER_CAN_KICK_MEMBERS":
+      return "Only the team leader can remove members.";
+    case "CANNOT_REMOVE_LEADER":
+      return "The leader cannot be removed from the team.";
     default:
       return message || "Something went wrong.";
   }
@@ -96,6 +109,7 @@ export default function ProfileContent() {
   const [teamForm, setTeamForm] = useState({ name: "", eventId: "" });
   const [joinCodeInput, setJoinCodeInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+  const [teamEventSelection, setTeamEventSelection] = useState<Record<string, string>>({});
   const [statusMessage, setStatusMessage] = useState<{ text: string; type: StatusTone }>({ text: "", type: "info" });
 
   const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
@@ -114,6 +128,17 @@ export default function ProfileContent() {
     setDbUser(existingDbUser);
     setUserTeams(typedTeams);
     setPhoneInput(existingDbUser?.phoneNumber || "");
+    setTeamEventSelection((current) => {
+      const next = { ...current };
+
+      for (const team of typedTeams) {
+        if (!(team.id in next)) {
+          next[team.id] = "";
+        }
+      }
+
+      return next;
+    });
 
     if (!typedTeams.length) {
       setTeamDetailsById({});
@@ -306,6 +331,46 @@ export default function ProfileContent() {
     setActionPending(false);
   };
 
+  const handleAddTeamEvent = async (teamId: string) => {
+    const eventId = teamEventSelection[teamId];
+
+    if (!eventId) {
+      setStatusMessage({ text: "Select an event first.", type: "error" });
+      return;
+    }
+
+    setActionPending(true);
+    const result = await addTeamEvent(teamId, eventId, user.id);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setTeamEventSelection((current) => ({ ...current, [teamId]: "" }));
+      setStatusMessage({ text: "Team event added successfully.", type: "success" });
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
+  const handleKickMember = async (teamId: string, memberId: string, memberName: string | null) => {
+    if (!confirm(`Remove ${memberName || "this member"} from the team?`)) {
+      return;
+    }
+
+    setActionPending(true);
+    const result = await kickTeamMember(teamId, user.id, memberId);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setStatusMessage({ text: `${memberName || "Member"} was removed from the team.`, type: "success" });
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
   if (loading) {
     return (
       <PageWrapper className="min-h-screen bg-[#120606] px-4 pb-16 pt-28 md:px-6 md:pt-32">
@@ -338,16 +403,17 @@ export default function ProfileContent() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl md:p-8">
+        <section className="overflow-hidden rounded-[40px] border border-[#D4AF37]/15 bg-linear-to-br from-white/[0.08] via-white/[0.04] to-transparent p-6 shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl md:p-8">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-[#D4AF37]/10 to-transparent" />
           <div className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
             <div className="space-y-6">
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="relative h-20 w-20 overflow-hidden rounded-[24px] border border-[#D4AF37]/25 bg-[#D4AF37]/10">
-                    {user.profileImageUrl || dbUser?.profileImageUrl ? (
+                  <div className="relative h-24 w-24 overflow-hidden rounded-[30px] border border-[#D4AF37]/30 bg-[#D4AF37]/10 shadow-[0_14px_40px_rgba(212,175,55,0.18)]">
+                    {dbUser?.profileImageUrl || user.profileImageUrl ? (
                       <NextImage
-                        src={user.profileImageUrl || dbUser?.profileImageUrl || ""}
-                        alt={user.displayName || "Profile"}
+                        src={dbUser?.profileImageUrl || user.profileImageUrl || ""}
+                        alt={dbUser?.displayName || user.displayName || "Profile"}
                         fill
                         className="object-cover"
                       />
@@ -359,11 +425,17 @@ export default function ProfileContent() {
                   </div>
 
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D4AF37]/70">Profile Overview</p>
-                    <h1 className="mt-2 text-3xl font-black uppercase tracking-[0.04em] text-[#FDF5E6] md:text-5xl">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.26em] text-[#D4AF37]">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Premium Identity Desk
+                    </div>
+                    <h1 className="mt-4 text-3xl font-black uppercase tracking-[0.04em] text-[#FDF5E6] md:text-5xl">
                       {dbUser?.displayName || user.displayName || "Bitotsav User"}
                     </h1>
-                    <p className="mt-2 break-all text-sm text-[#FDF5E6]/65">{user.primaryEmail}</p>
+                    <p className="mt-3 max-w-xl text-sm leading-7 text-[#FDF5E6]/65">
+                      Your Bitotsav identity hub for pass access, team command, rankings, and event participation.
+                    </p>
+                    <p className="mt-2 break-all text-sm text-[#FDF5E6]/50">{user.primaryEmail}</p>
                   </div>
                 </div>
 
@@ -374,6 +446,25 @@ export default function ProfileContent() {
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </button>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-[28px] border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Teams</p>
+                  <p className="mt-3 text-3xl font-black uppercase text-[#FDF5E6]">{userTeams.length}</p>
+                </div>
+                <div className="rounded-[28px] border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Best Rank</p>
+                  <p className="mt-3 text-3xl font-black uppercase text-[#FDF5E6]">
+                    {userTeams.length
+                      ? `#${Math.min(...userTeams.map((team) => team.rank ?? Number.POSITIVE_INFINITY).filter(Number.isFinite))}`
+                      : "--"}
+                  </p>
+                </div>
+                <div className="rounded-[28px] border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Team Cap</p>
+                  <p className="mt-3 text-3xl font-black uppercase text-[#FDF5E6]">8</p>
+                </div>
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
@@ -497,7 +588,7 @@ export default function ProfileContent() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-[36px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] backdrop-blur-xl md:p-8">
+        <section className="mt-10 rounded-[40px] border border-[#D4AF37]/15 bg-linear-to-br from-white/[0.08] via-white/[0.04] to-transparent p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] backdrop-blur-xl md:p-8">
           <div className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Your Teams</p>
@@ -507,24 +598,30 @@ export default function ProfileContent() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                onClick={() => setShowJoinModal(true)}
-                disabled={actionPending}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FDF5E6]/75 transition hover:border-white/20 hover:text-[#FDF5E6] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Users className="h-4 w-4" />
-                Join Team
-              </button>
-              <button
-                onClick={openCreateFlow}
-                disabled={actionPending}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Plus className="h-4 w-4" />
-                Create Team
-              </button>
-            </div>
+            {userTeams.length === 0 ? (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={() => setShowJoinModal(true)}
+                  disabled={actionPending}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FDF5E6]/75 transition hover:border-white/20 hover:text-[#FDF5E6] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Users className="h-4 w-4" />
+                  Join Team
+                </button>
+                <button
+                  onClick={openCreateFlow}
+                  disabled={actionPending}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create Team
+                </button>
+              </div>
+            ) : (
+              <div className="rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                Already in a team
+              </div>
+            )}
           </div>
 
           {userTeams.length === 0 ? (
@@ -541,9 +638,11 @@ export default function ProfileContent() {
             <div className="mt-8 space-y-8">
               {userTeams.map((team) => {
                 const members = teamDetailsById[team.id] || [];
+                const availableEvents = events.filter((event) => !team.events.includes(event.id));
+                const isLeader = team.leaderId === user.id;
 
                 return (
-                  <article key={team.id} className="overflow-hidden rounded-[32px] border border-white/10 bg-black/20">
+                  <article key={team.id} className="overflow-hidden rounded-[32px] border border-white/10 bg-linear-to-br from-black/30 to-black/10">
                     <div className="grid gap-6 border-b border-white/10 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
                       <div>
                         <div className="flex flex-wrap items-center gap-3">
@@ -553,6 +652,11 @@ export default function ProfileContent() {
                           {team.rank ? (
                             <span className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-emerald-300">
                               Current Rank #{team.rank}
+                            </span>
+                          ) : null}
+                          {isLeader ? (
+                            <span className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                              Leader Access
                             </span>
                           ) : null}
                         </div>
@@ -591,7 +695,7 @@ export default function ProfileContent() {
                         </div>
                         <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
                           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Members</p>
-                          <p className="mt-3 text-2xl font-black uppercase text-[#FDF5E6]">{team.memberCount}</p>
+                          <p className="mt-3 text-2xl font-black uppercase text-[#FDF5E6]">{team.memberCount}/8</p>
                         </div>
                       </div>
                     </div>
@@ -602,30 +706,57 @@ export default function ProfileContent() {
                         <p className="mt-2 text-sm text-[#FDF5E6]/60">All members are listed here with their phone number, profile image, email, roll number, and affiliation.</p>
                       </div>
 
-                      {team.leaderId === user.id ? (
-                        <button
-                          onClick={() => handleDismissTeam(team.id)}
-                          disabled={actionPending}
-                          className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Dismiss Team
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleLeaveTeam(team.id)}
-                          disabled={actionPending}
-                          className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Leave Team
-                        </button>
-                      )}
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        {isLeader && availableEvents.length > 0 ? (
+                          <div className="flex flex-col gap-3 sm:flex-row">
+                            <select
+                              value={teamEventSelection[team.id] ?? ""}
+                              onChange={(e) => setTeamEventSelection((current) => ({ ...current, [team.id]: e.target.value }))}
+                              disabled={actionPending}
+                              className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#FDF5E6] outline-none transition focus:border-[#D4AF37]/50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <option value="">Select event</option>
+                              {availableEvents.map((event) => (
+                                <option key={event.id} value={event.id} className="bg-[#120606] text-[#FDF5E6]">
+                                  {event.name.toUpperCase()}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => handleAddTeamEvent(team.id)}
+                              disabled={actionPending || !teamEventSelection[team.id]}
+                              className="rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-[#D4AF37] transition hover:bg-[#D4AF37]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Add Event
+                            </button>
+                          </div>
+                        ) : null}
+
+                        {isLeader ? (
+                          <button
+                            onClick={() => handleDismissTeam(team.id)}
+                            disabled={actionPending}
+                            className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Dismiss Team
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleLeaveTeam(team.id)}
+                            disabled={actionPending}
+                            className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Leave Team
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="overflow-x-auto p-2 md:p-4">
                       <table className="min-w-full border-separate border-spacing-0 overflow-hidden rounded-[24px]">
                         <thead>
                           <tr>
-                            {["Member", "Role", "Phone", "Email", "Roll No", "Affiliation", "ID Proof"].map((label) => (
+                            {["Member", "Role", "Phone", "Email", "Roll No", "Affiliation", "ID Proof", "Actions"].map((label) => (
                               <th
                                 key={label}
                                 className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/75"
@@ -639,7 +770,7 @@ export default function ProfileContent() {
                           {members.length > 0 ? (
                             members.map((member) => {
                               const avatar = member.profileImageUrl || member.idCardImageUrl;
-                              const isLeader = member.id === team.leaderId;
+                              const memberIsLeader = member.id === team.leaderId;
 
                               return (
                                 <tr key={member.id} className="align-top text-sm text-[#FDF5E6]/85">
@@ -660,7 +791,12 @@ export default function ProfileContent() {
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="border-b border-white/10 px-4 py-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#FDF5E6]/70">{isLeader ? "Leader" : "Member"}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#FDF5E6]/70">
+                                    <span className="inline-flex items-center gap-2">
+                                      {memberIsLeader ? <Crown className="h-3.5 w-3.5 text-[#D4AF37]" /> : null}
+                                      {memberIsLeader ? "Leader" : "Member"}
+                                    </span>
+                                  </td>
                                   <td className="border-b border-white/10 px-4 py-4 text-xs text-[#FDF5E6]/70">{member.phoneNumber || "Not added"}</td>
                                   <td className="border-b border-white/10 px-4 py-4 text-xs text-[#FDF5E6]/70">{member.email}</td>
                                   <td className="border-b border-white/10 px-4 py-4 text-xs uppercase text-[#FDF5E6]/70">{member.rollNo || "Not added"}</td>
@@ -675,12 +811,26 @@ export default function ProfileContent() {
                                       {member.idCardImageUrl ? "Uploaded" : "Missing"}
                                     </span>
                                   </td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs">
+                                    {isLeader && !memberIsLeader ? (
+                                      <button
+                                        onClick={() => handleKickMember(team.id, member.id, member.displayName)}
+                                        disabled={actionPending}
+                                        className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-2 font-semibold uppercase tracking-[0.18em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                      >
+                                        <UserMinus className="h-3.5 w-3.5" />
+                                        Kick
+                                      </button>
+                                    ) : (
+                                      <span className="text-[#FDF5E6]/40">--</span>
+                                    )}
+                                  </td>
                                 </tr>
                               );
                             })
                           ) : (
                             <tr>
-                              <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#FDF5E6]/50">
+                              <td colSpan={8} className="px-4 py-8 text-center text-sm text-[#FDF5E6]/50">
                                 Team details are loading or unavailable right now.
                               </td>
                             </tr>

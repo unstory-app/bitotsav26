@@ -5,6 +5,8 @@ import { teams, teamMembers, users, teamEvents } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+const TEAM_MEMBER_LIMIT = 8;
+
 function hasValidPhoneNumber(value: string | null | undefined) {
   if (!value) {
     return false;
@@ -100,6 +102,14 @@ export async function joinTeam(code: string, userId: string) {
 
     if (!team) {
       return { success: false, message: "Invalid team code." };
+    }
+
+    const existingMembers = await db.select({ id: teamMembers.id })
+      .from(teamMembers)
+      .where(eq(teamMembers.teamId, team.id));
+
+    if (existingMembers.length >= TEAM_MEMBER_LIMIT) {
+      return { success: false, message: "TEAM_FULL" };
     }
 
     // 2. Check if user is already in this team
@@ -228,6 +238,73 @@ export async function getLeaderboard(limit = 50) {
   } catch (error) {
     console.error("Get leaderboard error:", error);
     return { success: false, message: "Failed to fetch leaderboard." };
+  }
+}
+
+export async function addTeamEvent(teamId: string, eventId: string, actorId: string) {
+  try {
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (!team) {
+      return { success: false, message: "TEAM_NOT_FOUND" };
+    }
+
+    if (team.leaderId !== actorId) {
+      return { success: false, message: "ONLY_TEAM_LEADER_CAN_ADD_EVENTS" };
+    }
+
+    const existingEvent = await db.select({ id: teamEvents.id })
+      .from(teamEvents)
+      .where(and(eq(teamEvents.teamId, teamId), eq(teamEvents.eventId, eventId)))
+      .limit(1);
+
+    if (existingEvent.length > 0) {
+      return { success: false, message: "EVENT_ALREADY_ADDED" };
+    }
+
+    await db.insert(teamEvents).values({
+      teamId,
+      eventId,
+    });
+
+    revalidatePath("/profile");
+    revalidatePath(`/events/${eventId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Add team event error:", error);
+    return { success: false, message: "FAILED_TO_ADD_EVENT" };
+  }
+}
+
+export async function kickTeamMember(teamId: string, leaderId: string, memberId: string) {
+  try {
+    const [team] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
+    if (!team || team.leaderId !== leaderId) {
+      return { success: false, message: "ONLY_TEAM_LEADER_CAN_KICK_MEMBERS" };
+    }
+
+    if (memberId === leaderId) {
+      return { success: false, message: "CANNOT_REMOVE_LEADER" };
+    }
+
+    const membership = await db.select({ id: teamMembers.id })
+      .from(teamMembers)
+      .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, memberId)))
+      .limit(1);
+
+    if (!membership.length) {
+      return { success: false, message: "MEMBER_NOT_FOUND" };
+    }
+
+    await db.delete(teamMembers)
+      .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, memberId)));
+
+    revalidatePath("/profile");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Kick team member error:", error);
+    return { success: false, message: "FAILED_TO_KICK_MEMBER" };
   }
 }
 
