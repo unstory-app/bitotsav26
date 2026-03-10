@@ -20,8 +20,8 @@ const studentCoordinators = [
 ];
 
 const developers = [
+  { name: "Shivansh Kumar", role: "Leader", image: null, socials: { linkedin: "#" } },
   { name: "Shaswat Raj", role: "Lead Developer", image: "/team/sh20raj.jpg", socials: { linkedin: "https://www.linkedin.com/in/sh20raj/", github: "https://github.com/sh20raj" } },
-  { name: "Shivansh Kumar", role: "Developer", image: null, socials: { linkedin: "#" } },
 ];
 
 function CoordinatorCard({ name, role, image }: { name: string; role: string; image: string | null }) {

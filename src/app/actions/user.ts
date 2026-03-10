@@ -7,6 +7,53 @@ import { stackServerApp } from "@/stack/server";
 
 const BIT_MESRA_DOMAIN = "@bitmesra.ac.in";
 
+function isValidImageUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validateUserDetails(details: {
+  displayName?: string;
+  collegeName?: string;
+  rollNo?: string;
+  idCardImageUrl?: string;
+  password?: string;
+  phoneNumber?: string;
+}) {
+  const displayName = details.displayName?.trim() ?? "";
+  const rollNo = details.rollNo?.trim() ?? "";
+  const idCardImageUrl = details.idCardImageUrl?.trim() ?? "";
+  const password = details.password?.trim() ?? "";
+  const phoneNumber = details.phoneNumber?.trim() ?? "";
+  const phoneDigits = phoneNumber.replace(/\D/g, "");
+
+  if (!displayName || displayName.length < 3 || !/^[A-Z][A-Z .'-]{2,}$/i.test(displayName)) {
+    return "INVALID_DISPLAY_NAME";
+  }
+
+  if (!(phoneDigits.length === 10 || (phoneDigits.length === 12 && phoneDigits.startsWith("91")))) {
+    return "INVALID_PHONE_NUMBER";
+  }
+
+  if (!rollNo || !/^[A-Z0-9/-]{6,20}$/i.test(rollNo)) {
+    return "INVALID_ROLL_NUMBER";
+  }
+
+  if (!idCardImageUrl || !isValidImageUrl(idCardImageUrl)) {
+    return "INVALID_ID_CARD_IMAGE_URL";
+  }
+
+  if (!password || password.length < 6) {
+    return "INVALID_RECOVERY_SEAL";
+  }
+
+  return null;
+}
+
 /**
  * Syncs user data from Stack Auth to the database on login.
  * Validates that the user has a @bitmesra.ac.in email.
@@ -85,9 +132,24 @@ export async function updateUserDetails(userId: string, details: {
       return { success: false, message: "UNAUTHORIZED_ACCESS" };
     }
 
+    const validationError = validateUserDetails(details);
+    if (validationError) {
+      return { success: false, message: validationError };
+    }
+
+    const sanitizedDetails = {
+      ...details,
+      displayName: details.displayName?.trim(),
+      collegeName: details.collegeName?.trim(),
+      rollNo: details.rollNo?.trim().toUpperCase(),
+      idCardImageUrl: details.idCardImageUrl?.trim(),
+      password: details.password?.trim(),
+      phoneNumber: details.phoneNumber?.trim(),
+    };
+
     await db.update(users)
       .set({
-        ...details,
+        ...sanitizedDetails,
         updatedAt: new Date(),
       })
       .where(eq(users.id, userId));

@@ -55,6 +55,131 @@ export default function TicketsClient() {
   const [showPass, setShowPass] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
+  type FormField = keyof typeof form;
+
+  const [errors, setErrors] = useState<Record<FormField, string>>({
+    displayName: "",
+    phoneNumber: "",
+    rollNo: "",
+    idCardImageUrl: "",
+    password: "",
+  });
+  const [touched, setTouched] = useState<Record<FormField, boolean>>({
+    displayName: false,
+    phoneNumber: false,
+    rollNo: false,
+    idCardImageUrl: false,
+    password: false,
+  });
+  const [statusMessage, setStatusMessage] = useState<{ text: string; type: "success" | "error" }>({
+    text: "",
+    type: "success",
+  });
+
+  const formFields: FormField[] = ["displayName", "phoneNumber", "rollNo", "idCardImageUrl", "password"];
+
+  const getFieldError = (field: FormField, value: string) => {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      return "THIS FIELD IS REQUIRED.";
+    }
+
+    switch (field) {
+      case "displayName":
+        if (trimmedValue.length < 3) {
+          return "ENTER YOUR FULL NAME.";
+        }
+        if (!/^[A-Z][A-Z .'-]{2,}$/i.test(trimmedValue)) {
+          return "USE A VALID NAME FORMAT.";
+        }
+        return "";
+      case "phoneNumber": {
+        const digits = trimmedValue.replace(/\D/g, "");
+        if (!(digits.length === 10 || (digits.length === 12 && digits.startsWith("91")))) {
+          return "ENTER A VALID 10-DIGIT PHONE NUMBER.";
+        }
+        return "";
+      }
+      case "rollNo":
+        if (!/^[A-Z0-9/-]{6,20}$/i.test(trimmedValue)) {
+          return "USE A VALID ROLL NUMBER.";
+        }
+        return "";
+      case "idCardImageUrl":
+        try {
+          const url = new URL(trimmedValue);
+          if (!["http:", "https:"].includes(url.protocol)) {
+            return "USE A VALID IMAGE URL.";
+          }
+          return "";
+        } catch {
+          return "USE A VALID IMAGE URL.";
+        }
+      case "password":
+        if (trimmedValue.length < 6) {
+          return "RECOVERY SEAL MUST BE AT LEAST 6 CHARACTERS.";
+        }
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  const setFieldTouched = (field: FormField) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setErrors((prev) => ({ ...prev, [field]: getFieldError(field, form[field]) }));
+  };
+
+  const updateField = (field: FormField, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+    if (touched[field]) {
+      setErrors((prev) => ({ ...prev, [field]: getFieldError(field, value) }));
+    }
+
+    if (statusMessage.text) {
+      setStatusMessage({ text: "", type: "success" });
+    }
+  };
+
+  const validateFields = (fields: FormField[]) => {
+    const nextErrors = fields.reduce<Record<FormField, string>>(
+      (acc, field) => {
+        acc[field] = getFieldError(field, form[field]);
+        return acc;
+      },
+      {
+        displayName: errors.displayName,
+        phoneNumber: errors.phoneNumber,
+        rollNo: errors.rollNo,
+        idCardImageUrl: errors.idCardImageUrl,
+        password: errors.password,
+      }
+    );
+
+    setErrors((prev) => ({ ...prev, ...nextErrors }));
+    return fields.every((field) => !nextErrors[field]);
+  };
+
+  const isFieldValid = (field: FormField) => form[field].trim().length > 0 && !getFieldError(field, form[field]);
+
+  const getFieldMessage = (field: FormField, successMessage: string, helperMessage: string) => {
+    if (errors[field]) {
+      return { text: errors[field], tone: "error" as const };
+    }
+
+    if (isFieldValid(field)) {
+      return { text: successMessage, tone: "success" as const };
+    }
+
+    return { text: helperMessage, tone: "muted" as const };
+  };
+
+  const currentField = formFields[activeStep] ?? null;
+  const isCurrentStepValid = currentField ? isFieldValid(currentField) : formFields.every((field) => isFieldValid(field));
+  const isFormValid = formFields.every((field) => isFieldValid(field));
+
   const isBitMesra = user?.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
 
   useEffect(() => {
@@ -101,22 +226,58 @@ export default function TicketsClient() {
 
   const qrUrl = hasUserTicket ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${qrData}&bgcolor=FDF5E6&color=1A0505&format=svg` : "";
 
-  const handleNext = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
+  const handleNext = () => {
+    const field = formFields[activeStep];
+
+    if (field) {
+      setTouched((prev) => ({ ...prev, [field]: true }));
+
+      if (!validateFields([field])) {
+        setStatusMessage({ text: "PLEASE CORRECT THE HIGHLIGHTED FIELD BEFORE CONTINUING.", type: "error" });
+        return;
+      }
+    }
+
+    setStatusMessage({ text: "", type: "success" });
+    setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+  };
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
 
   const handleFinalize = async () => {
     if (!user) return;
+
+    setTouched({
+      displayName: true,
+      phoneNumber: true,
+      rollNo: true,
+      idCardImageUrl: true,
+      password: true,
+    });
+
+    if (!validateFields(formFields)) {
+      setStatusMessage({ text: "PLEASE FILL ALL FIELDS CORRECTLY BEFORE MINTING THE PASS.", type: "error" });
+      return;
+    }
+
     setLoading(true);
     try {
       const updateResult = await updateUserDetails(user.id, form);
-      if (updateResult.success) {
-        const ticketResult = await createTicket(user.id);
-        if (ticketResult.success) {
-          window.location.reload();
-        }
+      if (!updateResult.success) {
+        setStatusMessage({ text: updateResult.message || "PROFILE UPDATE FAILED.", type: "error" });
+        return;
       }
+
+      const ticketResult = await createTicket(user.id);
+      if (ticketResult.success) {
+        setStatusMessage({ text: "PASS MINTED SUCCESSFULLY.", type: "success" });
+        window.location.reload();
+        return;
+      }
+
+      setStatusMessage({ text: ticketResult.message || "TICKET GENERATION FAILED.", type: "error" });
     } catch (error) {
       console.error(error);
+      setStatusMessage({ text: "SOMETHING WENT WRONG. PLEASE TRY AGAIN.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -452,10 +613,26 @@ export default function TicketsClient() {
                           <input 
                             type="text"
                             value={form.displayName}
-                            onChange={(e) => setForm({...form, displayName: e.target.value})}
+                            onChange={(e) => updateField("displayName", e.target.value)}
+                            onBlur={() => setFieldTouched("displayName")}
                             placeholder="NAME AS PER RECORDS"
-                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                            aria-invalid={Boolean(errors.displayName)}
+                            className={cn(
+                              "w-full bg-white/5 border-b-4 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl outline-hidden font-heading transition-all placeholder:opacity-10",
+                              errors.displayName ? "border-red-500" : "border-white/10 focus:border-[#D4AF37]"
+                            )}
                           />
+                          {(() => {
+                            const message = getFieldMessage("displayName", "IDENTITY VERIFIED.", "ENTER YOUR FULL NAME.");
+                            return (
+                              <p className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
+                                message.tone === "error" ? "text-red-500" : message.tone === "success" ? "text-green-500" : "text-[#FDF5E6]/30"
+                              )}>
+                                {message.text}
+                              </p>
+                            );
+                          })()}
                        </div>
                     )}
 
@@ -465,10 +642,27 @@ export default function TicketsClient() {
                           <input 
                             type="tel"
                             value={form.phoneNumber}
-                            onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
+                            onChange={(e) => updateField("phoneNumber", e.target.value.replace(/[^\d+\s()-]/g, ""))}
+                            onBlur={() => setFieldTouched("phoneNumber")}
                             placeholder="+91 XXXXX XXXXX"
-                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                            maxLength={16}
+                            aria-invalid={Boolean(errors.phoneNumber)}
+                            className={cn(
+                              "w-full bg-white/5 border-b-4 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl outline-hidden font-heading transition-all placeholder:opacity-10",
+                              errors.phoneNumber ? "border-red-500" : "border-white/10 focus:border-[#D4AF37]"
+                            )}
                           />
+                          {(() => {
+                            const message = getFieldMessage("phoneNumber", "COMMUNICATION CHANNEL VERIFIED.", "ENTER A 10-DIGIT PHONE NUMBER.");
+                            return (
+                              <p className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
+                                message.tone === "error" ? "text-red-500" : message.tone === "success" ? "text-green-500" : "text-[#FDF5E6]/30"
+                              )}>
+                                {message.text}
+                              </p>
+                            );
+                          })()}
                        </div>
                     )}
 
@@ -478,10 +672,27 @@ export default function TicketsClient() {
                           <input 
                             type="text"
                             value={form.rollNo}
-                            onChange={(e) => setForm({...form, rollNo: e.target.value.toUpperCase()})}
-                            placeholder="BTECH/1XXXX/2X"
-                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                            onChange={(e) => updateField("rollNo", e.target.value.toUpperCase())}
+                            onBlur={() => setFieldTouched("rollNo")}
+                            placeholder="BTECH/10574/24"
+                            maxLength={20}
+                            aria-invalid={Boolean(errors.rollNo)}
+                            className={cn(
+                              "w-full bg-white/5 border-b-4 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl outline-hidden font-heading transition-all placeholder:opacity-10",
+                              errors.rollNo ? "border-red-500" : "border-white/10 focus:border-[#D4AF37]"
+                            )}
                           />
+                          {(() => {
+                            const message = getFieldMessage("rollNo", "ACADEMIC SIGNIFIER VERIFIED.", "USE LETTERS, NUMBERS, / OR - ONLY.");
+                            return (
+                              <p className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
+                                message.tone === "error" ? "text-red-500" : message.tone === "success" ? "text-green-500" : "text-[#FDF5E6]/30"
+                              )}>
+                                {message.text}
+                              </p>
+                            );
+                          })()}
                        </div>
                     )}
 
@@ -491,10 +702,26 @@ export default function TicketsClient() {
                           <input 
                             type="text"
                             value={form.idCardImageUrl}
-                            onChange={(e) => setForm({...form, idCardImageUrl: e.target.value})}
+                            onChange={(e) => updateField("idCardImageUrl", e.target.value)}
+                            onBlur={() => setFieldTouched("idCardImageUrl")}
                             placeholder="HTTPS://IMAGE.URL"
-                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-2xl md:text-4xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                            aria-invalid={Boolean(errors.idCardImageUrl)}
+                            className={cn(
+                              "w-full bg-white/5 border-b-4 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-2xl md:text-4xl outline-hidden font-heading transition-all placeholder:opacity-10",
+                              errors.idCardImageUrl ? "border-red-500" : "border-white/10 focus:border-[#D4AF37]"
+                            )}
                           />
+                          {(() => {
+                            const message = getFieldMessage("idCardImageUrl", "IDENTIFICATION IMAGE LINK VERIFIED.", "PASTE A PUBLIC HTTP OR HTTPS IMAGE URL.");
+                            return (
+                              <p className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
+                                message.tone === "error" ? "text-red-500" : message.tone === "success" ? "text-green-500" : "text-[#FDF5E6]/30"
+                              )}>
+                                {message.text}
+                              </p>
+                            );
+                          })()}
                        </div>
                     )}
 
@@ -512,10 +739,26 @@ export default function TicketsClient() {
                           <input 
                             type="password"
                             value={form.password}
-                            onChange={(e) => setForm({...form, password: e.target.value})}
+                            onChange={(e) => updateField("password", e.target.value)}
+                            onBlur={() => setFieldTouched("password")}
                             placeholder="••••••••"
-                            className="w-full bg-white/5 border-b-4 border-white/10 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl focus:border-[#D4AF37] outline-hidden font-heading transition-all placeholder:opacity-10"
+                            aria-invalid={Boolean(errors.password)}
+                            className={cn(
+                              "w-full bg-white/5 border-b-4 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-4xl md:text-6xl outline-hidden font-heading transition-all placeholder:opacity-10",
+                              errors.password ? "border-red-500" : "border-white/10 focus:border-[#D4AF37]"
+                            )}
                           />
+                          {(() => {
+                            const message = getFieldMessage("password", "RECOVERY SEAL ACCEPTED.", "SET A RECOVERY SEAL WITH AT LEAST 6 CHARACTERS.");
+                            return (
+                              <p className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
+                                message.tone === "error" ? "text-red-500" : message.tone === "success" ? "text-green-500" : "text-[#FDF5E6]/30"
+                              )}>
+                                {message.text}
+                              </p>
+                            );
+                          })()}
                        </div>
                     )}
 
@@ -544,14 +787,34 @@ export default function TicketsClient() {
                                    </div>
                                    <div className="flex items-center gap-3 text-green-500">
                                       <Sparkles className="w-5 h-5" />
-                                      <p className="text-[10px] font-black uppercase font-heading tracking-widest">LINEAGE CONFIRMED</p>
+                                      <p className="text-[10px] font-black uppercase font-heading tracking-widest">{isFormValid ? "LINEAGE CONFIRMED" : "PENDING FIELD VALIDATION"}</p>
                                    </div>
                                 </div>
                              </div>
                           </div>
+                          {!isFormValid && (
+                            <div className="p-6 bg-red-600/10 border border-red-600/20 rounded-2xl">
+                              <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.3em] font-heading">
+                                ALL FIELDS MUST BE FILLED CORRECTLY BEFORE THE PASS CAN BE MINTED.
+                              </p>
+                            </div>
+                          )}
                        </div>
                     )}
                   </div>
+
+                  {statusMessage.text && (
+                    <div className={cn(
+                      "border rounded-2xl px-6 py-4",
+                      statusMessage.type === "error"
+                        ? "bg-red-600/10 border-red-600/20 text-red-500"
+                        : "bg-green-600/10 border-green-600/20 text-green-500"
+                    )}>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] font-heading">
+                        {statusMessage.text}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex flex-col md:flex-row gap-6">
                      {activeStep > 0 && (
@@ -565,8 +828,13 @@ export default function TicketsClient() {
                      )}
                      <button 
                        onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
-                       disabled={loading}
-                       className="flex-3 py-10 bg-linear-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B] text-[#1A0505] font-black uppercase tracking-[0.4em] text-xs hover:tracking-[0.6em] transition-all font-heading relative group overflow-hidden"
+                       disabled={loading || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)}
+                       className={cn(
+                         "flex-3 py-10 text-[#1A0505] font-black uppercase tracking-[0.4em] text-xs transition-all font-heading relative group overflow-hidden",
+                         loading || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)
+                           ? "bg-linear-to-r from-[#6B5A22] via-[#8A7530] to-[#6B5A22] opacity-60 cursor-not-allowed"
+                           : "bg-linear-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B] hover:tracking-[0.6em]"
+                       )}
                      >
                        <div className="absolute inset-0 bg-white opacity-0 group-active:opacity-20 transition-opacity" />
                        {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 
