@@ -9,7 +9,8 @@ import {
   Calendar,
   Activity,
   ArrowUpRight,
-  ShieldAlert
+  ShieldAlert,
+  FolderTree
 } from "lucide-react";
 import { 
   getAdminUsers, 
@@ -53,6 +54,7 @@ export default function AdminOverview() {
     { label: "Tickets Minted", value: stats.tickets, icon: Ticket, color: "text-[#D4AF37]", href: "/admin/tickets" },
     { label: "Active Squadrons", value: stats.teams, icon: Trophy, color: "text-purple-500", href: "/admin/teams" },
     { label: "Gaatha Events", value: stats.events, icon: Calendar, color: "text-green-500", href: "/admin/events" },
+    { label: "Team Event Matrix", value: "CSV", icon: FolderTree, color: "text-cyan-400", href: "/admin/team-events" },
   ];
 
   return (
@@ -67,7 +69,7 @@ export default function AdminOverview() {
           <p className="text-[10px] text-[#D4AF37]/40 font-black uppercase tracking-[0.3em]">COMMAND CENTER // OPERATIONAL INTELLIGENCE</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
           {cards.map((card, i) => (
             <motion.div
               key={card.label}

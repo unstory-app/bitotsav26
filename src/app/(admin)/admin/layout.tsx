@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, ShieldCheck, AlertTriangle, Users, Ticket, Trophy, Calendar, UserPlus, LayoutDashboard } from "lucide-react";
+import { Lock, ShieldCheck, AlertTriangle, Users, Ticket, Trophy, Calendar, UserPlus, LayoutDashboard, FolderTree } from "lucide-react";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Teams", icon: Trophy, href: "/admin/teams" },
     { label: "Events", icon: Calendar, href: "/admin/events" },
     { label: "Participants", icon: UserPlus, href: "/admin/participants" },
+    { label: "Team Events", icon: FolderTree, href: "/admin/team-events" },
   ];
 
   if (!authorized) {
