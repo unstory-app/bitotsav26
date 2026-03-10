@@ -32,7 +32,7 @@ import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actions/user";
+import { getUser, updateUserDetails, createTicket, hasTicket, verifyTicketUnlockPassword } from "@/app/actions/user";
 import { SITE_CONFIG } from "@/config/site";
 
 const steps = [
@@ -62,6 +62,7 @@ export default function TicketsClient() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [unlockingPass, setUnlockingPass] = useState(false);
   const [unlockPassword, setUnlockPassword] = useState("");
   const [unlockError, setUnlockError] = useState("");
   const [isPassUnlocked, setIsPassUnlocked] = useState(false);
@@ -212,7 +213,7 @@ export default function TicketsClient() {
             phoneNumber: existingDbUser.phoneNumber || "",
             rollNo: existingDbUser.rollNo || "",
             idCardImageUrl: existingDbUser.idCardImageUrl || user.profileImageUrl || "",
-            password: existingDbUser.password || "",
+            password: "",
           });
         }
       }
@@ -226,7 +227,7 @@ export default function TicketsClient() {
     setIsPassUnlocked(false);
     setUnlockPassword("");
     setUnlockError("");
-  }, [hasUserTicket, dbUser?.password]);
+  }, [hasUserTicket, dbUser?.id]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = e.currentTarget.getBoundingClientRect();
@@ -348,8 +349,11 @@ export default function TicketsClient() {
   };
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
 
-  const verifyUnlockPassword = () => {
-    const savedPassword = (dbUser?.password || form.password || "").trim();
+  const verifyUnlockPassword = async () => {
+    if (!user) {
+      return false;
+    }
+
     const enteredPassword = unlockPassword.trim();
 
     if (!enteredPassword) {
@@ -357,8 +361,13 @@ export default function TicketsClient() {
       return false;
     }
 
-    if (!savedPassword || enteredPassword !== savedPassword) {
+    setUnlockingPass(true);
+
+    const result = await verifyTicketUnlockPassword(user.id, enteredPassword);
+
+    if (!result.success) {
       setUnlockError("INCORRECT RECOVERY SEAL.");
+      setUnlockingPass(false);
       return false;
     }
 
@@ -366,6 +375,7 @@ export default function TicketsClient() {
     setIsPassUnlocked(true);
     setShowPass(true);
     setStatusMessage({ text: "PASS UNLOCKED. QR AND PDF EXPORT ARE NOW AVAILABLE.", type: "success" });
+    setUnlockingPass(false);
     return true;
   };
 
@@ -768,7 +778,7 @@ export default function TicketsClient() {
                             }}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
-                                verifyUnlockPassword();
+                                void verifyUnlockPassword();
                               }
                             }}
                             placeholder="ENTER RECOVERY SEAL"
@@ -789,10 +799,14 @@ export default function TicketsClient() {
                           )}
 
                           <button
-                            onClick={verifyUnlockPassword}
-                            className="w-full rounded-2xl bg-[#D4AF37] px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-[#1A0505] transition-colors hover:bg-[#e3bc45] font-heading"
+                            onClick={() => void verifyUnlockPassword()}
+                            disabled={unlockingPass}
+                            className={cn(
+                              "w-full rounded-2xl px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-[#1A0505] transition-colors font-heading",
+                              unlockingPass ? "bg-[#8A7530] cursor-not-allowed" : "bg-[#D4AF37] hover:bg-[#e3bc45]"
+                            )}
                           >
-                            UNLOCK QR AND PDF
+                            {unlockingPass ? "VERIFYING RECOVERY SEAL" : "UNLOCK QR AND PDF"}
                           </button>
                         </div>
                       </motion.div>

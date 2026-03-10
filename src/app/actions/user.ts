@@ -198,10 +198,37 @@ export async function hasTicket(userId: string) {
   return result.length > 0;
 }
 
+export async function verifyTicketUnlockPassword(userId: string, password: string) {
+  const stackUser = await stackServerApp.getUser();
+  if (!stackUser || stackUser.id !== userId) {
+    return { success: false, message: "UNAUTHORIZED_ACCESS" };
+  }
+
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const existingUser = result[0];
+
+  if (!existingUser?.password) {
+    return { success: false, message: "RECOVERY_SEAL_NOT_SET" };
+  }
+
+  if (existingUser.password.trim() !== password.trim()) {
+    return { success: false, message: "INVALID_RECOVERY_SEAL" };
+  }
+
+  return { success: true };
+}
+
 /**
  * Gets a user from the database by their Stack Auth ID.
  */
 export async function getUser(id: string) {
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  return result[0] ?? null;
+  const existingUser = result[0];
+
+  if (!existingUser) {
+    return null;
+  }
+
+  const { password: _password, ...safeUser } = existingUser;
+  return safeUser;
 }
