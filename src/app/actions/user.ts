@@ -4,8 +4,14 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { stackServerApp } from "@/stack/server";
+import { revalidatePath } from "next/cache";
 
 const BIT_MESRA_DOMAIN = "@bitmesra.ac.in";
+
+function isValidPhoneNumber(value: string) {
+  const phoneDigits = value.replace(/\D/g, "");
+  return phoneDigits.length === 10 || (phoneDigits.length === 12 && phoneDigits.startsWith("91"));
+}
 
 function isValidImageUrl(value: string) {
   try {
@@ -29,13 +35,12 @@ function validateUserDetails(details: {
   const idCardImageUrl = details.idCardImageUrl?.trim() ?? "";
   const password = details.password?.trim() ?? "";
   const phoneNumber = details.phoneNumber?.trim() ?? "";
-  const phoneDigits = phoneNumber.replace(/\D/g, "");
 
   if (!displayName || displayName.length < 3 || !/^[A-Z][A-Z .'-]{2,}$/i.test(displayName)) {
     return "INVALID_DISPLAY_NAME";
   }
 
-  if (!(phoneDigits.length === 10 || (phoneDigits.length === 12 && phoneDigits.startsWith("91")))) {
+  if (!isValidPhoneNumber(phoneNumber)) {
     return "INVALID_PHONE_NUMBER";
   }
 
@@ -158,6 +163,34 @@ export async function updateUserDetails(userId: string, details: {
   } catch (error) {
     console.error("Failed to update user details:", error);
     return { success: false, message: "Update failed." };
+  }
+}
+
+export async function updateUserPhoneNumber(userId: string, phoneNumber: string) {
+  try {
+    const stackUser = await stackServerApp.getUser();
+    if (!stackUser || stackUser.id !== userId) {
+      return { success: false, message: "UNAUTHORIZED_ACCESS" };
+    }
+
+    const sanitizedPhoneNumber = phoneNumber.trim();
+    if (!isValidPhoneNumber(sanitizedPhoneNumber)) {
+      return { success: false, message: "INVALID_PHONE_NUMBER" };
+    }
+
+    await db.update(users)
+      .set({
+        phoneNumber: sanitizedPhoneNumber,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    revalidatePath("/profile");
+
+    return { success: true, message: "Phone number updated successfully." };
+  } catch (error) {
+    console.error("Failed to update phone number:", error);
+    return { success: false, message: "PHONE_NUMBER_UPDATE_FAILED" };
   }
 }
 

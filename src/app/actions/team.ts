@@ -5,6 +5,15 @@ import { teams, teamMembers, users, teamEvents } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+function hasValidPhoneNumber(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  const phoneDigits = value.replace(/\D/g, "");
+  return phoneDigits.length === 10 || (phoneDigits.length === 12 && phoneDigits.startsWith("91"));
+}
+
 // Helper to generate a unique team code
 async function generateTeamCode(): Promise<string> {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -32,6 +41,15 @@ export async function createTeam(name: string, eventId: string, leaderId: string
     const existingMembership = await db.select().from(teamMembers).where(eq(teamMembers.userId, leaderId)).limit(1);
     if (existingMembership.length > 0) {
       return { success: false, message: "A user can only be part of one team across the event." };
+    }
+
+    const [leader] = await db.select({
+      id: users.id,
+      phoneNumber: users.phoneNumber,
+    }).from(users).where(eq(users.id, leaderId)).limit(1);
+
+    if (!leader || !hasValidPhoneNumber(leader.phoneNumber)) {
+      return { success: false, message: "ADD_PHONE_NUMBER_BEFORE_TEAM_CREATION" };
     }
 
     const code = await generateTeamCode();
@@ -119,6 +137,11 @@ export async function getTeamDetails(teamId: string) {
       displayName: users.displayName,
       email: users.email,
       profileImageUrl: users.profileImageUrl,
+      idCardImageUrl: users.idCardImageUrl,
+      phoneNumber: users.phoneNumber,
+      rollNo: users.rollNo,
+      isBitMesra: users.isBitMesra,
+      joinedAt: teamMembers.joinedAt,
     })
     .from(teamMembers)
     .innerJoin(users, eq(teamMembers.userId, users.id))
@@ -139,6 +162,15 @@ export async function getTeamDetails(teamId: string) {
 
 export async function getUserTeams(userId: string) {
   try {
+    const allTeamsByRank = await db.select({
+      id: teams.id,
+      points: teams.points,
+    })
+    .from(teams)
+    .orderBy(desc(teams.points));
+
+    const teamRankMap = new Map(allTeamsByRank.map((team, index) => [team.id, index + 1]));
+
     const userTeamsList = await db.select({
       id: teams.id,
       name: teams.name,
@@ -157,10 +189,18 @@ export async function getUserTeams(userId: string) {
       })
       .from(teamEvents)
       .where(eq(teamEvents.teamId, t.id));
+
+      const members = await db.select({
+        id: teamMembers.id,
+      })
+      .from(teamMembers)
+      .where(eq(teamMembers.teamId, t.id));
       
       return {
         ...t,
-        events: events.map(e => e.eventId)
+        events: events.map(e => e.eventId),
+        memberCount: members.length,
+        rank: teamRankMap.get(t.id) ?? null,
       };
     });
 

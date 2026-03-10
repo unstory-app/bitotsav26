@@ -1,190 +1,321 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextImage from "next/image";
 import {
+  AlertTriangle,
+  ArrowRight,
+  Loader2,
+  LogOut,
+  MessageCircle,
+  Phone,
+  Plus,
   ShieldCheck,
   Ticket,
-  Users,
-  AlertTriangle,
-  LogOut,
-  Trash2,
-  UserMinus,
-  Info,
   Trophy,
-  Zap,
-  MessageCircle
+  Users,
 } from "lucide-react";
-import { useUser, useStackApp } from "@stackframe/stack";
+import { useStackApp, useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
-import { syncUser, hasTicket } from "@/app/actions/user";
-import { getUserTeams, createTeam, joinTeam, leaveTeam, dismissTeam, getTeamDetails } from "@/app/actions/team";
+import { getUser, hasTicket, syncUser, updateUserPhoneNumber } from "@/app/actions/user";
+import { createTeam, dismissTeam, getTeamDetails, getUserTeams, joinTeam, leaveTeam } from "@/app/actions/team";
 import { cn } from "@/lib/utils";
 import { Team } from "@/db/schema";
 import { events } from "@/lib/data/events";
 import { SITE_CONFIG } from "@/config/site";
 
+type TeamSummary = Team & {
+  events: string[];
+  memberCount: number;
+  rank: number | null;
+};
+
+type TeamMember = {
+  id: string;
+  displayName: string | null;
+  email: string;
+  profileImageUrl: string | null;
+  idCardImageUrl: string | null;
+  phoneNumber: string | null;
+  rollNo: string | null;
+  isBitMesra: boolean;
+  joinedAt: Date | string;
+};
+
+type StatusTone = "info" | "success" | "error";
+
+function hasValidPhoneNumber(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  const digits = value.replace(/\D/g, "");
+  return digits.length === 10 || (digits.length === 12 && digits.startsWith("91"));
+}
+
+function getInitials(value: string | null | undefined) {
+  const source = value?.trim();
+  if (!source) {
+    return "BT";
+  }
+
+  return source
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((token) => token[0]?.toUpperCase() ?? "")
+    .join("") || "BT";
+}
+
+function mapServerMessage(message?: string) {
+  switch (message) {
+    case "ADD_PHONE_NUMBER_BEFORE_TEAM_CREATION":
+      return "Add a valid phone number before creating a team.";
+    case "INVALID_PHONE_NUMBER":
+      return "Enter a valid 10-digit phone number.";
+    default:
+      return message || "Something went wrong.";
+  }
+}
+
 export default function ProfileContent() {
   const user = useUser({ or: "redirect" });
   const stack = useStackApp();
+
   const [loading, setLoading] = useState(true);
+  const [actionPending, setActionPending] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
-  const [synced, setSynced] = useState(false);
   const [hasUserTicket, setHasUserTicket] = useState(false);
-  const [userTeams, setUserTeams] = useState<(Team & { events: string[] })[]>([]);
+  const [dbUser, setDbUser] = useState<any>(null);
+  const [userTeams, setUserTeams] = useState<TeamSummary[]>([]);
+  const [teamDetailsById, setTeamDetailsById] = useState<Record<string, TeamMember[]>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
-  const [selectedTeamDetails, setSelectedTeamDetails] = useState<{ 
-    id: string, 
-    members: { id: string, displayName: string | null, email: string, profileImageUrl: string | null }[] 
-  } | null>(null);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [continueToCreateAfterPhone, setContinueToCreateAfterPhone] = useState(false);
   const [teamForm, setTeamForm] = useState({ name: "", eventId: "" });
   const [joinCodeInput, setJoinCodeInput] = useState("");
-  const [statusMessage, setStatusMessage] = useState({ text: "", type: "info" });
+  const [phoneInput, setPhoneInput] = useState("");
+  const [statusMessage, setStatusMessage] = useState<{ text: string; type: StatusTone }>({ text: "", type: "info" });
 
   const isBitMesra = user.primaryEmail?.toLowerCase().endsWith("@bitmesra.ac.in");
+  const hasPhoneNumber = hasValidPhoneNumber(dbUser?.phoneNumber);
+
+  async function refreshDashboardData(userId: string) {
+    const [ticketExists, existingDbUser, teamsData] = await Promise.all([
+      hasTicket(userId),
+      getUser(userId),
+      getUserTeams(userId),
+    ]);
+
+    const typedTeams = teamsData as TeamSummary[];
+
+    setHasUserTicket(ticketExists);
+    setDbUser(existingDbUser);
+    setUserTeams(typedTeams);
+    setPhoneInput(existingDbUser?.phoneNumber || "");
+
+    if (!typedTeams.length) {
+      setTeamDetailsById({});
+      return;
+    }
+
+    const detailsEntries = await Promise.all(
+      typedTeams.map(async (team) => {
+        const details = await getTeamDetails(team.id);
+        return [team.id, (details?.members ?? []) as TeamMember[]] as const;
+      })
+    );
+
+    setTeamDetailsById(Object.fromEntries(detailsEntries));
+  }
 
   useEffect(() => {
-    if (user) {
-      setLoading(false);
-      
-      const initializeUser = async () => {
-        // First sync basic data
-        const syncResult = await syncUser({
-          id: user.id,
-          email: user.primaryEmail || "",
-          displayName: user.displayName,
-          profileImageUrl: user.profileImageUrl,
-        });
+    let active = true;
 
-        if (!syncResult.success) {
-          setSyncError(syncResult.message);
-        }
+    async function initialize() {
+      if (!user) {
+        return;
+      }
 
-        // Check for ticket
-        const ticketExists = await hasTicket(user.id);
-        setHasUserTicket(ticketExists);
+      setLoading(true);
+      setSyncError(null);
 
-        // Fetch user teams
-        const teamsData = await getUserTeams(user.id);
-        setUserTeams(teamsData as (Team & { events: string[] })[]);
+      const syncResult = await syncUser({
+        id: user.id,
+        email: user.primaryEmail || "",
+        displayName: user.displayName,
+        profileImageUrl: user.profileImageUrl,
+      });
 
-        setSynced(true);
-      };
+      if (!active) {
+        return;
+      }
 
-      if (!synced) {
-        initializeUser();
+      if (!syncResult.success) {
+        setSyncError(syncResult.message);
+      }
+
+      await refreshDashboardData(user.id);
+
+      if (active) {
+        setLoading(false);
       }
     }
-  }, [user, synced]);
 
-  const handleCreateTeam = async () => {
-    if (!teamForm.name || !teamForm.eventId) {
-      setStatusMessage({ text: "Please provide team name and select an event.", type: "error" });
-      return;
-    }
-    setLoading(true);
-    const result = await createTeam(teamForm.name, teamForm.eventId, user.id);
-    if (result.success) {
-      setStatusMessage({ text: `Team created! Code: ${result.code}`, type: "success" });
-      setShowCreateModal(false);
-      const updated = await getUserTeams(user.id);
-      setUserTeams(updated);
-    } else {
-      setStatusMessage({ text: result.message || "Failed to create team.", type: "error" });
-    }
-    setLoading(false);
-  };
+    void initialize();
 
-  const handleJoinTeam = async () => {
-    if (!joinCodeInput) return;
-    setLoading(true);
-    const result = await joinTeam(joinCodeInput, user.id);
-    if (result.success) {
-      setStatusMessage({ text: "Successfully joined the team!", type: "success" });
-      setShowJoinModal(false);
-      setJoinCodeInput("");
-      const updated = await getUserTeams(user.id);
-      setUserTeams(updated);
-    } else {
-      setStatusMessage({ text: result.message || "Invalid code or join failed.", type: "error" });
-    }
-    setLoading(false);
-  };
-
-  const handleLeaveTeam = async (teamId: string) => {
-    if (!confirm("Are you sure you want to leave this squadron?")) return;
-    setLoading(true);
-    const result = await leaveTeam(teamId, user.id);
-    if (result.success) {
-      setStatusMessage({ text: "You have left the squadron.", type: "success" });
-      const updated = await getUserTeams(user.id);
-      setUserTeams(updated);
-    } else {
-      setStatusMessage({ text: result.message || "Failed to leave team.", type: "error" });
-    }
-    setLoading(false);
-  };
-
-  const handleDismissTeam = async (teamId: string) => {
-    if (!confirm("CRITICAL: This will PERMANENTLY DELETE the squadron and all event registrations. Proceed?")) return;
-    setLoading(true);
-    const result = await dismissTeam(teamId, user.id);
-    if (result.success) {
-      setStatusMessage({ text: "Squadron has been dismissed.", type: "success" });
-      const updated = await getUserTeams(user.id);
-      setUserTeams(updated);
-    } else {
-      setStatusMessage({ text: result.message || "Failed to dismiss team.", type: "error" });
-    }
-    setLoading(false);
-  };
-
-  const handleShowIntel = async (teamId: string) => {
-    if (selectedTeamDetails?.id === teamId) {
-      setSelectedTeamDetails(null);
-      return;
-    }
-    setLoading(true);
-    const details = await getTeamDetails(teamId);
-    if (details) {
-      setSelectedTeamDetails({ id: teamId, members: details.members });
-    }
-    setLoading(false);
-  };
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const handleCheckEligibility = () => {
     if (isBitMesra) {
       window.location.href = "/tickets";
-    } else {
-      setStatusMessage({ 
-        text: "Direct ticket generation is currently restricted to BIT Mesra students. External participants can join teams and participate in events.", 
-        type: "info" 
-      });
+      return;
     }
+
+    setStatusMessage({
+      text: "Direct ticket generation is currently restricted to BIT Mesra students. External participants can still join teams and events.",
+      type: "info",
+    });
+  };
+
+  const openCreateFlow = () => {
+    if (!hasPhoneNumber) {
+      setContinueToCreateAfterPhone(true);
+      setShowPhoneModal(true);
+      setStatusMessage({ text: "Add your phone number before creating a team.", type: "info" });
+      return;
+    }
+
+    setShowCreateModal(true);
+  };
+
+  const handleSavePhoneNumber = async () => {
+    setActionPending(true);
+
+    const result = await updateUserPhoneNumber(user.id, phoneInput);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setShowPhoneModal(false);
+      setStatusMessage({ text: "Phone number saved successfully.", type: "success" });
+
+      if (continueToCreateAfterPhone) {
+        setContinueToCreateAfterPhone(false);
+        setShowCreateModal(true);
+      }
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
+  const handleCreateTeam = async () => {
+    if (!teamForm.name || !teamForm.eventId) {
+      setStatusMessage({ text: "Provide a team name and select an event.", type: "error" });
+      return;
+    }
+
+    if (!hasPhoneNumber) {
+      setShowCreateModal(false);
+      setContinueToCreateAfterPhone(true);
+      setShowPhoneModal(true);
+      setStatusMessage({ text: "Add your phone number before creating a team.", type: "info" });
+      return;
+    }
+
+    setActionPending(true);
+    const result = await createTeam(teamForm.name.trim(), teamForm.eventId, user.id);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setTeamForm({ name: "", eventId: "" });
+      setShowCreateModal(false);
+      setStatusMessage({ text: `Team created successfully. Code: ${result.code}`, type: "success" });
+    } else {
+      if (result.message === "ADD_PHONE_NUMBER_BEFORE_TEAM_CREATION") {
+        setShowCreateModal(false);
+        setContinueToCreateAfterPhone(true);
+        setShowPhoneModal(true);
+      }
+
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
+  const handleJoinTeam = async () => {
+    if (!joinCodeInput.trim()) {
+      setStatusMessage({ text: "Enter a valid team code.", type: "error" });
+      return;
+    }
+
+    setActionPending(true);
+    const result = await joinTeam(joinCodeInput.trim().toUpperCase(), user.id);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setJoinCodeInput("");
+      setShowJoinModal(false);
+      setStatusMessage({ text: "You joined the team successfully.", type: "success" });
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
+  const handleLeaveTeam = async (teamId: string) => {
+    if (!confirm("Leave this team?")) {
+      return;
+    }
+
+    setActionPending(true);
+    const result = await leaveTeam(teamId, user.id);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setStatusMessage({ text: "You have left the team.", type: "success" });
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
+  };
+
+  const handleDismissTeam = async (teamId: string) => {
+    if (!confirm("This will permanently delete the team and all linked registrations. Continue?")) {
+      return;
+    }
+
+    setActionPending(true);
+    const result = await dismissTeam(teamId, user.id);
+
+    if (result.success) {
+      await refreshDashboardData(user.id);
+      setStatusMessage({ text: "Team dismissed successfully.", type: "success" });
+    } else {
+      setStatusMessage({ text: mapServerMessage(result.message), type: "error" });
+    }
+
+    setActionPending(false);
   };
 
   if (loading) {
     return (
-      <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16 pb-16 border-b border-white/5">
-            <div className="flex items-center gap-6">
-              <Skeleton className="w-24 h-24 rounded-full" />
-              <div className="space-y-3">
-                <Skeleton className="w-48 h-8" />
-                <Skeleton className="w-32 h-4" />
-              </div>
-            </div>
-            <Skeleton className="w-40 h-12" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <Skeleton className="lg:col-span-2 h-[400px] rounded-3xl" />
+      <PageWrapper className="min-h-screen bg-[#120606] px-4 pb-16 pt-28 md:px-6 md:pt-32">
+        <div className="mx-auto max-w-7xl space-y-8">
+          <Skeleton className="h-48 rounded-[32px]" />
+          <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+            <Skeleton className="h-[420px] rounded-[32px]" />
             <div className="space-y-6">
-              <Skeleton className="h-20 rounded-2xl" />
-              <Skeleton className="h-20 rounded-2xl" />
-              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-48 rounded-[32px]" />
+              <Skeleton className="h-48 rounded-[32px]" />
             </div>
           </div>
         </div>
@@ -193,445 +324,513 @@ export default function ProfileContent() {
   }
 
   return (
-    <PageWrapper className="pt-32 pb-20 bg-[#1A0505] min-h-screen relative overflow-hidden tapestry-bg">
-      {/* Texture Overlays */}
-      <div className="absolute inset-0 z-0 pointer-events-none tapestry-pattern opacity-10" />
-      <div className="absolute bottom-0 left-0 w-full h-1/2 z-0 pointer-events-none bg-linear-to-t from-[#D4AF37]/5 to-transparent" />
+    <PageWrapper className="min-h-screen bg-[#120606] pb-16 pt-28 md:pt-32">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.14),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_30%)]" />
 
-      {/* Sync Error Banner */}
-      {syncError && (
-        <div className="max-w-2xl mx-auto mb-12 p-6 bg-red-600/10 border-2 border-red-600 text-red-600 font-black italic uppercase tracking-tighter flex items-center gap-6 relative z-50">
-          <AlertTriangle className="w-10 h-10 shrink-0" />
-          <div>
-            <p className="text-xl mb-1 font-black underline font-heading">VALIDATION ERROR: ACCOUNT SYNC DELAYED</p>
-            <p className="opacity-70 text-sm tracking-widest uppercase">{syncError}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Header Section */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-12 md:mb-24 relative z-10 print:hidden">
-          <div className="border-l-8 md:border-l-12 border-[#D4AF37] pl-6 md:pl-10 py-4 md:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-              <div>
-                <h1 className="text-5xl md:text-9xl font-black italic text-[#FDF5E6] uppercase leading-none tracking-tighter mb-4 font-heading">
-                    ARTISAN <span className="text-[#D4AF37]">PASS.</span>
-                </h1>
-                <p className="text-sm md:text-xl text-[#FDF5E6]/40 font-black italic uppercase tracking-[0.2em] md:tracking-[0.3em] font-heading">
-                    LEGACY ENTRANCE // THE 35TH EDITION
-                </p>
-              </div>
-
-              <button 
-                onClick={() => stack.signOut()}
-                className="px-8 py-4 bg-red-600/10 border-2 border-red-600 text-red-600 font-black italic uppercase tracking-widest text-xs hover:bg-red-600 hover:text-white transition-all flex items-center gap-3 font-heading"
-              >
-                <LogOut className="w-4 h-4" />
-                LEGACY DISCONNECT
-              </button>
-          </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 items-start">
-        
-        {hasUserTicket ? (
-          <div className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12 stamp-edge">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-               <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
-            </div>
-
-            <div className="relative z-10 text-center md:text-left space-y-8">
-              <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-                <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
-                  <ShieldCheck className="w-8 h-8" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">HERITAGE PASS ACTIVE</h2>
-                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">IDENTITY // VERIFIED</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
-                  Your <span className="text-[#D4AF37]">DIGITAL SIGIL</span> is minted and ready. Present it at the festival gates for seamless authorization.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button 
-                    onClick={() => window.location.href = "/tickets"}
-                    className="flex-1 px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 hover:bg-[#e3bc45]"
-                  >
-                    <Ticket className="w-5 h-5" />
-                    VIEW DIGITAL PASS
-                  </button>
-                  <button 
-                    onClick={() => window.location.href = "/events"}
-                    className="flex-1 px-12 py-6 bg-white/5 border-2 border-[#D4AF37]/20 text-[#D4AF37] font-black uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all font-heading flex items-center justify-center gap-3"
-                  >
-                    <Zap className="w-5 h-5" />
-                    JOIN EVENTS
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-               <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
-            </div>
-
-            <div className="relative z-10 text-center md:text-left space-y-8">
-              <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-                <div className="p-4 bg-[#D4AF37] text-[#1A0505]">
-                  <Ticket className="w-8 h-8" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-black uppercase text-[#FDF5E6] font-heading">DIGITAL HERITAGE PASS</h2>
-                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">STATUS: UNAUTHORIZED</p>
-                </div>
-              </div>
-
-              {isBitMesra ? (
-                <div className="space-y-6">
-                  <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
-                    Detecting <span className="text-[#D4AF37]">@BITMESRA.AC.IN</span> affiliation. You are eligible to generate your complimentary digital access pass.
-                  </p>
-                  <button 
-                    onClick={handleCheckEligibility}
-                    className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors font-heading hover:bg-[#e3bc45]"
-                  >
-                    GENERATE PASS NOW
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter max-w-2xl font-heading">
-                    Welcome, <span className="text-[#D4AF37]">ARTISAN</span>. You can join teams and participate in events. Full festival access passes for external participants may be released soon.*
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
-                      onClick={() => window.location.href = "/events"}
-                      className="px-12 py-6 bg-white/5 border-2 border-[#D4AF37]/20 text-[#D4AF37] font-black uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all font-heading flex items-center justify-center gap-3"
-                    >
-                      <Zap className="w-5 h-5" />
-                      JOIN EVENTS WITH TEAMS
-                    </button>
-                  </div>
-                  <div className="p-6 bg-white/5 border-l-4 border-[#D4AF37]">
-                    <p className="text-[#FDF5E6]/40 text-xs font-black uppercase leading-relaxed tracking-wider font-heading">
-                      Register your team below to start your Bitotsav journey.
-                    </p>
-                  </div>
-                </div>
-              )}
+      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+        {syncError && (
+          <div className="mb-6 flex items-start gap-4 rounded-[28px] border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-300">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em]">Profile Sync Delayed</p>
+              <p className="mt-1 text-sm text-red-200/70">{syncError}</p>
             </div>
           </div>
         )}
-      </div>
-  {/* Teams Section */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-32 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Users className="w-6 h-6 text-[#D4AF37]" />
-                <span className="text-xs font-black uppercase tracking-[0.3em] text-[#D4AF37]/60 font-heading">SQUADRON HUB</span>
+
+        <section className="overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-xl md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
+            <div className="space-y-6">
+              <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative h-20 w-20 overflow-hidden rounded-[24px] border border-[#D4AF37]/25 bg-[#D4AF37]/10">
+                    {user.profileImageUrl || dbUser?.profileImageUrl ? (
+                      <NextImage
+                        src={user.profileImageUrl || dbUser?.profileImageUrl || ""}
+                        alt={user.displayName || "Profile"}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xl font-black uppercase tracking-[0.2em] text-[#D4AF37]">
+                        {getInitials(user.displayName || dbUser?.displayName)}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-[#D4AF37]/70">Profile Overview</p>
+                    <h1 className="mt-2 text-3xl font-black uppercase tracking-[0.04em] text-[#FDF5E6] md:text-5xl">
+                      {dbUser?.displayName || user.displayName || "Bitotsav User"}
+                    </h1>
+                    <p className="mt-2 break-all text-sm text-[#FDF5E6]/65">{user.primaryEmail}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => stack.signOut()}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-[#FDF5E6]/75 transition hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">YOUR <span className="text-[#D4AF37]">TEAMS.</span></h2>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Phone</p>
+                  <p className="mt-3 text-lg font-semibold text-[#FDF5E6]">{dbUser?.phoneNumber || "Not added yet"}</p>
+                  {!hasPhoneNumber && (
+                    <button
+                      onClick={() => {
+                        setContinueToCreateAfterPhone(false);
+                        setShowPhoneModal(true);
+                      }}
+                      className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#D4AF37]"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Add Phone Number
+                    </button>
+                  )}
+                </div>
+
+                <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Roll Number</p>
+                  <p className="mt-3 text-lg font-semibold uppercase text-[#FDF5E6]">{dbUser?.rollNo || "Not submitted"}</p>
+                </div>
+
+                <div className="rounded-[28px] border border-white/10 bg-black/20 p-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Affiliation</p>
+                  <p className="mt-3 text-lg font-semibold text-[#FDF5E6]">{isBitMesra ? "BIT Mesra" : "External Participant"}</p>
+                </div>
+              </div>
+
+              {!hasPhoneNumber && (
+                <div className="rounded-[28px] border border-[#D4AF37]/20 bg-[#D4AF37]/10 p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">Action Required</p>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FDF5E6]/70">
+                    Add a valid phone number on this page before creating a team. This keeps team coordination and manual verification intact.
+                  </p>
+                </div>
+              )}
             </div>
-            {userTeams.length === 0 && (
-              <div className="flex gap-4 w-full md:w-auto">
-                <button 
-                  onClick={() => setShowJoinModal(true)}
-                  className="flex-1 md:flex-none px-8 py-4 bg-white/5 border-2 border-white/10 text-[#FDF5E6] font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all font-heading"
-                >
-                  JOIN TEAM
-                </button>
-                <button 
-                  onClick={() => setShowCreateModal(true)}
-                  className="flex-1 md:flex-none px-8 py-4 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs transition-colors font-heading hover:bg-[#e3bc45]"
-                >
-                  CREATE TEAM
-                </button>
+
+            <div className="grid gap-4">
+              <div className="rounded-[30px] border border-white/10 bg-black/25 p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/60">Festival Pass</p>
+                    <h2 className="mt-2 text-2xl font-black uppercase tracking-[0.05em] text-[#FDF5E6]">
+                      {hasUserTicket ? "Pass Active" : "Pass Pending"}
+                    </h2>
+                  </div>
+                  <div
+                    className={cn(
+                      "rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em]",
+                      hasUserTicket ? "bg-emerald-500/15 text-emerald-300" : "bg-white/10 text-[#FDF5E6]/65"
+                    )}
+                  >
+                    {hasUserTicket ? "Ready" : "Not Minted"}
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm leading-7 text-[#FDF5E6]/65">
+                  {hasUserTicket
+                    ? "Your digital pass is already issued. Open it directly or go explore events."
+                    : isBitMesra
+                      ? "You can mint your pass now using your BIT Mesra account."
+                      : "External participants can continue through teams and event registrations."}
+                </p>
+
+                <div className="mt-6 flex flex-col gap-3">
+                  <button
+                    onClick={() => {
+                      window.location.href = "/tickets";
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45]"
+                  >
+                    <Ticket className="h-4 w-4" />
+                    {hasUserTicket ? "Open Pass" : "Generate Pass"}
+                  </button>
+                  {!isBitMesra && !hasUserTicket && (
+                    <button
+                      onClick={handleCheckEligibility}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#FDF5E6]/80 transition hover:border-[#D4AF37]/40 hover:text-[#FDF5E6]"
+                    >
+                      Learn Eligibility
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
+
+              <div className="rounded-[30px] border border-white/10 bg-black/25 p-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/60">Community</p>
+                <div className="mt-5 space-y-3">
+                  <a
+                    href={SITE_CONFIG.whatsapp.community}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4 transition hover:border-[#25D366]/40 hover:bg-[#25D366]/10"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#FDF5E6]">Community Updates</p>
+                      <p className="mt-1 text-xs text-[#FDF5E6]/55">Official notices and event news</p>
+                    </div>
+                    <MessageCircle className="h-5 w-5 text-[#25D366]" />
+                  </a>
+                  <a
+                    href={SITE_CONFIG.whatsapp.helpdesk}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4 transition hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/10"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#FDF5E6]">Helpdesk</p>
+                      <p className="mt-1 text-xs text-[#FDF5E6]/55">Reach the team for support</p>
+                    </div>
+                    <ShieldCheck className="h-5 w-5 text-[#D4AF37]" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-[36px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.2)] backdrop-blur-xl md:p-8">
+          <div className="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Your Teams</p>
+              <h2 className="mt-2 text-3xl font-black uppercase tracking-[0.05em] text-[#FDF5E6] md:text-4xl">Team Control Center</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#FDF5E6]/60">
+                Track your current team rank, roster, members, participation, and coordination details from one place.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => setShowJoinModal(true)}
+                disabled={actionPending}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#FDF5E6]/75 transition hover:border-white/20 hover:text-[#FDF5E6] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Users className="h-4 w-4" />
+                Join Team
+              </button>
+              <button
+                onClick={openCreateFlow}
+                disabled={actionPending}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Plus className="h-4 w-4" />
+                Create Team
+              </button>
+            </div>
           </div>
 
           {userTeams.length === 0 ? (
-            <div className="p-20 border-2 border-dashed border-[#D4AF37]/20 flex flex-col items-center text-center space-y-6">
-              <div className="p-8 bg-[#D4AF37]/5 rounded-full">
-                <Users className="w-16 h-16 text-[#D4AF37]/20" />
+            <div className="mt-8 rounded-[30px] border border-dashed border-white/10 bg-black/20 px-6 py-16 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#D4AF37]/10 text-[#D4AF37]">
+                <Users className="h-8 w-8" />
               </div>
-              <p className="text-[#FDF5E6]/40 font-black uppercase tracking-widest text-sm font-heading max-w-md">
-                No active allegiances detected. Form a squadron or enter a recruitment code to begin your competitive heritage.
+              <h3 className="mt-6 text-2xl font-black uppercase tracking-[0.08em] text-[#FDF5E6]">No Team Yet</h3>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[#FDF5E6]/60">
+                Create a team or join one with an invite code. If you want to create a team, add your phone number first on this page.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="mt-8 space-y-8">
               {userTeams.map((team) => {
+                const members = teamDetailsById[team.id] || [];
+
                 return (
-                  <div key={team.id} className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                      <Users className="w-12 h-12" />
-                    </div>
-                    <div className="space-y-6 relative z-10">
+                  <article key={team.id} className="overflow-hidden rounded-[32px] border border-white/10 bg-black/20">
+                    <div className="grid gap-6 border-b border-white/10 p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 font-heading">TEAM NAME</p>
-                        <h3 className="text-2xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading truncate">{team.name}</h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-white/5 border border-white/10">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-1 font-heading">TEAM CODE</p>
-                          <p className="text-lg font-black italic text-[#D4AF37] font-heading">{team.code}</p>
-                        </div>
-                        <div className="p-3 bg-white/5 border border-white/10 flex flex-col items-center justify-center">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] mb-1 font-heading">BITPOINTS</p>
-                          <div className="flex items-center gap-2">
-                             <Trophy className="w-3 h-3 text-[#D4AF37]" />
-                             <p className="text-xl font-black italic text-[#FDF5E6] font-heading">{team.points || 0}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="pt-4 border-t border-white/5 space-y-4">
-                        <p className="text-[8px] font-black uppercase tracking-widest text-[#FDF5E6]/30 mb-2 font-heading">PARTICIPATING IN</p>
-                        <div className="flex flex-wrap gap-2">
-                          {team.events?.map(evId => {
-                             const ev = events.find(e => e.id === evId);
-                             return (
-                               <span key={evId} className="px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] text-[9px] font-black uppercase tracking-tighter border border-[#D4AF37]/20">
-                                 {ev?.name || evId}
-                               </span>
-                             );
-                          })}
-                          {(!team.events || team.events.length === 0) && (
-                            <span className="text-xs font-black italic text-[#FDF5E6]/30 uppercase font-heading">NO EVENTS REG</span>
-                          )}
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                            Team Code {team.code}
+                          </span>
+                          {team.rank ? (
+                            <span className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-emerald-300">
+                              Current Rank #{team.rank}
+                            </span>
+                          ) : null}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 pt-4">
-                          <button 
-                            onClick={() => handleShowIntel(team.id)}
-                            className="px-4 py-2 bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-[#FDF5E6] hover:bg-white/10 transition-all flex items-center justify-center gap-2 font-heading"
-                          >
-                            <Info className="w-3 h-3 text-[#D4AF37]" />
-                            INTEL
-                          </button>
-                          {team.leaderId === user.id ? (
-                            <button 
-                              onClick={() => handleDismissTeam(team.id)}
-                              className="px-4 py-2 bg-red-600/10 border border-red-600/20 text-[9px] font-black uppercase tracking-widest text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 font-heading"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                              DISMISS
-                            </button>
+                        <h3 className="mt-4 text-3xl font-black uppercase tracking-[0.05em] text-[#FDF5E6]">{team.name}</h3>
+                        <p className="mt-3 text-sm leading-7 text-[#FDF5E6]/60">
+                          Your current team standing is shown here along with live member details for coordination and verification.
+                        </p>
+
+                        <div className="mt-5 flex flex-wrap gap-2">
+                          {team.events.length ? (
+                            team.events.map((eventId) => {
+                              const event = events.find((entry) => entry.id === eventId);
+                              return (
+                                <span key={eventId} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#FDF5E6]/80">
+                                  {event?.name || eventId}
+                                </span>
+                              );
+                            })
                           ) : (
-                            <button 
-                              onClick={() => handleLeaveTeam(team.id)}
-                              className="px-4 py-2 bg-red-600/10 border border-red-600/20 text-[9px] font-black uppercase tracking-widest text-red-600 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-2 font-heading"
-                            >
-                              <UserMinus className="w-3 h-3" />
-                              LEAVE
-                            </button>
+                            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] font-medium uppercase tracking-[0.2em] text-[#FDF5E6]/60">
+                              No linked events
+                            </span>
                           )}
                         </div>
+                      </div>
 
-                        {selectedTeamDetails?.id === team.id && (
-                          <div className="p-4 bg-white/5 border border-white/10 space-y-3">
-                            <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">SQUADRON ROSTER</p>
-                            {selectedTeamDetails.members.map(m => (
-                              <div key={m.id} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
-                                <span className="text-[10px] font-black uppercase text-[#FDF5E6] font-heading">{m.displayName || "Anonymous"}</span>
-                                <span className="text-[8px] font-black uppercase text-[#FDF5E6]/20 font-heading">{m.id === team.leaderId ? "COMMANDER" : "OPERATIVE"}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                        <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Rank</p>
+                          <p className="mt-3 text-2xl font-black uppercase text-[#FDF5E6]">{team.rank ? `#${team.rank}` : "--"}</p>
+                        </div>
+                        <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Points</p>
+                          <p className="mt-3 flex items-center gap-2 text-2xl font-black uppercase text-[#FDF5E6]"><Trophy className="h-5 w-5 text-[#D4AF37]" />{team.points}</p>
+                        </div>
+                        <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/60">Members</p>
+                          <p className="mt-3 text-2xl font-black uppercase text-[#FDF5E6]">{team.memberCount}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+
+                    <div className="flex flex-col gap-4 border-b border-white/10 p-6 md:flex-row md:items-center md:justify-between lg:p-8">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Roster Table</p>
+                        <p className="mt-2 text-sm text-[#FDF5E6]/60">All members are listed here with their phone number, profile image, email, roll number, and affiliation.</p>
+                      </div>
+
+                      {team.leaderId === user.id ? (
+                        <button
+                          onClick={() => handleDismissTeam(team.id)}
+                          disabled={actionPending}
+                          className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Dismiss Team
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleLeaveTeam(team.id)}
+                          disabled={actionPending}
+                          className="rounded-full border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.26em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Leave Team
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="overflow-x-auto p-2 md:p-4">
+                      <table className="min-w-full border-separate border-spacing-0 overflow-hidden rounded-[24px]">
+                        <thead>
+                          <tr>
+                            {["Member", "Role", "Phone", "Email", "Roll No", "Affiliation", "ID Proof"].map((label) => (
+                              <th
+                                key={label}
+                                className="border-b border-white/10 bg-white/[0.03] px-4 py-4 text-left text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/75"
+                              >
+                                {label}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {members.length > 0 ? (
+                            members.map((member) => {
+                              const avatar = member.profileImageUrl || member.idCardImageUrl;
+                              const isLeader = member.id === team.leaderId;
+
+                              return (
+                                <tr key={member.id} className="align-top text-sm text-[#FDF5E6]/85">
+                                  <td className="border-b border-white/10 px-4 py-4">
+                                    <div className="flex items-center gap-3">
+                                      <div className="relative h-11 w-11 overflow-hidden rounded-full border border-white/10 bg-white/5">
+                                        {avatar ? (
+                                          <NextImage src={avatar} alt={member.displayName || "Member"} fill className="object-cover" />
+                                        ) : (
+                                          <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold uppercase tracking-[0.18em] text-[#D4AF37]">
+                                            {getInitials(member.displayName)}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <p className="font-semibold uppercase tracking-[0.08em] text-[#FDF5E6]">{member.displayName || "Unnamed member"}</p>
+                                        <p className="mt-1 text-xs text-[#FDF5E6]/45">{member.id.slice(-8).toUpperCase()}</p>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs font-semibold uppercase tracking-[0.22em] text-[#FDF5E6]/70">{isLeader ? "Leader" : "Member"}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs text-[#FDF5E6]/70">{member.phoneNumber || "Not added"}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs text-[#FDF5E6]/70">{member.email}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs uppercase text-[#FDF5E6]/70">{member.rollNo || "Not added"}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs text-[#FDF5E6]/70">{member.isBitMesra ? "BIT Mesra" : "External"}</td>
+                                  <td className="border-b border-white/10 px-4 py-4 text-xs">
+                                    <span
+                                      className={cn(
+                                        "rounded-full px-3 py-1 font-semibold uppercase tracking-[0.18em]",
+                                        member.idCardImageUrl ? "bg-emerald-500/15 text-emerald-300" : "bg-white/10 text-[#FDF5E6]/50"
+                                      )}
+                                    >
+                                      {member.idCardImageUrl ? "Uploaded" : "Missing"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          ) : (
+                            <tr>
+                              <td colSpan={7} className="px-4 py-8 text-center text-sm text-[#FDF5E6]/50">
+                                Team details are loading or unavailable right now.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </article>
                 );
               })}
             </div>
           )}
-        </div>
-      {/* WhatsApp Community Section */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <MessageCircle className="w-6 h-6 text-[#D4AF37]" />
-              <span className="text-xs font-black uppercase tracking-[0.3em] text-[#D4AF37]/60 font-heading">STAY CONNECTED</span>
-            </div>
-            <h2 className="text-5xl md:text-7xl font-black italic text-[#FDF5E6] uppercase tracking-tighter font-heading">WHATSAPP <span className="text-[#D4AF37]">HUB.</span></h2>
-          </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Community Link Card */}
-          <a
-            href={SITE_CONFIG.whatsapp.community}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer transition-colors hover:bg-[#D4AF37]/10"
-          >
-            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-              <MessageCircle className="w-32 h-32 text-[#D4AF37]" />
-            </div>
+        {showCreateModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-[#120606]/85 backdrop-blur-md" onClick={() => setShowCreateModal(false)} />
+            <div className="relative z-10 w-full max-w-xl rounded-[32px] border border-white/10 bg-[#160808] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Create Team</p>
+              <h3 className="mt-3 text-3xl font-black uppercase tracking-[0.05em] text-[#FDF5E6]">Start a New Team</h3>
 
-            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-[#25D366] text-white rounded-full">
-                  <MessageCircle className="w-8 h-8" />
+              <div className="mt-6 space-y-5">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/65">Team Name</label>
+                  <input
+                    type="text"
+                    value={teamForm.name}
+                    onChange={(e) => setTeamForm((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
+                    className="mt-2 w-full rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-[#FDF5E6] outline-none transition focus:border-[#D4AF37]/50"
+                    placeholder="ENTER TEAM NAME"
+                  />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black uppercase text-[#FDF5E6] font-heading">COMMUNITY CHANNEL</h3>
-                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">OFFICIAL UPDATES</p>
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/65">Event</label>
+                  <select
+                    value={teamForm.eventId}
+                    onChange={(e) => setTeamForm((prev) => ({ ...prev, eventId: e.target.value }))}
+                    className="mt-2 w-full rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-[#FDF5E6] outline-none transition focus:border-[#D4AF37]/50"
+                  >
+                    <option value="">CHOOSE EVENT</option>
+                    {events.map((event) => (
+                      <option key={event.id} value={event.id} className="bg-[#120606] text-[#FDF5E6]">
+                        {event.name.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
 
-              <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter font-heading">
-                Join the official Bitotsav community for <span className="text-[#D4AF37]">REAL-TIME UPDATES</span>, announcements, and festival news.
-              </p>
-
-              <div className="flex items-center gap-2 text-[#25D366] font-black uppercase tracking-widest text-sm font-heading">
-                <span>JOIN NOW</span>
-                <MessageCircle className="w-4 h-4" />
-              </div>
-            </div>
-          </a>
-
-          {/* Helpdesk Link Card */}
-          <a
-            href={SITE_CONFIG.whatsapp.helpdesk}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer transition-colors hover:bg-[#D4AF37]/10"
-          >
-            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-              <ShieldCheck className="w-32 h-32 text-[#D4AF37]" />
-            </div>
-
-            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-[#128C7E] text-white rounded-full">
-                  <ShieldCheck className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black uppercase text-[#FDF5E6] font-heading">VIRTUAL HELPDESK</h3>
-                  <p className="text-[#D4AF37]/60 text-xs font-black uppercase tracking-widest font-heading">SUPPORT & ASSISTANCE</p>
-                </div>
-              </div>
-
-              <p className="text-[#FDF5E6]/60 text-lg font-black uppercase tracking-tighter font-heading">
-                Get instant <span className="text-[#D4AF37]">SUPPORT & GUIDANCE</span> from our team. Ask questions, resolve queries.
-              </p>
-
-              <div className="flex items-center gap-2 text-[#128C7E] font-black uppercase tracking-widest text-sm font-heading">
-                <span>GET HELP</span>
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-            </div>
-          </a>
-        </div>
-      </div>
-
-    
-
-      {/* Create Team Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl" onClick={() => setShowCreateModal(false)} />
-          <div className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]">
-            <h3 className="text-4xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-8 font-heading">MINT NEW <span className="text-[#D4AF37]">SQUAD.</span></h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">TEAM MONIKER</label>
-                <input 
-                  type="text"
-                  value={teamForm.name}
-                  onChange={(e) => setTeamForm({...teamForm, name: e.target.value.toUpperCase()})}
-                  className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] outline-hidden font-heading"
-                  placeholder="CHOOSE A LEGENDARY NAME"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">SELECT EVENT</label>
-                <select 
-                  value={teamForm.eventId}
-                  onChange={(e) => setTeamForm({...teamForm, eventId: e.target.value})}
-                  className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter focus:border-[#D4AF37] outline-hidden font-heading appearance-none"
+                <button
+                  onClick={handleCreateTeam}
+                  disabled={actionPending}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">CHOOSE EVENT</option>
-                  {events.map(e => (
-                    <option key={e.id} value={e.id} className="bg-[#1A0505]">{e.name.toUpperCase()}</option>
-                  ))}
-                </select>
+                  {actionPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  Confirm Team
+                </button>
               </div>
-              <button 
-                onClick={handleCreateTeam}
-                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors mt-4 font-heading hover:bg-[#e3bc45]"
-              >
-                LEGITIMIZE TEAM
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Join Team Modal */}
-      {showJoinModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl" onClick={() => setShowJoinModal(false)} />
-          <div className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]">
-            <h3 className="text-4xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-8 font-heading">RECRUITMENT <span className="text-[#D4AF37]">PORTAL.</span></h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">SQUADRON CODE</label>
-                <input 
-                  type="text"
-                  value={joinCodeInput}
-                  onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
-                  maxLength={6}
-                  className="w-full bg-white/5 border-2 border-[#D4AF37]/20 p-4 text-[#FDF5E6] font-black uppercase tracking-tighter text-center text-4xl focus:border-[#D4AF37] outline-hidden font-heading"
-                  placeholder="X1Y2Z3"
-                />
+        {showJoinModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-[#120606]/85 backdrop-blur-md" onClick={() => setShowJoinModal(false)} />
+            <div className="relative z-10 w-full max-w-xl rounded-[32px] border border-white/10 bg-[#160808] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Join Team</p>
+              <h3 className="mt-3 text-3xl font-black uppercase tracking-[0.05em] text-[#FDF5E6]">Enter Team Code</h3>
+
+              <div className="mt-6 space-y-5">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/65">Invite Code</label>
+                  <input
+                    type="text"
+                    value={joinCodeInput}
+                    onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
+                    maxLength={6}
+                    className="mt-2 w-full rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-center text-2xl font-black uppercase tracking-[0.3em] text-[#FDF5E6] outline-none transition focus:border-[#D4AF37]/50"
+                    placeholder="X1Y2Z3"
+                  />
+                </div>
+
+                <button
+                  onClick={handleJoinTeam}
+                  disabled={actionPending}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {actionPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                  Join Team
+                </button>
               </div>
-              <button 
-                onClick={handleJoinTeam}
-                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors mt-4 font-heading hover:bg-[#e3bc45]"
-              >
-                JOIN ALLEGANCE
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Status Toasts */}
-      {statusMessage.text && (
-        <div className={cn(
-            "fixed bottom-10 right-10 p-6 border-2 font-black uppercase tracking-widest text-sm z-200 font-heading",
-            statusMessage.type === "success" ? "bg-green-600/10 border-green-600 text-green-600" : "bg-red-600/10 border-red-600 text-red-600"
-          )}
-          onClick={() => setStatusMessage({ text: "", type: "info" })}
-        >
-          {statusMessage.text}
-        </div>
-      )}
+        {showPhoneModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-[#120606]/85 backdrop-blur-md"
+              onClick={() => {
+                setShowPhoneModal(false);
+                setContinueToCreateAfterPhone(false);
+              }}
+            />
+            <div className="relative z-10 w-full max-w-xl rounded-[32px] border border-white/10 bg-[#160808] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#D4AF37]/70">Phone Verification</p>
+              <h3 className="mt-3 text-3xl font-black uppercase tracking-[0.05em] text-[#FDF5E6]">Add Contact Number</h3>
+              <p className="mt-3 text-sm leading-7 text-[#FDF5E6]/60">
+                A valid phone number is required before team creation so coordinators can verify and reach your squad quickly.
+              </p>
 
-      <style jsx global>{`
-        @media print {
-          body { background: white !important; }
-          nav, footer { display: none !important; }
-          .print\\:hidden { display: none !important; }
-          .bg-black { background-color: white !important; color: black !important; }
-          .text-white { color: black !important; }
-          .text-white\\/40, .text-white\\/30, .text-white\\/20, .text-white\\/10 { color: #666 !important; }
-          .border-white\\/10, .border-white\\/5 { border-color: black !important; }
-          .bg-[#D4AF37] { background-color: #D4AF37 !important; border: 4px solid black !important; }
-          .shadow-\\[0_50px_100px_-20px_#D4AF37\\/10\\] { shadow: none !important; }
-          .grayscale { filter: none !important; }
-          .group-hover\\:text-\\[#D4AF37\\] { color: black !important; }
-        }
-      `}</style>
+              <div className="mt-6 space-y-5">
+                <div>
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/65">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value.replace(/[^\d+\s()-]/g, ""))}
+                    className="mt-2 w-full rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm font-semibold tracking-[0.14em] text-[#FDF5E6] outline-none transition focus:border-[#D4AF37]/50"
+                    placeholder="+91 XXXXX XXXXX"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSavePhoneNumber}
+                  disabled={actionPending}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A0505] transition hover:bg-[#e3bc45] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {actionPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
+                  Save Phone Number
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {statusMessage.text && (
+          <button
+            type="button"
+            onClick={() => setStatusMessage({ text: "", type: "info" })}
+            className={cn(
+              "fixed bottom-6 right-6 z-[110] max-w-md rounded-[24px] border px-5 py-4 text-left text-sm leading-6 shadow-[0_18px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl",
+              statusMessage.type === "success" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+              statusMessage.type === "error" && "border-red-500/30 bg-red-500/10 text-red-200",
+              statusMessage.type === "info" && "border-white/10 bg-white/10 text-[#FDF5E6]/80"
+            )}
+          >
+            {statusMessage.text}
+          </button>
+        )}
+      </div>
     </PageWrapper>
   );
 }
