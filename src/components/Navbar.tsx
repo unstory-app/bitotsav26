@@ -7,7 +7,8 @@ import { useUser } from "@stackframe/stack";
 import { SITE_CONFIG } from "@/config/site";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { X, Star, Menu } from "lucide-react";
+import NextImage from "next/image";
+import { X, Menu } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -49,13 +50,27 @@ export function Navbar() {
         {/* Left: Brand & Status */}
         <div className="flex items-center gap-8">
             <Link href="/" className="group flex items-center gap-4">
-                <div className="w-10 h-10 bg-[#D4AF37] flex items-center justify-center rotate-45 group-hover:rotate-0 transition-transform duration-500">
-                    <Star className="w-6 h-6 text-[#1A0505] -rotate-45 group-hover:rotate-0 transition-transform" />
+                <div className="relative h-10 w-10 shrink-0 transition-transform duration-500 group-hover:scale-105">
+                    <NextImage
+                        src="/assets/logo.png"
+                        alt="Bitotsav logo"
+                        fill
+                        className="object-contain"
+                        sizes="40px"
+                        priority
+                    />
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-2xl font-black italic tracking-tighter text-[#FDF5E6] uppercase leading-none font-heading">
-                        BITOTSAV&apos;26
-                    </span>
+                    <div className="relative h-8 w-[172px] max-w-[45vw]">
+                        <NextImage
+                            src="/assets/bitotsav.png"
+                            alt="Bitotsav 26"
+                            fill
+                            className="object-contain object-left"
+                            sizes="202px"
+                            priority
+                        />
+                    </div>
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
                         <span className="text-[8px] font-black tracking-widest text-[#D4AF37]/60 uppercase">HERITAGE LIVE</span>
@@ -156,10 +171,24 @@ export function Navbar() {
                 <div className="mt-auto pt-10 border-t border-[#D4AF37]/20 flex justify-between items-end">
                     <div className="flex flex-col gap-2">
                         <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">EST. 2026</span>
-                        <span className="text-2xl font-black italic text-[#FDF5E6] uppercase tracking-tighter leading-none font-heading">BITOTSAV</span>
+                        <div className="relative h-7 w-[148px]">
+                            <NextImage
+                                src="/assets/bitotsav.png"
+                                alt="Bitotsav 26"
+                                fill
+                                className="object-contain object-left"
+                                sizes="148px"
+                            />
+                        </div>
                     </div>
-                    <div className="w-16 h-16 bg-[#D4AF37] flex items-center justify-center rotate-45">
-                        <Star className="w-8 h-8 text-[#1A0505] -rotate-45" />
+                    <div className="relative h-16 w-16 shrink-0">
+                        <NextImage
+                            src="/assets/logo.png"
+                            alt="Bitotsav logo"
+                            fill
+                            className="object-contain"
+                            sizes="64px"
+                        />
                     </div>
                 </div>
             </div>
