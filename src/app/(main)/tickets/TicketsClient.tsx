@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type MutableRefObject } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, 
@@ -68,10 +68,6 @@ export default function TicketsClient() {
   const [isPassUnlocked, setIsPassUnlocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passExportRef = useRef<HTMLDivElement>(null);
-  const visibleQrRef = useRef<HTMLDivElement>(null);
-  const exportQrRef = useRef<HTMLDivElement>(null);
-  const visibleQrInstanceRef = useRef<any>(null);
-  const exportQrInstanceRef = useRef<any>(null);
 
   type FormField = keyof typeof form;
 
@@ -248,89 +244,10 @@ export default function TicketsClient() {
     type: "HERITAGE_ARTISAN_PASS", 
     valid: true 
   }) : "";
-
-  const createQrOptions = (size: number) => ({
-    width: size,
-    height: size,
-    type: "svg" as const,
-    data: qrData,
-    margin: 0,
-    image: "/assets/logo.png",
-    qrOptions: {
-      errorCorrectionLevel: "Q" as const,
-      mode: "Byte" as const,
-    },
-    imageOptions: {
-      crossOrigin: "anonymous",
-      hideBackgroundDots: true,
-      imageSize: 0.24,
-      margin: 8,
-    },
-    backgroundOptions: {
-      color: "#FDF5E6",
-    },
-    dotsOptions: {
-      type: "extra-rounded" as const,
-      gradient: {
-        type: "linear" as const,
-        rotation: Math.PI / 4,
-        colorStops: [
-          { offset: 0, color: "#1A0505" },
-          { offset: 1, color: "#D4AF37" },
-        ],
-      },
-    },
-    cornersSquareOptions: {
-      type: "extra-rounded" as const,
-      color: "#1A0505",
-    },
-    cornersDotOptions: {
-      type: "dot" as const,
-      color: "#B8860B",
-    },
-  });
-
-  useEffect(() => {
-    if (!hasUserTicket || !qrData) {
-      return;
-    }
-
-    let cancelled = false;
-
-    const mountQr = async () => {
-      const { default: QRCodeStyling } = await import("qr-code-styling");
-
-      const attachQr = (
-        container: HTMLDivElement | null,
-        instanceRef: MutableRefObject<any>,
-        size: number
-      ) => {
-        if (!container || cancelled) {
-          return;
-        }
-
-        const options = createQrOptions(size);
-
-        if (!instanceRef.current) {
-          instanceRef.current = new QRCodeStyling(options);
-        } else {
-          instanceRef.current.update(options);
-        }
-
-        container.innerHTML = "";
-        instanceRef.current.append(container);
-      };
-
-      attachQr(visibleQrRef.current, visibleQrInstanceRef, 320);
-      attachQr(exportQrRef.current, exportQrInstanceRef, 220);
-    };
-
-    void mountQr();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [hasUserTicket, qrData, showPass]);
+  const encodedQrData = encodeURIComponent(qrData);
+  const qrImageUrl = qrData
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=640x640&data=${encodedQrData}&bgcolor=FDF5E6&color=1A0505&format=png&qzone=1`
+    : "";
 
   const handleNext = () => {
     const field = formFields[activeStep];
@@ -402,13 +319,6 @@ export default function TicketsClient() {
     setStatusMessage({ text: "PREPARING YOUR PASS PDF...", type: "success" });
 
     try {
-      if (exportQrRef.current && !exportQrInstanceRef.current) {
-        const { default: QRCodeStyling } = await import("qr-code-styling");
-        exportQrInstanceRef.current = new QRCodeStyling(createQrOptions(220));
-        exportQrRef.current.innerHTML = "";
-        exportQrInstanceRef.current.append(exportQrRef.current);
-      }
-
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         import("html2canvas"),
         import("jspdf"),
@@ -834,10 +744,19 @@ export default function TicketsClient() {
                         </div>
 
                         <div className="rounded-[1.75rem] border border-[#1A0505]/10 bg-white/80 p-4 shadow-inner">
-                          <div
-                            ref={visibleQrRef}
-                            className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center overflow-hidden rounded-[1.5rem] bg-[#FDF5E6]"
-                          />
+                          <div className="mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-[1.5rem] bg-[#FDF5E6]">
+                            {qrImageUrl ? (
+                              <NextImage
+                                src={qrImageUrl}
+                                alt="Festival entry QR"
+                                width={320}
+                                height={320}
+                                sizes="(max-width: 768px) 80vw, 320px"
+                                className="h-full w-full object-contain"
+                                unoptimized
+                              />
+                            ) : null}
+                          </div>
                         </div>
 
                         <div className="mt-5 grid grid-cols-3 gap-3 text-center">
@@ -966,7 +885,19 @@ export default function TicketsClient() {
                     Festival Entry QR
                   </h4>
                   <div className="mt-8 rounded-[28px] bg-[#FDF5E6] p-5">
-                    <div ref={exportQrRef} className="mx-auto flex h-[220px] w-[220px] items-center justify-center overflow-hidden rounded-[24px]" />
+                    <div className="mx-auto h-[220px] w-[220px] overflow-hidden rounded-[24px] bg-[#FDF5E6]">
+                      {qrImageUrl ? (
+                        <NextImage
+                          src={qrImageUrl}
+                          alt="Festival entry QR export"
+                          width={220}
+                          height={220}
+                          sizes="220px"
+                          className="h-full w-full object-contain"
+                          unoptimized
+                        />
+                      ) : null}
+                    </div>
                   </div>
 
                   <div className="mt-8 grid gap-4">
