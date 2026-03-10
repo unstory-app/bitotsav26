@@ -980,6 +980,12 @@ export default function TicketsClient() {
                      </div>
                   </div>
 
+                  <div className="rounded-3xl border border-red-600/25 bg-red-600/10 px-6 py-5">
+                    <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.35em] font-heading">
+                     NOTICE: FAKE NAME, WRONG PHONE NUMBER, FALSE DATA, OR AN INVALID OR MISLEADING PROFILE IMAGE MAY LEAD TO ACCOUNT DELETION OR TICKET CANCELLATION.
+                    </p>
+                  </div>
+
                   <div className="min-h-[200px]">
                     {activeStep === 0 && (
                        <div className="space-y-6">
@@ -1221,6 +1227,11 @@ export default function TicketsClient() {
                                    </div>
                                 </div>
                              </div>
+                          </div>
+                          <div className="rounded-3xl border border-red-600/25 bg-red-600/10 px-6 py-5">
+                            <p className="text-red-500 text-[10px] font-black uppercase tracking-[0.3em] font-heading">
+                              SUBMIT ONLY REAL DETAILS. IF YOUR NAME, PHONE NUMBER, ROLL NUMBER, OR IDENTIFICATION IMAGE IS FOUND TO BE FAKE, MISLEADING, OR MISMATCHED, YOUR ACCOUNT MAY BE DELETED AND YOUR TICKET MAY BE CANCELLED.
+                            </p>
                           </div>
                           {!isFormValid && (
                             <div className="p-6 bg-red-600/10 border border-red-600/20 rounded-2xl">
