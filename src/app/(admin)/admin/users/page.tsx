@@ -118,7 +118,7 @@ export default function AdminUsers() {
                               <span className="text-[10px] font-black uppercase text-[#FDF5E6]/60">
                                 {user.isBitMesra ? `BIT MESRA (${user.rollNo})` : (user.collegeName || "OFF-CAMPUS")}
                               </span>
-                              <span className="text-[8px] text-[#FDF5E6]/20 font-black uppercase">REJ. PASS: {user.password || "NONE"}</span>
+                              {/* <span className="text-[8px] text-[#FDF5E6]/20 font-black uppercase">REJ. PASS: {user.password || "NONE"}</span> */}
                             </div>
                           </td>
                           <td className="p-6 text-[10px] text-[#FDF5E6]/40 font-black font-heading">
