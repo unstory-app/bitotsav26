@@ -62,6 +62,9 @@ export default function TicketsClient() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [unlockPassword, setUnlockPassword] = useState("");
+  const [unlockError, setUnlockError] = useState("");
+  const [isPassUnlocked, setIsPassUnlocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const passExportRef = useRef<HTMLDivElement>(null);
   const visibleQrRef = useRef<HTMLDivElement>(null);
@@ -218,6 +221,13 @@ export default function TicketsClient() {
     checkStatus();
   }, [user]);
 
+  useEffect(() => {
+    setShowPass(false);
+    setIsPassUnlocked(false);
+    setUnlockPassword("");
+    setUnlockError("");
+  }, [hasUserTicket, dbUser?.password]);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - card.left;
@@ -338,7 +348,42 @@ export default function TicketsClient() {
   };
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
 
+  const verifyUnlockPassword = () => {
+    const savedPassword = (dbUser?.password || form.password || "").trim();
+    const enteredPassword = unlockPassword.trim();
+
+    if (!enteredPassword) {
+      setUnlockError("ENTER YOUR RECOVERY SEAL TO UNLOCK THE PASS.");
+      return false;
+    }
+
+    if (!savedPassword || enteredPassword !== savedPassword) {
+      setUnlockError("INCORRECT RECOVERY SEAL.");
+      return false;
+    }
+
+    setUnlockError("");
+    setIsPassUnlocked(true);
+    setShowPass(true);
+    setStatusMessage({ text: "PASS UNLOCKED. QR AND PDF EXPORT ARE NOW AVAILABLE.", type: "success" });
+    return true;
+  };
+
+  const handleRelockPass = () => {
+    setShowPass(false);
+    setIsPassUnlocked(false);
+    setUnlockPassword("");
+    setUnlockError("");
+    setStatusMessage({ text: "PASS LOCKED AGAIN.", type: "success" });
+  };
+
   const handleExportPdf = async () => {
+    if (!isPassUnlocked) {
+      setUnlockError("UNLOCK THE PASS WITH YOUR RECOVERY SEAL BEFORE EXPORTING THE PDF.");
+      setStatusMessage({ text: "PASS IS LOCKED. ENTER YOUR RECOVERY SEAL FIRST.", type: "error" });
+      return;
+    }
+
     if (!passExportRef.current) {
       return;
     }
@@ -683,23 +728,22 @@ export default function TicketsClient() {
                 <div className="mt-8 relative">
                   <AnimatePresence mode="wait">
                     {!showPass ? (
-                      <motion.button
+                      <motion.div
                         key="reveal"
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -16 }}
-                        onClick={() => setShowPass(true)}
-                        className="w-full rounded-[2rem] border border-[#D4AF37]/20 bg-linear-to-br from-[#D4AF37]/10 via-white/5 to-[#D4AF37]/5 p-8 text-left transition-all hover:border-[#D4AF37]/40 hover:shadow-[0_0_40px_rgba(212,175,55,0.12)]"
+                        className="w-full rounded-[2rem] border border-[#D4AF37]/20 bg-linear-to-br from-[#D4AF37]/10 via-white/5 to-[#D4AF37]/5 p-8 text-left"
                       >
                         <div className="flex items-start justify-between gap-6">
                           <div className="space-y-5">
                             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#D4AF37] shadow-[0_0_50px_rgba(212,175,55,0.25)]">
-                              <Eye className="h-7 w-7 text-[#1A0505]" />
+                              <Lock className="h-7 w-7 text-[#1A0505]" />
                             </div>
                             <div>
-                              <p className="text-[#D4AF37] text-[9px] font-black uppercase tracking-[0.4em] font-heading">READY TO REVEAL</p>
+                              <p className="text-[#D4AF37] text-[9px] font-black uppercase tracking-[0.4em] font-heading">PASSWORD LOCK ENABLED</p>
                               <p className="mt-3 text-2xl font-black italic uppercase tracking-tighter text-[#FDF5E6] font-heading">
-                                OPEN YOUR SCAN PASS
+                                UNLOCK YOUR SCAN PASS
                               </p>
                             </div>
                           </div>
@@ -707,7 +751,51 @@ export default function TicketsClient() {
                             <QrCode className="h-12 w-12 text-[#D4AF37]" />
                           </div>
                         </div>
-                      </motion.button>
+
+                        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.25em] text-[#FDF5E6]/55 font-heading">
+                          Enter the recovery seal you created during ticket minting to reveal the QR and enable PDF export.
+                        </p>
+
+                        <div className="mt-6 space-y-4">
+                          <input
+                            type="password"
+                            value={unlockPassword}
+                            onChange={(e) => {
+                              setUnlockPassword(e.target.value);
+                              if (unlockError) {
+                                setUnlockError("");
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                verifyUnlockPassword();
+                              }
+                            }}
+                            placeholder="ENTER RECOVERY SEAL"
+                            className={cn(
+                              "w-full rounded-2xl border bg-[#1A0505]/40 px-5 py-4 text-[#FDF5E6] font-black uppercase tracking-[0.25em] outline-hidden font-heading placeholder:text-[#FDF5E6]/20",
+                              unlockError ? "border-red-500" : "border-[#D4AF37]/20 focus:border-[#D4AF37]"
+                            )}
+                          />
+
+                          {unlockError ? (
+                            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-red-500 font-heading">
+                              {unlockError}
+                            </p>
+                          ) : (
+                            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#FDF5E6]/35 font-heading">
+                              This is the same password used later for pass unlocking.
+                            </p>
+                          )}
+
+                          <button
+                            onClick={verifyUnlockPassword}
+                            className="w-full rounded-2xl bg-[#D4AF37] px-5 py-4 text-[10px] font-black uppercase tracking-[0.35em] text-[#1A0505] transition-colors hover:bg-[#e3bc45] font-heading"
+                          >
+                            UNLOCK QR AND PDF
+                          </button>
+                        </div>
+                      </motion.div>
                     ) : (
                       <motion.div
                         key="qr"
@@ -724,10 +812,10 @@ export default function TicketsClient() {
                             </p>
                           </div>
                           <button
-                            onClick={() => setShowPass(false)}
+                            onClick={handleRelockPass}
                             className="rounded-full border border-[#1A0505]/10 px-4 py-2 text-[8px] font-black uppercase tracking-[0.35em] text-[#1A0505]/60 transition-all hover:border-[#1A0505]/30 hover:text-[#1A0505] font-heading"
                           >
-                            HIDE
+                            LOCK AGAIN
                           </button>
                         </div>
 
@@ -776,7 +864,7 @@ export default function TicketsClient() {
                     <span className="text-[9px] font-black uppercase tracking-[0.35em]">EXPORT PASS PDF</span>
                   </div>
                   <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em] opacity-60">
-                    Download a clean PDF with your pass card and styled QR.
+                    {isPassUnlocked ? "Download a clean PDF with your pass card and styled QR." : "Unlock the pass with your recovery seal before exporting the PDF."}
                   </p>
                 </button>
 
@@ -1126,7 +1214,7 @@ export default function TicketsClient() {
                              <div>
                                <p className="text-red-600 font-black uppercase text-sm font-heading mb-2 tracking-tighter">CRITICAL: RECOVERY SEAL REQUIRED</p>
                                <p className="text-red-600/60 text-[10px] font-black uppercase leading-relaxed tracking-wider font-heading">
-                                 WE REQUIRE A SECONDARY SEAL TO VERIFY YOUR LINEAGE MANUALLY AT THE GATES IF DEVICES FAIL. DO NOT FORGET THIS SEAL.
+                                 WE REQUIRE A SECONDARY SEAL TO VERIFY YOUR LINEAGE MANUALLY AT THE GATES IF DEVICES FAIL. REMEMBER THIS PASSWORD. YOU WILL NEED IT LATER TO UNLOCK YOUR QR AND PASS PDF.
                                </p>
                              </div>
                           </div>
@@ -1143,7 +1231,7 @@ export default function TicketsClient() {
                             )}
                           />
                           {(() => {
-                            const message = getFieldMessage("password", "RECOVERY SEAL ACCEPTED.", "SET A RECOVERY SEAL WITH AT LEAST 6 CHARACTERS.");
+                            const message = getFieldMessage("password", "RECOVERY SEAL ACCEPTED. REMEMBER IT FOR QR UNLOCK.", "SET A RECOVERY SEAL WITH AT LEAST 6 CHARACTERS. YOU WILL USE IT LATER TO UNLOCK THE PASS.");
                             return (
                               <p className={cn(
                                 "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
