@@ -55,7 +55,7 @@ export function Hero() {
                 className="transition-transform duration-700 stamp-edge p-6 bg-[#D4AF37] flex flex-col items-center justify-center min-h-[280px] md:min-h-[360px]"
               >
                 <Image
-                  src="/assets/bitotsav.png"
+                  src="/assets/gaatha3n.png"
                   alt="Bitotsav"
                   width={500}
                   height={250}

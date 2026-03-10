@@ -9,19 +9,19 @@ const features = [
     title: "CULTURAL SAGA",
     description: "Witness the grand unification of dance, music, and drama on the royal stage.",
     icon: Music,
-    image: "https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/66822cd4-62e8-423e-8b97-8cecc2c46dac/anim=false,width=450,optimized=true/120489483.jpeg", 
+    image: "/assets/culturalSaga.jpg", 
   },
   {
     title: "TECHNICAL CORE",
     description: "Showcase your engineering mastery in the most intense tech battles.",
     icon: Star,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop", 
+    image: "/assets/technicalCore.jpg", 
   },
   {
     title: "ARENA SPORTS",
     description: "The ultimate display of grit and glory across the sports arena.",
     icon: Trophy,
-    image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop", 
+    image: "/assets/arenaSports.jpg", 
   },
 ];
 

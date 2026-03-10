@@ -36,7 +36,7 @@ export function Navbar() {
   return (
     <nav 
       className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b",
+        "fixed -top-2 inset-x-0 z-50 transition-all duration-500 border-b",
         isScrolled 
           ? "bg-[#1A0505]/90 backdrop-blur-xl border-[#D4AF37]/20 py-4" 
           : "bg-transparent border-transparent py-8"
@@ -50,7 +50,7 @@ export function Navbar() {
         {/* Left: Brand & Status */}
         <div className="flex items-center gap-8">
             <Link href="/" className="group flex items-center gap-4">
-                <div className="relative h-10 w-10 shrink-0 transition-transform duration-500 group-hover:scale-105">
+                <div className="relative h-12 w-12 shrink-0 transition-transform duration-500 group-hover:scale-105">
                     <NextImage
                         src="/assets/logo.png"
                         alt="Bitotsav logo"
@@ -61,7 +61,7 @@ export function Navbar() {
                     />
                 </div>
                 <div className="flex flex-col">
-                    <div className="relative h-8 w-[172px] max-w-[45vw]">
+                    <div className="relative h-12 w-[172px] max-w-[45vw]">
                         <NextImage
                             src="/assets/bitotsav.png"
                             alt="Bitotsav 26"
