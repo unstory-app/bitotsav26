@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { PwaRegistrar } from "@/components/PwaRegistrar";
 import { stackServerApp } from "../stack/server";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next"
@@ -95,6 +96,17 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
     apple: '/favicon.png',
   },
+  applicationName: SITE_CONFIG.name,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: SITE_CONFIG.name,
+  },
+};
+
+export const viewport = {
+  themeColor: '#120606',
+  colorScheme: 'dark',
 };
 
 const customTheme = {
@@ -180,6 +192,7 @@ export default function RootLayout({
             <Footer />
           </StackTheme>
         </StackProvider>
+        <PwaRegistrar />
         <Analytics />
       </body>
     </html>
