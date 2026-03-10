@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Search, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { getAdminUsers, deleteUser } from "@/app/actions/admin";
 import { PageWrapper } from "@/components/ui/page-wrapper";
-import { cn } from "@/lib/utils";
 
 export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
@@ -105,7 +104,24 @@ export default function AdminUsers() {
                           transition={{ delay: idx * 0.05 }} 
                           className="hover:bg-white/2 transition-colors group"
                         >
-                          <td className="p-6 font-mono text-[10px] text-[#FDF5E6]/40">{user.id.slice(0, 8)}</td>
+                          <td className="p-6">
+                            <div className="flex items-center gap-4">
+                              <div className="relative h-14 w-14 overflow-hidden rounded-full border border-[#D4AF37]/30 bg-white/5">
+                                {user.profileImageUrl ? (
+                                  <img
+                                    src={user.profileImageUrl}
+                                    alt={user.displayName || user.email || "User profile"}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-sm font-black uppercase text-[#D4AF37]">
+                                    {(user.displayName || user.email || "U").slice(0, 1)}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="font-mono text-[10px] text-[#FDF5E6]/40">{user.id.slice(0, 8)}</span>
+                            </div>
+                          </td>
                           <td className="p-6">
                             <div className="flex flex-col">
                               <span className="text-xs font-black uppercase text-[#FDF5E6]">{user.displayName || "GUEST"}</span>
