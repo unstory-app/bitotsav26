@@ -20,7 +20,9 @@ import {
   Award,
   Fingerprint,
   QrCode,
-  CheckCircle
+  CheckCircle,
+  Upload,
+  ImagePlus
 } from "lucide-react";
 import NextImage from "next/image";
 import { useUser } from "@stackframe/stack";
@@ -54,6 +56,8 @@ export default function TicketsClient() {
   const [dbUser, setDbUser] = useState<any>(null);
   const [showPass, setShowPass] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   type FormField = keyof typeof form;
 
@@ -242,6 +246,58 @@ export default function TicketsClient() {
     setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
+
+  const handleImageUpload = async (file: File) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+    if (!allowedTypes.includes(file.type)) {
+      setErrors((prev) => ({ ...prev, idCardImageUrl: "UPLOAD A JPG, PNG, WEBP OR GIF IMAGE." }));
+      setTouched((prev) => ({ ...prev, idCardImageUrl: true }));
+      setStatusMessage({ text: "UNSUPPORTED IMAGE FORMAT.", type: "error" });
+      return;
+    }
+
+    if (file.size > 32 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, idCardImageUrl: "IMAGE MUST BE 32MB OR SMALLER." }));
+      setTouched((prev) => ({ ...prev, idCardImageUrl: true }));
+      setStatusMessage({ text: "IMAGE FILE IS TOO LARGE.", type: "error" });
+      return;
+    }
+
+    setUploadingImage(true);
+    setTouched((prev) => ({ ...prev, idCardImageUrl: true }));
+    setStatusMessage({ text: "UPLOADING IDENTIFICATION IMAGE...", type: "success" });
+
+    try {
+      const payload = new FormData();
+      payload.append("image", file);
+      payload.append("name", `${user?.id ?? "bitotsav-user"}-id-card`);
+
+      const response = await fetch("/api/imgbb-upload", {
+        method: "POST",
+        body: payload,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.success || !result?.url) {
+        throw new Error(result?.message || "UPLOAD_FAILED");
+      }
+
+      updateField("idCardImageUrl", result.url);
+      setErrors((prev) => ({ ...prev, idCardImageUrl: "" }));
+      setStatusMessage({ text: "IDENTIFICATION IMAGE UPLOADED SUCCESSFULLY.", type: "success" });
+    } catch (error) {
+      console.error(error);
+      setErrors((prev) => ({ ...prev, idCardImageUrl: "IMAGE UPLOAD FAILED. TRY AGAIN." }));
+      setStatusMessage({ text: "FAILED TO UPLOAD IDENTIFICATION IMAGE.", type: "error" });
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   const handleFinalize = async () => {
     if (!user) return;
@@ -698,7 +754,60 @@ export default function TicketsClient() {
 
                     {activeStep === 3 && (
                        <div className="space-y-6">
-                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">PASTE THE DIRECT URL OF YOUR IDENTIFICATION IMAGE.</p>
+                          <p className="text-[#FDF5E6]/40 text-xs font-black uppercase font-heading tracking-widest">PASTE THE DIRECT URL OF YOUR IDENTIFICATION IMAGE OR UPLOAD IT DIRECTLY.</p>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                void handleImageUpload(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploadingImage}
+                              className={cn(
+                                "flex items-center justify-center gap-3 rounded-2xl border px-6 py-5 text-[10px] font-black uppercase tracking-[0.3em] font-heading transition-all",
+                                uploadingImage
+                                  ? "border-[#D4AF37]/10 bg-white/5 text-[#FDF5E6]/40 cursor-not-allowed"
+                                  : "border-[#D4AF37]/20 bg-[#D4AF37]/10 text-[#D4AF37] hover:border-[#D4AF37] hover:bg-[#D4AF37]/15"
+                              )}
+                            >
+                              {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                              {uploadingImage ? "UPLOADING IMAGE" : "UPLOAD IMAGE"}
+                            </button>
+
+                            {form.idCardImageUrl ? (
+                              <div className="relative overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-white/5 min-h-[120px]">
+                                <NextImage
+                                  src={form.idCardImageUrl}
+                                  alt="Identification preview"
+                                  fill
+                                  className="object-cover"
+                                />
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#1A0505] to-transparent px-4 py-3">
+                                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#FDF5E6] font-heading">
+                                    PREVIEW READY
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex min-h-[120px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 px-6 text-center">
+                                <div className="space-y-2">
+                                  <ImagePlus className="mx-auto h-6 w-6 text-[#D4AF37]/60" />
+                                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#FDF5E6]/30 font-heading">
+                                    JPG, PNG, WEBP OR GIF
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                           <input 
                             type="text"
                             value={form.idCardImageUrl}
@@ -712,7 +821,7 @@ export default function TicketsClient() {
                             )}
                           />
                           {(() => {
-                            const message = getFieldMessage("idCardImageUrl", "IDENTIFICATION IMAGE LINK VERIFIED.", "PASTE A PUBLIC HTTP OR HTTPS IMAGE URL.");
+                            const message = getFieldMessage("idCardImageUrl", "IDENTIFICATION IMAGE VERIFIED.", "UPLOAD AN IMAGE OR PASTE A PUBLIC HTTP OR HTTPS IMAGE URL.");
                             return (
                               <p className={cn(
                                 "text-[10px] font-black uppercase tracking-[0.3em] font-heading",
@@ -722,6 +831,9 @@ export default function TicketsClient() {
                               </p>
                             );
                           })()}
+                          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[#FDF5E6]/20 font-heading">
+                            LOCAL FILES ARE SECURELY UPLOADED BEFORE THE PASS IS GENERATED.
+                          </p>
                        </div>
                     )}
 
@@ -828,16 +940,16 @@ export default function TicketsClient() {
                      )}
                      <button 
                        onClick={activeStep === steps.length - 1 ? handleFinalize : handleNext}
-                       disabled={loading || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)}
+                       disabled={loading || uploadingImage || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)}
                        className={cn(
                          "flex-3 py-10 text-[#1A0505] font-black uppercase tracking-[0.4em] text-xs transition-all font-heading relative group overflow-hidden",
-                         loading || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)
+                         loading || uploadingImage || (!isCurrentStepValid && activeStep < steps.length - 1) || (activeStep === steps.length - 1 && !isFormValid)
                            ? "bg-linear-to-r from-[#6B5A22] via-[#8A7530] to-[#6B5A22] opacity-60 cursor-not-allowed"
                            : "bg-linear-to-r from-[#B8860B] via-[#D4AF37] to-[#B8860B] hover:tracking-[0.6em]"
                        )}
                      >
                        <div className="absolute inset-0 bg-white opacity-0 group-active:opacity-20 transition-opacity" />
-                       {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 
+                       {loading || uploadingImage ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 
                           (activeStep === steps.length - 1 ? "FINALIZE & MINT PASS" : "EXECUTE NEXT STEP")}
                      </button>
                   </div>
