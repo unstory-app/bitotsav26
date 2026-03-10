@@ -244,7 +244,7 @@ export default function TicketsClient() {
     type: "svg" as const,
     data: qrData,
     margin: 0,
-    image: "/logo.png",
+    image: "/assets/logo.png",
     qrOptions: {
       errorCorrectionLevel: "Q" as const,
       mode: "Byte" as const,
@@ -1241,7 +1241,7 @@ export default function TicketsClient() {
         </div>
 
         <div className="mt-20 text-center opacity-30">
-           <NextImage src="/logo.png" alt="Bitotsav" width={40} height={40} className="mx-auto grayscale mb-4" />
+           <NextImage src="/assets/logo.png" alt="Bitotsav" width={40} height={40} className="mx-auto grayscale mb-4" />
            <p className="text-[8px] font-black uppercase tracking-[0.8em] text-[#FDF5E6] font-heading">BITOTSAV MMXXVI // HERITAGE PROTOCOL</p>
         </div>
       </div>

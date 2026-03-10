@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   ShieldCheck,
   Ticket,
@@ -201,17 +200,13 @@ export default function ProfileContent() {
 
       {/* Sync Error Banner */}
       {syncError && (
-        <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto mb-12 p-6 bg-red-600/10 border-2 border-red-600 text-red-600 font-black italic uppercase tracking-tighter flex items-center gap-6 relative z-50"
-        >
+        <div className="max-w-2xl mx-auto mb-12 p-6 bg-red-600/10 border-2 border-red-600 text-red-600 font-black italic uppercase tracking-tighter flex items-center gap-6 relative z-50">
           <AlertTriangle className="w-10 h-10 shrink-0" />
           <div>
             <p className="text-xl mb-1 font-black underline font-heading">VALIDATION ERROR: ACCOUNT SYNC DELAYED</p>
             <p className="opacity-70 text-sm tracking-widest uppercase">{syncError}</p>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Header Section */}
@@ -239,11 +234,7 @@ export default function ProfileContent() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 mb-20 md:mb-32 relative z-10 flex flex-col lg:flex-row gap-10 md:gap-16 items-start">
         
         {hasUserTicket ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12 stamp-edge"
-          >
+          <div className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12 stamp-edge">
             <div className="absolute top-0 right-0 p-8 opacity-5">
                <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
             </div>
@@ -266,7 +257,7 @@ export default function ProfileContent() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     onClick={() => window.location.href = "/tickets"}
-                    className="flex-1 px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-[1.05] transition-all font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3"
+                    className="flex-1 px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors font-heading shadow-[10px_10px_0px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 hover:bg-[#e3bc45]"
                   >
                     <Ticket className="w-5 h-5" />
                     VIEW DIGITAL PASS
@@ -281,13 +272,9 @@ export default function ProfileContent() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12"
-          >
+          <div className="w-full max-w-4xl mx-auto bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-16 relative overflow-hidden mb-12">
             <div className="absolute top-0 right-0 p-8 opacity-5">
                <ShieldCheck className="w-64 h-64 text-[#D4AF37]" />
             </div>
@@ -310,7 +297,7 @@ export default function ProfileContent() {
                   </p>
                   <button 
                     onClick={handleCheckEligibility}
-                    className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-[1.05] transition-all font-heading"
+                    className="px-12 py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors font-heading hover:bg-[#e3bc45]"
                   >
                     GENERATE PASS NOW
                   </button>
@@ -337,7 +324,7 @@ export default function ProfileContent() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
   {/* Teams Section */}
@@ -360,7 +347,7 @@ export default function ProfileContent() {
                 </button>
                 <button 
                   onClick={() => setShowCreateModal(true)}
-                  className="flex-1 md:flex-none px-8 py-4 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all font-heading"
+                  className="flex-1 md:flex-none px-8 py-4 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest text-xs transition-colors font-heading hover:bg-[#e3bc45]"
                 >
                   CREATE TEAM
                 </button>
@@ -381,11 +368,7 @@ export default function ProfileContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {userTeams.map((team) => {
                 return (
-                  <motion.div 
-                    key={team.id}
-                    whileHover={{ y: -10 }}
-                    className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 relative overflow-hidden group"
-                  >
+                  <div key={team.id} className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                       <Users className="w-12 h-12" />
                     </div>
@@ -451,11 +434,7 @@ export default function ProfileContent() {
                         </div>
 
                         {selectedTeamDetails?.id === team.id && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            className="p-4 bg-white/5 border border-white/10 space-y-3"
-                          >
+                          <div className="p-4 bg-white/5 border border-white/10 space-y-3">
                             <p className="text-[8px] font-black uppercase tracking-widest text-[#D4AF37] font-heading">SQUADRON ROSTER</p>
                             {selectedTeamDetails.members.map(m => (
                               <div key={m.id} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
@@ -463,11 +442,11 @@ export default function ProfileContent() {
                                 <span className="text-[8px] font-black uppercase text-[#FDF5E6]/20 font-heading">{m.id === team.leaderId ? "COMMANDER" : "OPERATIVE"}</span>
                               </div>
                             ))}
-                          </motion.div>
+                          </div>
                         )}
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -487,14 +466,11 @@ export default function ProfileContent() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Community Link Card */}
-          <motion.a
+          <a
             href={SITE_CONFIG.whatsapp.community}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer"
+            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer transition-colors hover:bg-[#D4AF37]/10"
           >
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
               <MessageCircle className="w-32 h-32 text-[#D4AF37]" />
@@ -520,18 +496,14 @@ export default function ProfileContent() {
                 <MessageCircle className="w-4 h-4" />
               </div>
             </div>
-          </motion.a>
+          </a>
 
           {/* Helpdesk Link Card */}
-          <motion.a
+          <a
             href={SITE_CONFIG.whatsapp.helpdesk}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer"
+            className="bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 p-8 md:p-10 relative overflow-hidden group cursor-pointer transition-colors hover:bg-[#D4AF37]/10"
           >
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
               <ShieldCheck className="w-32 h-32 text-[#D4AF37]" />
@@ -557,7 +529,7 @@ export default function ProfileContent() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
             </div>
-          </motion.a>
+          </a>
         </div>
       </div>
 
@@ -566,15 +538,8 @@ export default function ProfileContent() {
       {/* Create Team Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl"
-            onClick={() => setShowCreateModal(false)}
-          />
-          <motion.div 
-            initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-            className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]"
-          >
+          <div className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl" onClick={() => setShowCreateModal(false)} />
+          <div className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]">
             <h3 className="text-4xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-8 font-heading">MINT NEW <span className="text-[#D4AF37]">SQUAD.</span></h3>
             <div className="space-y-6">
               <div className="space-y-2">
@@ -602,27 +567,20 @@ export default function ProfileContent() {
               </div>
               <button 
                 onClick={handleCreateTeam}
-                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all mt-4 font-heading"
+                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors mt-4 font-heading hover:bg-[#e3bc45]"
               >
                 LEGITIMIZE TEAM
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
 
       {/* Join Team Modal */}
       {showJoinModal && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl"
-            onClick={() => setShowJoinModal(false)}
-          />
-          <motion.div 
-            initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
-            className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]"
-          >
+          <div className="absolute inset-0 bg-[#1A0505]/95 backdrop-blur-xl" onClick={() => setShowJoinModal(false)} />
+          <div className="bg-[#1A0505] border-2 border-[#D4AF37] p-8 md:p-12 w-full max-w-lg relative z-10 shadow-[0_0_100px_rgba(212,175,55,0.1)]">
             <h3 className="text-4xl font-black italic text-[#FDF5E6] uppercase tracking-tighter mb-8 font-heading">RECRUITMENT <span className="text-[#D4AF37]">PORTAL.</span></h3>
             <div className="space-y-6">
               <div className="space-y-2">
@@ -638,29 +596,25 @@ export default function ProfileContent() {
               </div>
               <button 
                 onClick={handleJoinTeam}
-                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all mt-4 font-heading"
+                className="w-full py-6 bg-[#D4AF37] text-[#1A0505] font-black uppercase tracking-widest transition-colors mt-4 font-heading hover:bg-[#e3bc45]"
               >
                 JOIN ALLEGANCE
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
 
       {/* Status Toasts */}
       {statusMessage.text && (
-        <motion.div 
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 100 }}
-          className={cn(
+        <div className={cn(
             "fixed bottom-10 right-10 p-6 border-2 font-black uppercase tracking-widest text-sm z-200 font-heading",
             statusMessage.type === "success" ? "bg-green-600/10 border-green-600 text-green-600" : "bg-red-600/10 border-red-600 text-red-600"
           )}
           onClick={() => setStatusMessage({ text: "", type: "info" })}
         >
           {statusMessage.text}
-        </motion.div>
+        </div>
       )}
 
       <style jsx global>{`
