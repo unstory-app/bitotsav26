@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { stackServerApp } from "../stack/server";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next"
 
 const cinzel = localFont({
   src: "../../public/fonts/Cinzel-latin-normal-400900.woff2",
@@ -179,6 +180,7 @@ export default function RootLayout({
             <Footer />
           </StackTheme>
         </StackProvider>
+        <Analytics />
       </body>
     </html>
   );
