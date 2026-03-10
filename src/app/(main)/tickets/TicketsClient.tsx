@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type MutableRefObject } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, 
@@ -15,21 +15,25 @@ import {
   Phone,
   Eye,
   EyeOff,
-  Printer,
   Sparkles,
   Award,
   Fingerprint,
   QrCode,
   CheckCircle,
   Upload,
-  ImagePlus
+  ImagePlus,
+  Download,
+  MessageCircle,
+  ScanLine
 } from "lucide-react";
+import Link from "next/link";
 import NextImage from "next/image";
 import { useUser } from "@stackframe/stack";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getUser, updateUserDetails, createTicket, hasTicket } from "@/app/actions/user";
+import { SITE_CONFIG } from "@/config/site";
 
 const steps = [
   { id: "identity", title: "IDENTITY MINTING", icon: UserIcon, subtitle: "STEP 01 // PERSONAL SIGIL" },
@@ -57,7 +61,13 @@ export default function TicketsClient() {
   const [showPass, setShowPass] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const passExportRef = useRef<HTMLDivElement>(null);
+  const visibleQrRef = useRef<HTMLDivElement>(null);
+  const exportQrRef = useRef<HTMLDivElement>(null);
+  const visibleQrInstanceRef = useRef<any>(null);
+  const exportQrInstanceRef = useRef<any>(null);
 
   type FormField = keyof typeof form;
 
@@ -221,14 +231,95 @@ export default function TicketsClient() {
 
   const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
 
-  const qrData = hasUserTicket ? encodeURIComponent(JSON.stringify({ 
+  const qrData = hasUserTicket ? JSON.stringify({ 
     id: btoa(user?.primaryEmail || user?.id || ""), 
     name: dbUser?.displayName || user?.displayName || "Guest", 
     type: "HERITAGE_ARTISAN_PASS", 
     valid: true 
-  })) : "";
+  }) : "";
 
-  const qrUrl = hasUserTicket ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${qrData}&bgcolor=FDF5E6&color=1A0505&format=svg` : "";
+  const createQrOptions = (size: number) => ({
+    width: size,
+    height: size,
+    type: "svg" as const,
+    data: qrData,
+    margin: 0,
+    image: "/logo.png",
+    qrOptions: {
+      errorCorrectionLevel: "Q" as const,
+      mode: "Byte" as const,
+    },
+    imageOptions: {
+      crossOrigin: "anonymous",
+      hideBackgroundDots: true,
+      imageSize: 0.24,
+      margin: 8,
+    },
+    backgroundOptions: {
+      color: "#FDF5E6",
+    },
+    dotsOptions: {
+      type: "extra-rounded" as const,
+      gradient: {
+        type: "linear" as const,
+        rotation: Math.PI / 4,
+        colorStops: [
+          { offset: 0, color: "#1A0505" },
+          { offset: 1, color: "#D4AF37" },
+        ],
+      },
+    },
+    cornersSquareOptions: {
+      type: "extra-rounded" as const,
+      color: "#1A0505",
+    },
+    cornersDotOptions: {
+      type: "dot" as const,
+      color: "#B8860B",
+    },
+  });
+
+  useEffect(() => {
+    if (!hasUserTicket || !qrData) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const mountQr = async () => {
+      const { default: QRCodeStyling } = await import("qr-code-styling");
+
+      const attachQr = (
+        container: HTMLDivElement | null,
+        instanceRef: MutableRefObject<any>,
+        size: number
+      ) => {
+        if (!container || cancelled) {
+          return;
+        }
+
+        const options = createQrOptions(size);
+
+        if (!instanceRef.current) {
+          instanceRef.current = new QRCodeStyling(options);
+        } else {
+          instanceRef.current.update(options);
+        }
+
+        container.innerHTML = "";
+        instanceRef.current.append(container);
+      };
+
+      attachQr(visibleQrRef.current, visibleQrInstanceRef, 320);
+      attachQr(exportQrRef.current, exportQrInstanceRef, 220);
+    };
+
+    void mountQr();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasUserTicket, qrData, showPass]);
 
   const handleNext = () => {
     const field = formFields[activeStep];
@@ -246,6 +337,51 @@ export default function TicketsClient() {
     setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
   const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0));
+
+  const handleExportPdf = async () => {
+    if (!passExportRef.current) {
+      return;
+    }
+
+    setExportingPdf(true);
+    setStatusMessage({ text: "PREPARING YOUR PASS PDF...", type: "success" });
+
+    try {
+      if (exportQrRef.current && !exportQrInstanceRef.current) {
+        const { default: QRCodeStyling } = await import("qr-code-styling");
+        exportQrInstanceRef.current = new QRCodeStyling(createQrOptions(220));
+        exportQrRef.current.innerHTML = "";
+        exportQrInstanceRef.current.append(exportQrRef.current);
+      }
+
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
+      const canvas = await html2canvas(passExportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#f5ecd6",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? "landscape" : "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`bitotsav-pass-${user?.id?.slice(-8) ?? "ticket"}.pdf`);
+      setStatusMessage({ text: "PASS PDF DOWNLOADED.", type: "success" });
+    } catch (error) {
+      console.error(error);
+      setStatusMessage({ text: "FAILED TO EXPORT PASS PDF.", type: "error" });
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   const handleImageUpload = async (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -529,77 +665,223 @@ export default function TicketsClient() {
             </motion.div>
 
             {/* Interaction Sanctuary */}
-            <div className="w-full max-w-[450px] space-y-8 flex flex-col justify-center print:hidden">
-              <div className="space-y-4 text-center md:text-left">
-                <h4 className="text-[#D4AF37] text-xs font-black uppercase tracking-[0.4em] font-heading">REVEAL PROTOCOL</h4>
-                <p className="text-[#FDF5E6]/40 text-sm font-black uppercase tracking-widest leading-relaxed font-heading">
-                  Present your digital sigil to the gate wardens for lineage verification and entry confirmation.
-                </p>
-              </div>
+            <div className="w-full max-w-[450px] space-y-6 flex flex-col justify-center print:hidden">
+              <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-white/[0.03] p-8 md:p-10 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
+                <div className="space-y-4 text-center md:text-left">
+                  <div className="inline-flex items-center gap-3 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/10 px-4 py-2">
+                    <ScanLine className="h-4 w-4 text-[#D4AF37]" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#D4AF37] font-heading">ENTRY VERIFICATION</span>
+                  </div>
+                  <h4 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#FDF5E6] font-heading">
+                    DIGITAL <span className="text-[#D4AF37]">SIGIL.</span>
+                  </h4>
+                  <p className="text-[#FDF5E6]/45 text-sm font-black uppercase tracking-[0.22em] leading-relaxed font-heading">
+                    Clean scan, faster verification, and a festival-ready pass card that matches the Bitotsav theme.
+                  </p>
+                </div>
 
-              {/* Enhanced QR Section */}
-              <div className="relative">
-                <AnimatePresence>
-                  {!showPass && (
-                    <motion.button
-                      initial={{ opacity: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      onClick={() => setShowPass(true)}
-                      className="w-full aspect-square bg-[#D4AF37]/5 border-2 border-[#D4AF37]/20 flex flex-col items-center justify-center gap-6 group hover:bg-[#D4AF37]/10 transition-all rounded-[2.5rem]"
-                    >
-                      <div className="w-24 h-24 rounded-full bg-[#D4AF37] flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
-                        <Eye className="w-10 h-10 text-[#1A0505]" />
-                      </div>
-                      <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] font-heading animate-pulse">REVEAL DIGITAL SIGIL</p>
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-
-                <AnimatePresence>
-                  {showPass && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="relative"
-                    >
-                      <div className="bg-white p-6 rounded-[2.5rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] relative group overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                           <QrCode className="w-32 h-32 text-black" />
+                <div className="mt-8 relative">
+                  <AnimatePresence mode="wait">
+                    {!showPass ? (
+                      <motion.button
+                        key="reveal"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -16 }}
+                        onClick={() => setShowPass(true)}
+                        className="w-full rounded-[2rem] border border-[#D4AF37]/20 bg-linear-to-br from-[#D4AF37]/10 via-white/5 to-[#D4AF37]/5 p-8 text-left transition-all hover:border-[#D4AF37]/40 hover:shadow-[0_0_40px_rgba(212,175,55,0.12)]"
+                      >
+                        <div className="flex items-start justify-between gap-6">
+                          <div className="space-y-5">
+                            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#D4AF37] shadow-[0_0_50px_rgba(212,175,55,0.25)]">
+                              <Eye className="h-7 w-7 text-[#1A0505]" />
+                            </div>
+                            <div>
+                              <p className="text-[#D4AF37] text-[9px] font-black uppercase tracking-[0.4em] font-heading">READY TO REVEAL</p>
+                              <p className="mt-3 text-2xl font-black italic uppercase tracking-tighter text-[#FDF5E6] font-heading">
+                                OPEN YOUR SCAN PASS
+                              </p>
+                            </div>
+                          </div>
+                          <div className="rounded-2xl border border-[#D4AF37]/20 bg-[#1A0505]/60 p-4">
+                            <QrCode className="h-12 w-12 text-[#D4AF37]" />
+                          </div>
                         </div>
-                        <div className="relative w-full aspect-square">
-                          <NextImage 
-                            src={qrUrl} 
-                            alt="Validation Sigil" 
-                            fill
-                            className="grayscale hover:grayscale-0 transition-all duration-700 object-contain"
+                      </motion.button>
+                    ) : (
+                      <motion.div
+                        key="qr"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -16 }}
+                        className="rounded-[2rem] border border-[#D4AF37]/20 bg-linear-to-br from-[#f7efd8] via-[#FDF5E6] to-[#efe0b8] p-5 md:p-6 shadow-[0_30px_80px_rgba(0,0,0,0.35)]"
+                      >
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-[8px] font-black uppercase tracking-[0.35em] text-[#1A0505]/45 font-heading">AUTHENTICATED SCAN TOKEN</p>
+                            <p className="mt-2 text-xl font-black italic uppercase tracking-tighter text-[#1A0505] font-heading">
+                              PRESENT AT ENTRY DESK
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setShowPass(false)}
+                            className="rounded-full border border-[#1A0505]/10 px-4 py-2 text-[8px] font-black uppercase tracking-[0.35em] text-[#1A0505]/60 transition-all hover:border-[#1A0505]/30 hover:text-[#1A0505] font-heading"
+                          >
+                            HIDE
+                          </button>
+                        </div>
+
+                        <div className="rounded-[1.75rem] border border-[#1A0505]/10 bg-white/80 p-4 shadow-inner">
+                          <div
+                            ref={visibleQrRef}
+                            className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center overflow-hidden rounded-[1.5rem] bg-[#FDF5E6]"
                           />
                         </div>
-                        <button 
-                          onClick={() => setShowPass(false)}
-                          className="absolute -top-12 inset-x-0 mx-auto w-32 py-2 bg-[#1A0505] border border-[#D4AF37] text-[#D4AF37] text-[8px] font-black uppercase tracking-widest font-heading rounded-full"
-                        >
-                          CLOSE SIGIL
-                        </button>
-                      </div>
-                      <div className="mt-8 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-4">
-                         <Sparkles className="w-5 h-5 text-green-500" />
-                         <p className="text-green-500 text-[10px] font-black uppercase tracking-widest font-heading">REAL-TIME VALIDATION READY</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+
+                        <div className="mt-5 grid grid-cols-3 gap-3 text-center">
+                          <div className="rounded-2xl border border-[#1A0505]/10 bg-[#1A0505]/5 px-3 py-4">
+                            <p className="text-[7px] font-black uppercase tracking-[0.3em] text-[#1A0505]/40 font-heading">Status</p>
+                            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#1A0505] font-heading">Active</p>
+                          </div>
+                          <div className="rounded-2xl border border-[#1A0505]/10 bg-[#1A0505]/5 px-3 py-4">
+                            <p className="text-[7px] font-black uppercase tracking-[0.3em] text-[#1A0505]/40 font-heading">Edition</p>
+                            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#1A0505] font-heading">MMXXVI</p>
+                          </div>
+                          <div className="rounded-2xl border border-[#1A0505]/10 bg-[#1A0505]/5 px-3 py-4">
+                            <p className="text-[7px] font-black uppercase tracking-[0.3em] text-[#1A0505]/40 font-heading">Holder</p>
+                            <p className="mt-2 truncate text-[10px] font-black uppercase tracking-[0.2em] text-[#1A0505] font-heading">
+                              {(dbUser?.displayName || user?.displayName || "Guest").split(" ")[0]}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
-              {/* Utility Grid */}
-              <div className="grid grid-cols-1 gap-4">
-                <button 
-                  onClick={() => window.print()}
-                  className="w-full py-6 flex items-center justify-center gap-4 bg-white/5 border border-white/10 text-[#FDF5E6]/60 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-[#D4AF37] hover:text-[#1A0505] hover:border-transparent transition-all font-heading"
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <button
+                  onClick={handleExportPdf}
+                  disabled={exportingPdf}
+                  className={cn(
+                    "rounded-[1.5rem] border px-5 py-5 text-left transition-all font-heading",
+                    exportingPdf
+                      ? "border-white/10 bg-white/5 text-[#FDF5E6]/30 cursor-not-allowed"
+                      : "border-white/10 bg-white/5 text-[#FDF5E6]/70 hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/10 hover:text-[#FDF5E6]"
+                  )}
                 >
-                  <Printer className="w-4 h-4" />
-                  INITIATE PHYSICAL LOG
+                  <div className="flex items-center gap-3">
+                    {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    <span className="text-[9px] font-black uppercase tracking-[0.35em]">EXPORT PASS PDF</span>
+                  </div>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em] opacity-60">
+                    Download a clean PDF with your pass card and styled QR.
+                  </p>
                 </button>
+
+                <Link
+                  href={SITE_CONFIG.whatsapp.community}
+                  target="_blank"
+                  className="rounded-[1.5rem] border border-[#25D366]/30 bg-[#25D366]/10 px-5 py-5 text-left transition-all hover:border-[#25D366]/60 hover:bg-[#25D366]/15 font-heading"
+                >
+                  <div className="flex items-center gap-3 text-[#8CF5B3]">
+                    <MessageCircle className="h-4 w-4" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.35em]">JOIN WHATSAPP GROUP</span>
+                  </div>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#DFFFE9]/70">
+                    Use the community group for edit requests, updates, and pass help.
+                  </p>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="pointer-events-none fixed -left-[9999px] top-0 opacity-0">
+            <div ref={passExportRef} className="w-[1200px] overflow-hidden rounded-[40px] border-[10px] border-[#1A0505] bg-[#f5ecd6] p-10 text-[#1A0505]">
+              <div className="grid grid-cols-[1.15fr_0.85fr] gap-8">
+                <div className="overflow-hidden rounded-[32px] border border-[#1A0505]/15 bg-[#FDF5E6] p-8">
+                  <div className="flex items-start justify-between border-b border-[#1A0505]/10 pb-6">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[#1A0505]/45 font-heading">Bitotsav 2026 Verified Pass</p>
+                      <h3 className="mt-3 text-5xl font-black italic uppercase tracking-tighter font-heading">
+                        Heritage <span className="text-[#B8860B]">Artisan</span>
+                      </h3>
+                    </div>
+                    <div className="rounded-3xl bg-[#1A0505] p-4">
+                      <ShieldCheck className="h-10 w-10 text-[#D4AF37]" />
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-[220px_1fr] gap-8">
+                    <div className="relative aspect-square overflow-hidden rounded-[28px] border-4 border-[#1A0505]/10 bg-white/60">
+                      {dbUser?.idCardImageUrl || user?.profileImageUrl ? (
+                        <NextImage
+                          src={dbUser?.idCardImageUrl || user?.profileImageUrl || ""}
+                          alt="Member"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-7xl font-black italic text-[#1A0505]/10 font-heading">
+                          {(dbUser?.displayName || user?.displayName || user?.primaryEmail || "?")[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-8">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Artisan Name</p>
+                        <p className="mt-3 text-5xl font-black italic uppercase tracking-tighter font-heading">
+                          {dbUser?.displayName || user?.displayName || "Guest"}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="rounded-[24px] border border-[#1A0505]/10 bg-[#1A0505]/[0.03] p-5">
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Affiliation</p>
+                          <p className="mt-2 text-xl font-black uppercase tracking-[0.2em] font-heading">{isBitMesra ? "BIT MESRA" : dbUser?.collegeName || "CRAFTSMAN"}</p>
+                        </div>
+                        <div className="rounded-[24px] border border-[#1A0505]/10 bg-[#1A0505]/[0.03] p-5">
+                          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#1A0505]/35 font-heading">Roll Number</p>
+                          <p className="mt-2 text-xl font-black uppercase tracking-[0.2em] font-heading">{dbUser?.rollNo || "N/A"}</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-[24px] border border-[#D4AF37]/40 bg-[#D4AF37]/10 p-5">
+                        <p className="text-[9px] font-black uppercase tracking-[0.35em] text-[#1A0505]/45 font-heading">Entry Instructions</p>
+                        <p className="mt-3 text-sm font-black uppercase tracking-[0.2em] text-[#1A0505]/75 font-heading">
+                          Keep this PDF with you and present the QR code at the gate for verification.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[32px] border border-[#1A0505]/15 bg-[#1A0505] p-8 text-[#FDF5E6]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[#D4AF37]/60 font-heading">Scan Protocol</p>
+                  <h4 className="mt-3 text-4xl font-black italic uppercase tracking-tighter font-heading">
+                    Festival Entry QR
+                  </h4>
+                  <div className="mt-8 rounded-[28px] bg-[#FDF5E6] p-5">
+                    <div ref={exportQrRef} className="mx-auto flex h-[220px] w-[220px] items-center justify-center overflow-hidden rounded-[24px]" />
+                  </div>
+
+                  <div className="mt-8 grid gap-4">
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">Pass Holder</p>
+                      <p className="mt-2 text-lg font-black uppercase tracking-[0.2em] text-[#FDF5E6] font-heading">{dbUser?.displayName || user?.displayName || "Guest"}</p>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">Artifact ID</p>
+                      <p className="mt-2 text-lg font-black uppercase tracking-[0.2em] text-[#FDF5E6] font-heading">{user.id.slice(-8).toUpperCase()}</p>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-white/5 p-5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#D4AF37]/55 font-heading">WhatsApp Community</p>
+                      <p className="mt-2 text-sm font-black tracking-[0.08em] text-[#FDF5E6]/80 font-heading">{SITE_CONFIG.whatsapp.community}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
